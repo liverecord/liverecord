@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LinuxQuestions - живой форум про Линукс</title>
+    <style>
+
+        body {
+            background-color: #c4b0a9;
+            font-family: "Trebuchet MS", Arial;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            height: 100vh;
+        }
+
+        .flex-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flex-row {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .header  {
+            height: 10vh;
+            background-color: #095b93;
+        }
+
+        .body  {
+            height: 90vh;
+        }
+
+        .logo {
+            width: 20vw;
+        }
+        .categories {
+            width: 20vw;
+            background-color: #242834;
+        }
+
+        .categories .menu {
+            margin: 0px;
+            padding: 0px;
+        }
+        .categories .menu li a {
+            display: block;
+            min-height: 7vh;
+            color: #ffcc57;
+            text-decoration: none;
+            line-height: 7vh;
+            padding-left: 1vw;
+            font-size: 3vh;
+            border-bottom: solid 1px rgba(0,0,0,0.1);
+            opacity: 0.5;
+        }
+
+        .topics {
+            width: 80vw;
+            background: #eeeeee;
+        }
+
+        .topic {
+            margin-left: 1vw;
+            margin-right: 1vw;
+            margin-top: 1vh;
+            padding-bottom: 1vh;
+            border-bottom: solid 1px rgba(0,0,0,0.1);
+        }
+
+        .top-bar {font-size: 2vh;}
+        .top-bar  .search {
+            display: block;
+            margin-top: 1vh;
+            width: 70vw;font-size: 3vh;
+            background: transparent;
+            border:  solid 1px rgba(0,0,0,0.1);
+        }
+        .top-bar  .button {
+            display: block;
+            margin-top: 2vh;
+            width: 8vw;
+            padding-top: 1vh;
+            padding-bottom: 1vh;
+            padding-left: 1vw;
+            padding-right: 1vw;
+            background-color: #479ac2;
+            color: #ffcc57;
+            text-decoration: none;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container flex-column">
+        <div class="header flex-row">
+            <div class="logo">Logo</div>
+            <div class="top-bar flex-row">
+                <input type="search" title="Поиск" class="search">
+                <a href="#" class="button">Спросить</a>
+            </div>
+        </div>
+        <div class="body flex-row">
+            <div class="categories">
+                <ul class="menu">
+                    <li><a href="#">Начинающим</a></li>
+                    <li><a href="#">Десктоп</a></li>
+                    <li><a href="#">Сервер</a></li>
+                    <li><a href="#">Железо</a></li>
+                    <li><a href="#">Сети</a></li>
+                    <li><a href="#">Дистрибутивы</a></li>
+                    <li><a href="#">Облака</a></li>
+                    <li><a href="#">Программирование</a></li>
+                    <li><a href="#">Разное</a></li>
+                </ul>
+
+            </div>
+            <div class="topics">
+                <div class="topic flex-row">
+                    <div class="topic-status">
+                        !
+                    </div>
+                    <div class="topic-info">
+                        <a href="#">
+                            Как сделать то-то
+                        </a>
+                        <br>
+                        <small>
+                            Описание
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

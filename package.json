@@ -1,0 +1,22 @@
+{
+  "name": "liverecord",
+  "version": "0.0.1",
+  "private": true,
+  "config": {
+    "mongodb": {
+      "uri": "mongodb://127.0.0.1:27017/liveRecord"
+    }
+  },
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "death": "^1.0.0",
+    "github-slugger": "^1.1.1",
+    "limax": "^1.4.1",
+    "mongoose": "^4.6.6",
+    "socket.io": "^1.5.1",
+    "socket.io-emitter": "^1.0.0",
+    "socket.io-redis": "^1.1.1"
+  }
+}
