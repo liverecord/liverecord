@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-ng-app="app">
 <head>
     <meta charset="UTF-8">
     <title>LinuxQuestions - живой форум про Линукс</title>
@@ -62,6 +62,7 @@
         .topics {
             width: 80vw;
             background: #eeeeee;
+            overflow-y: scroll;
         }
 
         .topic {
@@ -93,9 +94,9 @@
             text-decoration: none;
         }
     </style>
-
+    <script src="/dist/j/main.1.js"></script>
 </head>
-<body>
+<body data-ng-controller="Main">
     <div class="container flex-column">
         <div class="header flex-row">
             <div class="logo">Logo</div>
@@ -105,32 +106,33 @@
             </div>
         </div>
         <div class="body flex-row">
-            <div class="categories">
+            <div class="categories" data-ng-controller="Categories">
                 <ul class="menu">
-                    <li><a href="#">Начинающим</a></li>
-                    <li><a href="#">Десктоп</a></li>
+
+                    <li ng-repeat="item in categories"><a href="#{{item.slug}}">{{item.name}}</a></li>
+                    <!-- li><a href="#">Десктоп</a></li>
                     <li><a href="#">Сервер</a></li>
                     <li><a href="#">Железо</a></li>
                     <li><a href="#">Сети</a></li>
                     <li><a href="#">Дистрибутивы</a></li>
                     <li><a href="#">Облака</a></li>
                     <li><a href="#">Программирование</a></li>
-                    <li><a href="#">Разное</a></li>
+                    <li><a href="#">Разное</a></li -->
                 </ul>
 
             </div>
-            <div class="topics">
-                <div class="topic flex-row">
+            <div class="topics" id="topics">
+                <div class="topic flex-row" ng-repeat="message in messages" scroll-if="item.id == first_unread_id">
                     <div class="topic-status">
                         !
                     </div>
                     <div class="topic-info">
                         <a href="#">
-                            Как сделать то-то
+                            {{message.title}}
                         </a>
                         <br>
                         <small>
-                            Описание
+                            {{message.body}}
                         </small>
                     </div>
 

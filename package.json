@@ -5,16 +5,33 @@
   "config": {
     "mongodb": {
       "uri": "mongodb://127.0.0.1:27017/liveRecord"
+    },
+    "webserver": {
+      "port": 8914
     }
   },
   "scripts": {
     "start": "node server/server.js"
   },
   "dependencies": {
+    "angular": "^1.5.8",
     "death": "^1.0.0",
+    "del": "^2.2.2",
+    "express": "^4.14.0",
     "github-slugger": "^1.1.1",
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-concat": "^2.6.0",
+    "gulp-filter": "^4.0.0",
+    "gulp-imagemin": "^3.1.1",
+    "gulp-ng-annotate": "^2.0.0",
+    "gulp-replace-task": "^0.11.0",
+    "gulp-sourcemaps": "^2.2.0",
+    "gulp-stylus": "^2.6.0",
+    "gulp-uglify": "^2.0.0",
     "limax": "^1.4.1",
     "mongoose": "^4.6.6",
+    "run-sequence": "^1.2.2",
     "socket.io": "^1.5.1",
     "socket.io-emitter": "^1.0.0",
     "socket.io-redis": "^1.1.1"

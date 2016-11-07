@@ -3,9 +3,15 @@
  */
 
 const mongoose = require("mongoose");
-
+const slug = require('limax');
 const CategorySchema = new mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        set: function(v) {
+            this.slug = slug(v);
+            return v;
+        }
+    },
     slug: String
 });
 
