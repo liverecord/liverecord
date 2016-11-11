@@ -21,6 +21,7 @@ var currentDeployId = 0;
 var paths = {
     scripts: [
         'node_modules/angular/angular.js',
+        'node_modules/angular-route/angular-route.js',
         'node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
         'client/js/**.js'
     ],
