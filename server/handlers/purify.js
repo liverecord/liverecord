@@ -37,7 +37,12 @@ DOMPurify.addHook('uponSanitizeElement', function(node, data) {
     console.log('node', node.nodeName);
     console.log('outerHTML', node.outerHTML);
     if (data.tagName === 'code') {
-        hljs.highlightBlock(node);
+        try {
+            hljs.highlightBlock(node);
+        } catch (e) {
+            console.log(e);
+        }
+
     }
     if (data.tagName === 'script') {
         //node.innerHTML = '<code>' + node.innerHTML + '</code>';
@@ -122,9 +127,18 @@ module.exports = function(str, strict) {
                     // knife party
                     var codeEnd = lcStr.indexOf('>', startIndex);
                     newStr += str.substr(pos, codeEnd - pos + 1);
-                    newStr += myEsc(str.substr(codeEnd+1, endIndex - codeEnd -1));
+                    var strForEscaping = str.substr(codeEnd+1, endIndex - codeEnd -1);
+                    if (strForEscaping) {
+                        newStr += myEsc(strForEscaping);
+                    }
                     newStr += '</code>';
                     pos = endIndex + 7;
+                    console.log('pos', pos);
+                } else {
+                    console.log('endIndex', endIndex);
+                    // tag is not closed
+                    newStr += '</code>';
+                    break;
                 }
             }
         }

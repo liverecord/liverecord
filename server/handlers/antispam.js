@@ -102,8 +102,8 @@ module.exports.processComment = function(savedComment) {
     html += '<table border="1" style="border-collapse: collapse;border-color: #8fa1b4" cellpadding="5" cellspacing="0">';
 
     if (classifications) {
-        var url = 'http://'+ process.env.npm_package_config_server_host +':';
-        url += process.env.npm_package_config_server_port + '/admin/teach/comments/' ;
+        var url = 'http://'+ process.env.npm_package_config_server_name;
+        url += '/admin/teach/comments/' ;
         url += savedComment._id + '/';
         classifications.forEach(function(item) {
             html += '<tr>';
