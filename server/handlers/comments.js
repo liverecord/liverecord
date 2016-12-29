@@ -18,7 +18,12 @@ function comments(socket, io, antiSpam, handleError) {
             'topic': {_id: ''}
         }, comment);
 
-        comment.body = purify(comment.body);
+        try {
+            comment.body = purify(comment.body);
+        } catch (e) {
+            comment.body = purify(comment.body, true);
+        }
+
 
         if (comment.body.length > 0) {
 
