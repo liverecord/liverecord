@@ -2,91 +2,75 @@
  * Created by zoonman on 11/6/16.
  */
 
-angular.module('app', [])
-    .service('Categories', function($q, $http) {
-        return function () {
+if(window.history && window.history.pushState){
+    // we are good
+} else {
+    if (window.confirm('Your browser is so old that stinks! Would like to update it now?')) {
+        window.location = 'http://browsehappy.com/?locale=en';
+    }
+}
 
-            var deferred = $q.defer();
-
-            $http.get('/api/categories').then(function(data) {
-                deferred.resolve(data.data);
-            });
-
-            return deferred.promise;
-        }
-    })
-    .service('IoTransport', function() {
-
-        return function () {
-            var socket = io.connect('/');
-            socket.on('news', function (data) {
-                console.log(data);
-                socket.emit('my other event', { my: 'data' });
-            });
-            return socket;
-        }
-    })
-    .controller('Main', function(IoTransport, $scope, $timeout, $window) {
-        var socket = IoTransport();
-        $scope.messages = [];
-
-        function getYOffset() {
-
-            var offset = scroll.yOffset;
-
-            if (isFunction(offset)) {
-                offset = offset();
-            } else if (isElement(offset)) {
-                var elem = offset[0];
-                var style = $window.getComputedStyle(elem);
-                if (style.position !== 'fixed') {
-                    offset = 0;
-                } else {
-                    offset = elem.getBoundingClientRect().bottom;
-                }
-            } else if (!isNumber(offset)) {
-                offset = 0;
-            }
-
-            return offset;
-        }
-
-        function scrollTo(elem) {
-            if (elem) {
-                elem.scrollIntoView();
-                var offset = getYOffset();
-                if (offset) {
-                    var elemTop = elem.getBoundingClientRect().top;
-                    $window.scrollBy(0, elemTop - offset);
-                }
-            } else {
-                $window.scrollTo(0, 0);
-            }
-        }
+// polyfill to get length
+Object.prototype.numberOfKeys = function(){
+    return Object.keys(this).length
+};
 
 
-        socket.on('thread', function(message) {
-            console.log(message);
-            $scope.messages.push(message);
-            $scope.$applyAsync(function() {
-                $timeout(function() {
-                    var c = document.getElementById('topics');
-                    if (c.lastElementChild) {
-                        c.lastElementChild.scrollIntoView();
-                    }
+var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage']);
 
-                }, 100);
+app.config([
+    '$locationProvider', '$routeProvider', '$localStorageProvider', '$sessionStorageProvider',
+    function($locationProvider, $routeProvider, $localStorageProvider, $sessionStorageProvider) {
+        $routeProvider.
+        when('/ask', {
+            controller: 'NewTopicCtrl',
+            templateUrl: '/dist/t/ask.tpl'
+        }).
+        when('/settings', {
+            controller: 'SettingsCtrl',
+            templateUrl: '/dist/t/settings.tpl'
+        }).
+        when('/users/:slug', {
+            controller: 'UsersCtrl',
+            controllerAs: 'uctl',
 
-            });
+            templateUrl: '/dist/t/users.tpl'
+        }).
+        when('/users/password/restore', {
+            controller: 'UsersPasswordRestoreCtrl',
+            controllerAs: 'uctl',
 
+            templateUrl: '/dist/t/users.password.restore.tpl'
+        }).
+        when('/:category/:topic', {
+            controller: 'TopicDetailsCtrl',
+            controllerAs: 'topic',
 
-        });
-    })
-    .controller('Categories', function($scope, Categories) {
-        $scope.categories = [];
-        Categories().then(function(data) {
-            $scope.categories = angular.copy(data);
+            templateUrl: '/dist/t/topic.tpl'
+        }).
+        when('/:category', {
+            controller: 'TopicStubCtrl',
+            controllerAs: 'topicList',
+            templateUrl: '/dist/t/topics.tpl'
+        }).
+        when('/', {
+            controller: 'WelcomeCtrl',
+            templateUrl: '/dist/t/welcome.tpl'
+        }).
+        otherwise('/');
+
+        $locationProvider.html5Mode({
+            enabled: true,
+            requireBase: false
         });
 
-    })
-    .run();
+        $localStorageProvider.setKeyPrefix('lr_');
+        $sessionStorageProvider.setKeyPrefix('lr_');
+    }
+]);
+
+app.run(function(PerfectScrollBar) {
+    PerfectScrollBar.setup('topics');
+    FastClick.attach(document.body);
+});
+

@@ -1,142 +1,75 @@
 <!DOCTYPE html>
-<html lang="en" data-ng-app="app">
+<html lang="ru" ng-app="app">
 <head>
     <meta charset="UTF-8">
     <title>LinuxQuestions - живой форум про Линукс</title>
-    <style>
-
-        body {
-            background-color: #c4b0a9;
-            font-family: "Trebuchet MS", Arial;
-            margin: 0;
-            box-sizing: border-box;
-        }
-
-        .container {
-            height: 100vh;
-        }
-
-        .flex-column {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .flex-row {
-            display: flex;
-            flex-direction: row;
-        }
-
-        .header  {
-            height: 10vh;
-            background-color: #095b93;
-        }
-
-        .body  {
-            height: 90vh;
-        }
-
-        .logo {
-            width: 20vw;
-        }
-        .categories {
-            width: 20vw;
-            background-color: #242834;
-        }
-
-        .categories .menu {
-            margin: 0px;
-            padding: 0px;
-        }
-        .categories .menu li a {
-            display: block;
-            min-height: 7vh;
-            color: #ffcc57;
-            text-decoration: none;
-            line-height: 7vh;
-            padding-left: 1vw;
-            font-size: 3vh;
-            border-bottom: solid 1px rgba(0,0,0,0.1);
-            opacity: 0.5;
-        }
-
-        .topics {
-            width: 80vw;
-            background: #eeeeee;
-            overflow-y: scroll;
-        }
-
-        .topic {
-            margin-left: 1vw;
-            margin-right: 1vw;
-            margin-top: 1vh;
-            padding-bottom: 1vh;
-            border-bottom: solid 1px rgba(0,0,0,0.1);
-        }
-
-        .top-bar {font-size: 2vh;}
-        .top-bar  .search {
-            display: block;
-            margin-top: 1vh;
-            width: 70vw;font-size: 3vh;
-            background: transparent;
-            border:  solid 1px rgba(0,0,0,0.1);
-        }
-        .top-bar  .button {
-            display: block;
-            margin-top: 2vh;
-            width: 8vw;
-            padding-top: 1vh;
-            padding-bottom: 1vh;
-            padding-left: 1vw;
-            padding-right: 1vw;
-            background-color: #479ac2;
-            color: #ffcc57;
-            text-decoration: none;
-        }
-    </style>
-    <script src="/dist/j/main.1.js"></script>
+<link rel="stylesheet" href="/dist/c/main.1.css" type="text/css" target="_self">
+<script src="/dist/j/main.1.js" type="application/javascript"></script>
 </head>
-<body data-ng-controller="Main">
-    <div class="container flex-column">
+<body data-ng-controller="MainCtrl">
+    <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
-            <div class="logo">Logo</div>
+            <div class="logo"><a href="/">LinuxQuestions.ru</a></div>
             <div class="top-bar flex-row">
-                <input type="search" title="Поиск" class="search">
-                <a href="#" class="button">Спросить</a>
+                <div class="slogan">Живой <i>ф</i>орум о свободных программах и операционных системах</div>
+                <div class="user flex-row">
+                    <div ng-if="user" class="flex-row">
+                        <div class="avatar"><img ng-src="{{user.picture}}" alt="" class="responsive avatar"></div>
+                        <div class="small">
+                            <div class="name">{{user.name}}</div>
+                            <div class="manage"><small><a href="/users/{{user.slug}}" >Профиль</a> <a href="/" ng-click="logout()">Выйти</a></small></div>
+                        </div>
+                    </div>
+                    <div ng-if="!user">
+                        <a href="/" class="button">Присоединиться</a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="body flex-row">
-            <div class="categories" data-ng-controller="Categories">
-                <ul class="menu">
-
-                    <li ng-repeat="item in categories"><a href="#{{item.slug}}">{{item.name}}</a></li>
-                    <!-- li><a href="#">Десктоп</a></li>
-                    <li><a href="#">Сервер</a></li>
-                    <li><a href="#">Железо</a></li>
-                    <li><a href="#">Сети</a></li>
-                    <li><a href="#">Дистрибутивы</a></li>
-                    <li><a href="#">Облака</a></li>
-                    <li><a href="#">Программирование</a></li>
-                    <li><a href="#">Разное</a></li -->
-                </ul>
-
-            </div>
-            <div class="topics" id="topics">
-                <div class="topic flex-row" ng-repeat="message in messages" scroll-if="item.id == first_unread_id">
-                    <div class="topic-status">
-                        !
-                    </div>
-                    <div class="topic-info">
-                        <a href="#">
-                            {{message.title}}
-                        </a>
-                        <br>
-                        <small>
-                            {{message.body}}
-                        </small>
-                    </div>
+            <div class="categories" data-ng-controller="CategoriesCtrl">
+                <div class="menu">
+                    <ul class="menu">
+                        <li ng-repeat="item in categories" ng-class="{active: item.active}"><a href="/{{item.slug}}">{{item.name}}</a></li>
+                    </ul>
+                    <a href="/ask" class="button" ng-show="user">Спросить</a>
 
                 </div>
+                <div class="settings" ng-show="user">
+                    <a href="/settings" ><i class="fa fa-cog" aria-hidden="true" ></i> Настройки</a>
+                </div>
+            </div>
+            <div class="topics-panel" data-ng-controller="TopicListCtrl">
+                <div class="topics" id="topics">
+                    <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages|  unique:'_id' | orderBy:'-updated'">
+                        <div class="topic-status">
+                            <div class="counter" ng-show="message.updates">{{message.updates}}</div>
+                        </div>
+                        <div class="topic-info">
+                            <a href="/{{ message.category.slug }}/{{ message.slug }}">
+                                {{message.title}}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="topics-switch" ng-show="user">
+                    <a href="" ng-click="newTopics()" ng-class="{active: topicSwitch == 'newTopics'}"><i class="fa fa-newspaper-o" aria-hidden="true" title="Новые вопросы"></i></a>
+                    <a href="" ng-click="recentlyViewed()" ng-class="{active: topicSwitch == 'recentlyViewed'}"><i class="fa fa-history" aria-hidden="true" title="Недавно просмотренные"></i></a>
+                    <a href="" ng-click="participated()" ng-class="{active: topicSwitch == 'participated'}"><i class="fa fa-comments" aria-hidden="true" title="Поучаствованные"></i></a>
+                    <a href="" ng-click="bookmarks()" ng-class="{active: topicSwitch == 'bookmarks'}"><i class="fa fa-bookmark" aria-hidden="true" title="Избранное"></i></a>
+                </div>
+            </div>
+
+            <div class="view-panel flex-row" ng-view="">
+                <p>Привет!</p>
+            </div>
+        </div>
+        <div class="connecting " ng-hide="websocketAlive">
+            <div class="flex-column center">
+                <div>живая конференция</div>
+                <h1>LinuxQuestions.ru</h1>
+                <div>Только вместе мы сделаем этот мир лучше.</div>
+                <div class="text-right"><small>подключаемся...</small></div>
             </div>
         </div>
     </div>

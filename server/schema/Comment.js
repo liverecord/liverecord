@@ -14,18 +14,33 @@
 
 const mongoose = require("mongoose");
 const CommentSchema = new mongoose.Schema({
-    post: {
+    topic: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post'
+        ref: 'Topic'
     },
     body: {
         type: String
     },
     created: { type: Date, default: Date.now },
+    updated: { type: Date, default: Date.now },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Person'
+        ref: 'User'
+    },
+    rating: {
+        type: Number,
+        default: 0
+    },
+    solution: {
+        type: Boolean,
+        default: false
+    },
+    spam: {
+        type: Boolean,
+        default: false
     }
 });
+CommentSchema.index({topic: 1});
+CommentSchema.index({user: 1});
 
 module.exports = mongoose.model('Comment', CommentSchema);

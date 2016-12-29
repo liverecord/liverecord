@@ -1,21 +1,57 @@
-var mongoose = require('mongoose');
-var death = require('death');
-var app = require('express')();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
+const mongoose = require('mongoose');
+const death = require('death');
+const express = require('express');
+const socketioJwt = require('socketio-jwt');
+const jwt = require('jsonwebtoken');
+const pick = require('object.pick');
+const gravatar = require('gravatar');
+const pw = require('credential')();
+const question = require('./handlers/question');
+const comments = require('./handlers/comments');
+const loginHandler = require('./handlers/login');
+const lrCategories = require('./handlers/categories');
+const topics = require('./handlers/topics');
+const userHandler = require('./handlers/users');
+const SocketIOFileUpload = require("socketio-file-upload");
+const sharp = require("sharp");
+const md5File = require('md5-file');
+const path = require('path');
+var fs = require('fs');
+//
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+//
+server.listen(process.env.npm_package_config_server_port, process.env.npm_package_config_server_host);
 
-server.listen(process.env.npm_package_config_webserver_port);
+console.log('Listening on http://'+ process.env.npm_package_config_server_host +':' + process.env.npm_package_config_server_port);
+
+const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
+const filesUploadDirectory = __dirname + '/public/' + filesPublicDirectory;
 
 app.get('/', function (req, res) {
     console.log(__dirname);
     res.sendFile(__dirname + '/public/index.html');
 });
-app.get('/dist/j/main.1.js', function (req, res) {
-    console.log(__dirname);
-    res.sendFile(__dirname + '/public/dist/j/main.1.js');
-});
 
+app.use('/', express.static(__dirname + '/public'));
+app.use(SocketIOFileUpload.router);
+
+/*
+app.get('/dist/*', function (req, res) {
+    console.log(__dirname);
+    console.log(req.path);
+    res.sendFile(__dirname + '/public/' + req.path);
+});*/
+
+
+// fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
+
+function errorHandler() {
+    console.trace(arguments[0]);
+    console.dir(arguments, {colors: true});
+}
 
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
@@ -24,64 +60,126 @@ mongooseConnection.on('error', console.error.bind(console, 'connection error:'))
 mongooseConnection.once('open', function() {
     // we're connected!
     var models = require('./schema');
+    const antiSpam = require('./handlers/antispam');
+    app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
 
-    io.on('connection', function (socket) {
-        socket.emit('news', { hello: 'world' });
-        socket.on('my other event', function (data) {
-            console.log(data);
+    // declare io handling
+    io
+    .on('connection', function(socket) {
+        // load categories
+        lrCategories(socket);
+        // todo: take it into module
+        loginHandler(socket, errorHandler);
+        topics(socket, errorHandler);
+        userHandler(socket, io, errorHandler);
+
+        var uploader = new SocketIOFileUpload();
+        uploader.dir = filesUploadDirectory;
+        uploader.listen(socket);
+        uploader.on("start", function(event) {
+            var extension = path.extname(event.file.name).toLowerCase().replace('.', '');
+
+            if (process.env.npm_package_config_files_extensions_blacklist
+                && process.env.npm_package_config_files_extensions_blacklist.indexOf(extension) > -1) {
+                uploader.abort(event.file.id, socket);
+            }
+            if (process.env.npm_package_config_files_extensions_whitelist
+                && process.env.npm_package_config_files_extensions_whitelist.indexOf(extension) === -1) {
+                uploader.abort(event.file.id, socket);
+            }
+        });
+        uploader.on("saved", function(event) {
+            console.log(event.file.meta);
+            if (event.file.success) {
+                //return;
+                md5File(event.file.pathName, function(err, hash) {
+                    if (err) {
+                        errorHandler(err);
+                    } else {
+                        var extension = path.extname(event.file.name).replace('.', '');
+                        if (extension) {
+                            function buildPath(hash) {
+                                return hash.substr(0, 3);
+                            }
+                            //
+                            if (!fs.existsSync(filesUploadDirectory + buildPath(hash))) {
+                                fs.mkdirSync(filesUploadDirectory + buildPath(hash));
+                            }
+
+                            var filePath = filesUploadDirectory + buildPath(hash) + '/'  + event.file.base + '.' + extension;
+                            var fileWebPath = '/' + filesPublicDirectory + buildPath(hash) + '/'  + event.file.base + '.' + extension;
+
+                            if (event.file.meta.avatar) {
+
+                                console.log('event.file', event.file);
+                                console.log('filePath', filePath);
+                                // resize
+                                sharp(event.file.pathName)
+                                    .resize(200, 200)
+                                    .crop(sharp.strategy.entropy)
+                                    .toFile(filePath, function(err, info) {
+                                        if (err) {
+                                            fs.unlink(event.file.pathName);
+                                            return errorHandler(err)
+                                        } else {
+                                            socket.emit(
+                                                'user.avatar',
+                                                {absoluteUrl : fileWebPath}
+                                            );
+                                            fs.unlink(event.file.pathName);// don't care when it is done
+                                        }
+                                    });
+                            } else {
+                                fs.renameSync(event.file.pathName, filePath);
+                                // save file info
+                                socket.emit(
+                                    'file.uploaded',
+                                    {
+                                        name: event.file.name,
+                                        size: event.file.size,
+                                        absoluteUrl : fileWebPath
+                                    }
+                                );
+                            }
+                        }
+                    }
+                });
+            }
         });
 
+        console.log('socketioJwt.authorize');
+        return socketioJwt.authorize({
+            secret: process.env.npm_package_config_jwt_secret,
+            required: false, // authorization is always not required
+            timeout: 5000 // 5 seconds to send the authentication message
+        })(socket);
+    })
+    .on('authenticated', function (socket) {
 
-        setInterval(function() {
-            if (socket)
-            socket.emit('thread', {
-                id: new Date(),
-                title: 'world',
-                body: (new Date()).toISOString()
-            });
-        }, 500);
+        console.log('authenticated', socket.decoded_token._id);
+        models.User.findById(socket.decoded_token._id, function (err, currentUser) {
+            var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug']);
+            // inform user
+            socket.emit('user', webUser);
+            socket.webUser = webUser;
+            // now have a user context and can work
+        });
+
+        comments(socket, io, antiSpam, errorHandler);
+
+        question(socket, io);
+        //userHandler(socket, io);
+
+
+
+
 
     });
 
-    app.get('/api/categories', function (req, res) {
-        models.Category.find({}).select('name slug').exec(function(err, data) {
-           res.json(data);
-           // socket.emit('news', { hello: 'lol' });
-        });
-
+    app.get('*', function (req, res) {
+        console.log(__dirname);
+        res.sendFile(__dirname + '/public/index.html');
     });
-
-
-        /*
-
-        var cat1 = new models.Category({
-            name: 'Начинающим'
-        });
-
-        cat1.save(function (err, fluffy) {
-            if (err) return console.error(err);
-        });
-
-
-        var u1 = new models.User({
-            name: 'Русское имя',
-            email: 'b122@g.com'
-        });
-
-        u1.save(function (err, fluffy) {
-            if (err) return console.error(err);
-        });
-
-
-        var p1 = new models.Post({
-            title: 'cool',
-            body: 'ddd'
-        });
-        p1.user = u1;
-        p1.save(function (err, fluffy) {
-            if (err) return console.error(err);
-        });*/
-
 
 });
 
@@ -98,7 +196,10 @@ death(function(signal, err) {
     }
 
     console.log(signal);
-    console.log(err);
+    if (err) {
+        console.log(err);
+    }
 
+    process.exit();
     return 0;
 });

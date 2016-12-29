@@ -1,0 +1,726 @@
+$blueDark = #303E4D
+$blueRegular = #578FCC
+$blueLight = #81A5D4
+$orange = #EBA36F
+$greenLight = #97A346
+$greenDark = #808942
+
+$lightGrey = #D5D8DE
+$normalGrey = #BCC9CE
+$darkGrey = #8E949F
+$lightColor = #F7FAFC
+
+
+$categoriesTopColor = rgb(36, 50, 64)
+$categoriesBottomColor = rgb(49, 68, 87)
+
+
+// golden ratio
+$PHI = 1.618
+
+
+$ONE = (100vw / (1+$PHI))
+$topicPanelWidth = $ONE * $PHI
+
+
+$topicsPanelWidth = ($ONE / ($PHI))
+$categoriesPanelWidth = $ONE / (1+$PHI)
+
+vertical-gradient(topColor, bottomColor)
+  background topColor
+  background -webkit-linear-gradient(topColor, bottomColor)
+  background -o-linear-gradient(topColor, bottomColor)
+  background -moz-linear-gradient(topColor, bottomColor)
+  background linear-gradient(topColor, bottomColor)
+
+@import "normalize.styl"
+
+body
+  background-color $lightColor
+  color $blueDark
+  font-family -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
+  margin 0
+  box-sizing border-box
+
+
+a
+  color $blueRegular
+
+button,input
+  font-family inherit
+  font-size inherit
+
+button,input[type=submit],input[type=reset]
+  background-color $blueRegular
+  border solid 1px $blueRegular
+  color white
+  padding 0.25em 1em
+  text-align center
+  text-decoration none
+  overflow hidden
+  text-overflow ellipsis
+  margin 0.1em
+  white-space nowrap
+
+button[disabled],input[type=submit][disabled],input[type=reset][disabled]
+  background-color desaturate($blueRegular, 20)
+
+input[type=text],
+input[type=password],
+input[type=email],
+input[type=tel],
+input[type=number]
+  border solid 1px $blueRegular
+  padding 0.3em 0.5em
+  margin 0.1em
+
+
+.flex-column 
+  display flex
+  flex-direction column
+
+
+.flex-row 
+  display flex
+  flex-direction row
+
+.container 
+  height 100vh
+
+.flex-column 
+  display flex
+  flex-direction column
+
+.flex-row
+  display flex
+  flex-direction row
+
+.flex-center
+  justify-content center
+
+.header  
+  height calc(3em + 1vh)
+  background-color lighten($blueDark, 5)
+
+
+.body  
+  height calc(99vh - 3em )
+
+body > .container  .body
+  opacity 0.1
+  transition opacity 100ms linear
+  cursor wait
+  z-index 1
+
+body > .container > .connecting
+  position fixed
+  left 0
+  top 0
+  width 100vw
+  height 100vh
+  display flex
+  align-content center
+  justify-content center
+  z-index 5
+  background-color alpha($blueDark, 0.9)
+  div.center
+    justify-content center
+    color $darkGrey
+    font-size 2vh
+    h1
+      color $orange
+      font-size 10vh
+      margin 1vh 0
+    .text-right
+      text-align right
+    small
+      color $greenDark
+
+body > .container.websocketAlive .body
+  opacity 1
+  cursor default
+
+.logo 
+  width $categoriesPanelWidth
+  height calc(3em + 1vh)
+  line-height calc(3em + 1vh)
+
+  text-align center
+  vertical-align middle
+  text-overflow ellipsis
+  overflow hidden
+
+.logo a 
+  text-decoration none
+  color $orange
+
+
+.categories
+  width $categoriesPanelWidth
+  background-color $blueDark
+  vertical-gradient(rgb(34, 46, 59), rgb(46, 63, 82))
+
+  overflow hidden
+  text-overflow ellipsis
+
+.categories > .menu
+  height calc(98vh - 6em)
+
+  .menu
+    margin 0
+    padding 0
+
+
+.categories > .settings
+  height calc(3em + 1vh)
+  border-top solid 1px rgba(255, 255, 255, 0.024)
+  line-height calc(3em + 1vh)
+  vertical-align middle
+  text-align center
+  color $darkGrey
+  transition all 500ms ease
+  &.ng-hide
+    line-height 0
+    opacity 0
+  a
+    color $darkGrey
+    text-decoration none
+
+.categories
+
+  ul.menu
+    text-overflow ellipsis
+    li
+      margin 0
+      padding-top 1vh
+
+      a
+        transition all ease 500ms
+        display block
+        min-height calc(1em + 1vh)
+        color rgb(143,161,180)
+        text-decoration none
+        line-height calc(1em + 3vh)
+        padding-left 2vw
+        font-size calc(0.8em + 1vh * 0.25)
+        border-left solid 0.0vw transparent
+        text-overflow ellipsis
+        overflow hidden
+        &:hover
+          color lighten(#578FCC, 20)
+
+
+    li.active
+      a
+        color lighten(#578FCC, 30)
+        border-left solid 0.5vw #578FCC
+        padding-left 1.5vw
+        background-color rgba(0,0,0,0.1)
+
+
+  .menu
+    .button
+      background-color $blueRegular
+      color white
+      padding 1vh 1vw
+      text-align center
+      text-decoration none
+      margin 2vw
+      display block
+      opacity 0.8
+
+
+.view-panel 
+  width $topicPanelWidth
+  background #F7FAFC
+
+.topics-panel
+  width: $topicsPanelWidth
+  background-color lighten($blueDark, 70)
+  vertical-gradient($categoriesTopColor, $categoriesBottomColor)
+  padding-top 1vh
+  overflow hidden
+
+  > .topics
+    height calc(97vh - 6em)
+    overflow-y auto
+    border-left solid 1px rgba(255,255,255,0.025)
+    margin-right 3px
+    position: relative
+    /*
+    &::-webkit-scrollbar
+      -webkit-appearance: none;
+      width: 8px;
+
+    &::-webkit-scrollbar-track
+      background-color: transparent;
+      border-radius: 8px;
+
+    &::-webkit-scrollbar-thumb
+      border-radius: 8px;
+      background-color: alpha($lightGrey, 0.10);
+
+    &::-webkit-scrollbar-thumb:hover
+      background-color: lighten($blueDark, 20);
+  */
+
+  > .topics-switch
+      height calc(3em + 1vh)
+      background-color rgb(63,	79,	99)
+      line-height calc(3em + 1vh)
+      vertical-align middle
+      text-align center
+      color $darkGrey
+      box-shadow 0 0 5px -2px #000000
+      transition all 500ms
+      opacity 1
+      &.ng-hide
+        line-height 0
+        opacity 0
+
+      a
+        padding 0 ($topicsPanelWidth/16)
+        color $darkGrey
+        height calc(3em + 1vh - 2px)
+        display inline-block
+      a.active
+        color white
+        border-bottom solid 2px $blueRegular
+        &::before
+          content ''
+          box-shadow 1px 1px 1px #fff
+
+  .topic-info
+    width $topicsPanelWidth
+  .topic-status
+    width 2vw
+    text-align center
+    display flex
+    flex-direction row
+    justify-content center
+    vertical-align middle
+    align-items center
+    .counter
+      font-size 0.75em
+      line-height 1em
+      display block
+      width 1em
+      height 1em
+      border-radius .5em
+      color $greenDark
+      background-color $blueDark
+      justify-content center
+
+  .topic
+
+    margin 0
+    padding 0
+    border-bottom solid 1px rgba(255,255,255,0.025)
+    font-size 1em
+
+    animation-name fadeInQuick
+    animation-iteration-count 1
+    animation-timing-function ease-out
+    animation-duration 100ms
+
+    a
+      display block
+      padding 1vh 1vw
+      padding-left 0
+      min-height 1em
+      color lighten($blueDark, 50)
+      word-break keep-all
+      hyphens auto
+      line-break auto
+      overflow hidden
+      text-overflow ellipsis
+
+    &.active
+      background rgb(48, 64,	80)
+      position relative
+      border-left solid 1px rgba(255,255,255,0.25)
+      a
+        color white
+
+    a
+      text-decoration none
+
+    small
+      color darken($blueDark, 10)
+      &.tag
+        color lighten($blueDark, 50)
+
+
+.topic-panel
+  width $topicPanelWidth
+
+
+@keyframes fadeInQuick 
+  0% 
+    height 0
+  100% 
+    height 2em
+
+.topic-info
+
+  p
+    color darken($blueDark, 10)
+
+.topic-info h1
+  margin-top 0
+
+
+.top-bar
+  font-size 1em
+
+  .slogan
+    display block
+    width 65vw
+    line-height calc(3em + 1vh)
+    color $greenDark
+
+
+  .user
+    margin-top 1vh
+    width 20vw
+    color $lightGrey
+    img.avatar
+      height 2.5em
+    .name
+      white-space nowrap
+      text-overflow ellipsis
+
+  .button
+    display block
+    padding-top 1vh
+    padding-bottom 1vh
+    padding-left 1vw
+    padding-right 1vw
+    background-color $blueRegular
+    color #fff
+    text-decoration none
+    cursor pointer
+
+.loggedIn .view-panel .topic-view .topic
+  height: calc(98vh - 6em);
+
+.view-panel
+  .wrapper
+    margin 1vh 1vw
+    #topic
+      position relative
+      height: calc(99vh - 4em);
+
+
+  &.ng-leave
+    opacity 0
+    width 0
+    overflow hidden
+
+  .topic-view
+    width 100%
+
+    > .topic
+      height: calc(98vh - 3em);
+      overflow-y auto
+      transition height ease 500ms
+      position: relative
+
+      img
+        max-width 40vw
+        max-height 90vh
+
+      .details
+        padding-top 1px
+        padding-bottom 1px
+        background-color lighten($blueDark, 70)
+        .topic-body
+          line-height 160%
+          white-space: pre-line
+        .topic-authoring
+          margin-top 1em
+          margin-bottom 1em
+          padding: 0.5vh
+          padding-top: 1em
+          line-height 3vh
+          border-top solid 1px lighten($blueDark, 60)
+          img
+            height 3vh
+            margin-left 0.5em
+            vertical-align middle
+          .col
+            margin-right 1em
+        pre
+          overflow auto
+    > .compose
+      height: calc(3em + 1vh);
+      line-height: calc(3em + 1vh)
+      background-color white
+      box-shadow 0 0 5px -2px #000000
+      overflow hidden
+      width $topicPanelWidth
+      transition height ease 500ms
+
+      button
+        border dotted 1px transparent
+        background-color white
+        -webkit-appearance none
+        cursor pointer
+        width $topicPanelWidth * 0.065
+        height calc(3em + 1vh)
+        text-align center
+        color $lightGrey
+      .controls
+        width $topicPanelWidth * 0.05
+        text-align center
+        button
+          color $lightGrey
+          border solid 2px $lightGrey
+          width 1.5em
+          height 1.5em
+          border-radius 1em
+          text-align center
+          padding 0
+      .send
+        width $topicPanelWidth * 0.1
+        text-align center
+        border-left solid 0 $lightGrey
+        button
+          width 100%
+          padding 0.25em 0
+          color $blueRegular
+          font-size 1em
+          text-align center
+        button[disabled]
+          color $lightGrey
+      .text
+        width $topicPanelWidth * 0.875
+
+        textarea
+          transition height ease 500ms
+          width $topicPanelWidth * 0.85
+          outline hidden
+          font-size inherit
+          height 2em
+          border none
+          padding 0
+          line-height  1em
+          margin-top calc(1em + 0.5vh)
+          resize none
+          outline 0
+
+
+    .details,.comments
+      padding-left 1vw
+      padding-right 1vw
+
+
+      h1
+        margin-top 1vh
+        padding-top 0
+
+    .comments
+      .comment
+        margin-bottom 1vh
+        margin-top 1vh
+        padding 1vh
+        .date
+          float right
+          font-weight 100
+          color lighten($blueDark, 50)
+          .time
+            font-size 0.8em
+            color lighten($blueDark, 70)
+            transition color ease 200ms
+        &:hover
+          .date
+            .time
+              color lighten($blueDark, 50)
+
+        .avatar
+          width 4vh
+          padding 0
+          img
+            height 3vh
+
+        .comment-details
+          width calc(100% - 4vh - 3vw)
+          .author
+            font-size 0.8em
+            margin-bottom 1vh
+            a
+              color $blueRegular
+              text-decoration none
+              font-weight 600
+          .text
+            white-space pre-wrap
+            color $blueDark
+        &.me
+          background-color transparent
+          .text
+            color lighten($blueDark, 20)
+    .typists
+      white-space nowrap
+      margin 0 auto
+      overflow hidden
+      text-align center
+      border-radius 3vh
+      line-height 3vh
+      font-size 2vh
+      min-width 3vh
+      padding 0.5vh
+      display inline-flex
+      justify-content center
+      .list
+        display inline-flex
+        opacity 1
+        transition:0.1s linear all;
+        &.ng-hide
+          opacity 0
+          transition:1s linear all;
+
+      .starter
+        padding-left 0.5vh
+        padding-right 0.5vh
+        color lighten($blueDark, 60)
+
+      .typist
+        &.ng-enter
+          transition:0.1s linear all;
+          opacity 0
+          img
+            width 0
+            opacity 0
+            height 0
+        &.ng-enter.ng-enter-active
+          opacity 1
+          img
+            width 3vh
+            height 3vh
+            opacity 1
+        &.ng-leave
+          transition:0.25s linear all;
+          opacity 1
+          img
+            width 3vh
+            height 3vh
+            opacity 1
+        &.ng-leave.ng-leave-active
+          opacity 0
+          img
+            width 0
+            opacity 0
+            height 0
+        img
+          height 3vh
+          width  3vh
+          border-radius 1.5vh
+          vertical-align middle
+          margin-right 0.5vh
+          opacity 1
+          transition:0.25s linear all;
+          &.ng-leave
+            opacity 0
+            height 0
+            width  0
+    &.advancedcompose
+      > .topic
+        height: calc(50vh - 6em);
+      > .compose
+        height: calc(3em + 49vh);
+        .text
+          textarea
+            height: calc(2em + 40vh);
+
+  .ask-form
+    h1
+      margin 1vmin
+    label
+      display block
+      width 10vw
+      margin 1vmin
+      padding 2px 3px
+
+    select,input,textarea,button
+
+      -webkit-appearance none
+      -moz-appearance none
+      font-size 1em
+      margin 1vmin
+      padding 1vh 1vw
+      font-family inherit
+      border-radius 3px
+    select,input,textarea
+      width 40vw
+      border solid 1px $normalGrey
+      color $blueDark
+      background-color ligten($lightColor, 10)
+
+    button
+      background-color $blueRegular
+      color $lightColor
+      border solid 1px $blueRegular
+
+  .preview
+    overflow auto
+    padding 1vmin
+    margin 1vmin
+    background rgba(250,250,250,0.1)
+    border dashed 1px rgba(0,0,0,0.1)
+    height 35vh
+    width  auto
+
+  .user-info
+    width 100%
+    h1
+      text-align center
+    div
+      text-align center
+  .user-topics
+    margin-left 1vw
+    .topic
+      margin-left 1vw
+
+  h1
+    margin-left 0
+    font-weight 200
+
+    pre, code
+      font-size 1em
+
+  .join
+    .welcoming
+      color $greenDark
+      text-shadow 0px 1px 1px white
+      font-size 1.5em
+      text-align center
+      font-style italic
+      padding 1em
+
+pre,code,.mono
+  font-family Consolas,monaco,monospace
+  tab-size: 4;
+  -moz-tab-size: 4;
+  -webkit-tab-size: 4;
+  -o-tab-size: 4;
+
+.signinform
+  padding 1vh 2vw
+  background-color lighten($blueDark, 70)
+  label
+    display inline-block
+    min-width 5em
+    width 5vw
+  input
+    font-family inherit
+    font-size inherit
+  .message
+    padding 0.5em
+    color $orange
+    background-color white
+
+import('user.styl')
+import('googlecode.styl')
+
+
+

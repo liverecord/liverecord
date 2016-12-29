@@ -18,7 +18,45 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    created: { type: Date, default: Date.now }
+    picture: String,
+    pw: {
+        hash: String,
+        salt: String,
+        keyLength: Number,
+        hashMethod: String,
+        iterations: Number
+    },
+    roles: [String],
+    created: { type: Date, default: Date.now },
+    updated: { type: Date, default: Date.now }
+
 });
 
+UserSchema.pre('save', function(next) {
+    var self = this, i = 0, originalSlug = this.slug;
+    function lookupSlug() {
+        mongoose.models["User"].count({'slug': self.slug}, function(err, count) {
+            if (count > 0) {
+                i++;
+                self.slug = originalSlug + (i.toString());
+                lookupSlug();
+            } else {
+                // do stuff
+                next();
+            }
+        });
+    }
+    lookupSlug();
+});
+
+UserSchema.index({slug: 1});
+
+/*
+* @param {String} hashObject.hash
+ @param {String} hashObject.salt
+ @param {Number} hashObject.keyLength Bytes in hash
+ @param {String} hashObject.hashMethod
+ @param {Number} hashObject.iterations
+*
+* */
 module.exports = mongoose.model('User', UserSchema); // register model
