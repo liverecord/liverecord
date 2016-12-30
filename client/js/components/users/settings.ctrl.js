@@ -2,7 +2,8 @@
  * Created by zoonman on 11/27/16.
  */
 
-app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage', function(socket, $scope, $rootScope, $localStorage) {
+app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage',  'PerfectScrollBar',
+function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar) {
     //
     $scope.l = {};
     $scope.sending = false;
@@ -66,5 +67,6 @@ app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage
         $scope.$applyAsync();
     }
     $scope.$applyAsync();
+    PerfectScrollBar.setup('wrapper');
 
 }]);

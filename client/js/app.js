@@ -15,6 +15,24 @@ Object.prototype.numberOfKeys = function(){
     return Object.keys(this).length
 };
 
+Array.prototype._idMerge = function(secondArray) {
+    for (var j = 0, jl = secondArray.length; j <jl; j++) {
+        var foundIndex = -1;
+        for (var i = 0, il = this.length; i < il; i++) {
+            if (secondArray[j].hasOwnProperty('_id') &&
+                this[i].hasOwnProperty('_id') &&
+                secondArray[j]._id === this[i]._id) {
+                foundIndex = i;
+            }
+        }
+        if (foundIndex > -1) {
+            this[foundIndex] = secondArray[j];
+        } else {
+            this.unshift(secondArray[j])
+        }
+    }
+    return this;
+};
 
 var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage']);
 

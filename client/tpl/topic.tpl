@@ -27,7 +27,7 @@
       <div class="comments-list" ng-init="firstUser=''" id="commentsList">
         <div class="comment flex-row"
              ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))"
-             ng-class="{me: comment.user._id === user._id}">
+             ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id }">
           <div class="avatar">
             <a href="/users/{{comment.user.slug}}"><img ng-src="{{comment.user.picture}}" class="img-responsive"
                  ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}"></a>

@@ -23,7 +23,7 @@ app.factory('CategoriesFactory', ['$q', 'socket', function ($q, socket) {
                     category.active = (category.slug && category.slug === slug);
                 });
                 console.log('actve cat', service.categories);
-
+                return service.categories;
             } else {
                 //
                 var activeCategory = null;

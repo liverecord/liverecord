@@ -158,7 +158,7 @@ mongooseConnection.once('open', function() {
 
         console.log('authenticated', socket.decoded_token._id);
         models.User.findById(socket.decoded_token._id, function (err, currentUser) {
-            var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug']);
+            var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug', 'roles']);
             // inform user
             socket.emit('user', webUser);
             socket.webUser = webUser;

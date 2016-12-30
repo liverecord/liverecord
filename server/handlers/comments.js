@@ -6,6 +6,7 @@ const Topic = models.Topic;
 const xtend = require('xtend');
 const CommentStruct = require('./envelope').comment;
 const TypingStruct = require('./envelope').typing;
+const TopicListStruct = require('./envelope').topicList;
 const purify = require('./purify');
 
 function comments(socket, io, antiSpam, handleError) {
@@ -41,7 +42,7 @@ function comments(socket, io, antiSpam, handleError) {
                         fn(CommentStruct(savedComment));
 
                         const details = [
-                            {path: 'category'}
+                            {path: 'category', options: {lean: true}}
                         ];
 
                         models.Topic.populate(foundTopic, details, function(err, detailedTopic) {
@@ -58,8 +59,16 @@ function comments(socket, io, antiSpam, handleError) {
                                 console.log('pComment', pComment);
 
                                 const detailedComment = CommentStruct(pComment);
-
                                 io.emit(channel, detailedComment);
+
+
+
+                                var foundTopic2 = JSON.parse(JSON.stringify(detailedTopic));
+                                foundTopic2.updated = savedComment.created;
+                                foundTopic2.updates = +(foundTopic2.user._id != savedComment.user._id);
+                                io.emit(channel, TopicListStruct([foundTopic2]));
+
+
                                 io.emit('topic:' + detailedTopic.slug, detailedComment);
                                 //}, 100);
                             }
@@ -87,6 +96,17 @@ function comments(socket, io, antiSpam, handleError) {
                                 $inc: {
                                     updates: 1
                                 },
+                                $set: {
+                                    updated: savedComment.created
+                                }
+                            }
+                        ).exec();
+
+                        models.Topic.update(
+                            {
+                                topic: foundTopic._id
+                            },
+                            {
                                 $set: {
                                     updated: savedComment.created
                                 }

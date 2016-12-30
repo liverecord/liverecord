@@ -1,6 +1,6 @@
 <div class="flex-column">
 
-  <div class="wrapper" id="wrapper">
+  <div class="wrapper" id="wrapper" style="position: relative">
     <h1>Настройки</h1>
 
     <div>

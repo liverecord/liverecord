@@ -317,11 +317,9 @@ body > .container.websocketAlive .body
     padding 0
     border-bottom solid 1px rgba(255,255,255,0.025)
     font-size 1em
+    border-left solid 1px rgba(255,255,255,0)
+    /**/
 
-    animation-name fadeInQuick
-    animation-iteration-count 1
-    animation-timing-function ease-out
-    animation-duration 100ms
 
     a
       display block
@@ -350,16 +348,59 @@ body > .container.websocketAlive .body
       &.tag
         color lighten($blueDark, 50)
 
+    &.ng-animate
+        animation-iteration-count 1
+        animation-duration 500ms
+    &.ng-enter
+        animation-name fadeInQuick
+        animation-timing-function ease
+    &.ng-leave
+        animation-name fadeOutQuick
+        animation-timing-function ease
+
+
+  /*
+
+  .animate-repeat.ng-move,
+.animate-repeat.ng-enter,
+.animate-repeat.ng-leave {
+  transition:all linear 0.5s;
+}
+
+.animate-repeat.ng-leave.ng-leave-active,
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter {
+  opacity:0;
+  max-height:0;
+}
+
+.animate-repeat.ng-leave,
+.animate-repeat.ng-move.ng-move-active,
+.animate-repeat.ng-enter.ng-enter-active {
+  opacity:1;
+  max-height:30px;
+}
+
+  */
 
 .topic-panel
   width $topicPanelWidth
 
-
 @keyframes fadeInQuick 
   0% 
     height 0
-  100% 
+    opacity  0
+  100%
     height 2em
+    opacity 1
+
+@keyframes fadeOutQuick
+  0%
+    height 2em
+    opacity 1
+  100%
+    height 0
+    opacity 0
 
 .topic-info
 
@@ -521,7 +562,7 @@ body > .container.websocketAlive .body
 
     .comments
       .comment
-        margin-bottom 1vh
+        margin-bottom 0vh
         margin-top 1vh
         padding 1vh
         .date
@@ -529,14 +570,14 @@ body > .container.websocketAlive .body
           font-weight 100
           color lighten($blueDark, 50)
           .time
-            font-size 0.8em
-            color lighten($blueDark, 70)
+            font-size 0.6em
+            color alpha($blueDark, 0.2)
             transition color ease 200ms
         &:hover
+          background-color rgba(0,0,0,0.01)
           .date
             .time
-              color lighten($blueDark, 50)
-
+              color alpha($blueDark, 50)
         .avatar
           width 4vh
           padding 0
@@ -556,9 +597,16 @@ body > .container.websocketAlive .body
             white-space pre-wrap
             color $blueDark
         &.me
-          background-color transparent
+
           .text
             color lighten($blueDark, 20)
+        &.lp
+          margin-top 0
+          margin-bottom 0
+          padding-top 0.5vh
+          padding-bottom 0.5vh
+        &.up + .comment.lp
+          margin-top -1vh
     .typists
       white-space nowrap
       margin 0 auto
@@ -722,5 +770,13 @@ pre,code,.mono
 import('user.styl')
 import('googlecode.styl')
 
+.text-center
+  text-align center
+
+.text-left
+  text-align left
+
+.text-right
+  text-align right
 
 

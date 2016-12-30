@@ -41,6 +41,7 @@
     "angular-sanitize": "^1.6.0",
     "async": "^2.1.2",
     "autoprefixer": "^6.5.3",
+    "bootstrap-styl": "^5.0.8",
     "credential": "^1.0.0",
     "death": "^1.0.0",
     "del": "^2.2.2",

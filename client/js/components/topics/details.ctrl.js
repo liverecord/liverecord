@@ -76,7 +76,7 @@ app.controller(
                 PerfectScrollBar.setup('topic');
 
                 $scope.commentText = $localStorage['topic_ct_' + $scope.topic._id] || '';
-                setActiveTopic();
+                //setActiveTopic();
                 $rootScope.$applyAsync();
 
                 break;
@@ -113,7 +113,7 @@ app.controller(
         }
     }
 
-    setActiveTopic();
+    //setActiveTopic();
 
 
 

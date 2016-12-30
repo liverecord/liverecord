@@ -31,6 +31,10 @@ const TopicSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    deleted: {
+        type: Boolean,
+        default: false
+    },
     spam: {
         type: Boolean,
         default: false

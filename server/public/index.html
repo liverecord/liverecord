@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>LinuxQuestions - живой форум про Линукс</title>
 <link rel="stylesheet" href="/dist/c/main.1.css" type="text/css" target="_self">
-<script src="/dist/j/main.1.js" type="application/javascript"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="/dist/j/main.1.js" type="application/javascript" charset="UTF-8"></script>
 </head>
 <body data-ng-controller="MainCtrl">
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
@@ -31,6 +32,7 @@
                 <div class="menu">
                     <ul class="menu">
                         <li ng-repeat="item in categories" ng-class="{active: item.active}"><a href="/{{item.slug}}">{{item.name}}</a></li>
+                        <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
                     <a href="/ask" class="button" ng-show="user">Спросить</a>
 
@@ -41,7 +43,7 @@
             </div>
             <div class="topics-panel" data-ng-controller="TopicListCtrl">
                 <div class="topics" id="topics">
-                    <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages|  unique:'_id' | orderBy:'-updated'">
+                    <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages | orderBy:'-updated' | unique:'_id' ">
                         <div class="topic-status">
                             <div class="counter" ng-show="message.updates">{{message.updates}}</div>
                         </div>
@@ -50,6 +52,10 @@
                                 {{message.title}}
                             </a>
                         </div>
+                    </div>
+                    <div class="pick-category" ng-hide="messages.length">
+                        <p class="text-center"><i class="fa fa-3x fa-hand-o-left" aria-hidden="true"></i></p>
+                        <p class="text-center">Выберите категорию</p>
                     </div>
                 </div>
                 <div class="topics-switch" ng-show="user">
