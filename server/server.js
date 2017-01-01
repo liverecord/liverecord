@@ -37,13 +37,6 @@ app.get('/', function (req, res) {
 app.use('/', express.static(__dirname + '/public'));
 app.use(SocketIOFileUpload.router);
 
-/*
-app.get('/dist/*', function (req, res) {
-    console.log(__dirname);
-    console.log(req.path);
-    res.sendFile(__dirname + '/public/' + req.path);
-});*/
-
 
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
@@ -168,11 +161,6 @@ mongooseConnection.once('open', function() {
         comments(socket, io, antiSpam, errorHandler);
 
         question(socket, io);
-        //userHandler(socket, io);
-
-
-
-
 
     });
 
@@ -180,7 +168,6 @@ mongooseConnection.once('open', function() {
         console.log(__dirname);
         res.sendFile(__dirname + '/public/index.html');
     });
-
 });
 
 // cleanup resources correctly
