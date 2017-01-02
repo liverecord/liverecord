@@ -108,7 +108,18 @@ function topics(socket, handleError) {
                                 {path: 'category'},
                                 {path: 'user', select: 'name picture slug'}
                             ]).then(function(populatedTopic) {
-                                socket.emit('topic:' + foundTopic.slug, TopicStruct(populatedTopic));
+                                models.Bookmark.findOne({topic: populatedTopic._id}).then(function(bookmark){
+                                    if (bookmark) {
+                                        populatedTopic.bookmark = bookmark;
+                                    } else {
+                                        populatedTopic.bookmark = false;
+                                    }
+                                    socket.emit('topic:' + foundTopic.slug, TopicStruct(populatedTopic));
+                                }).catch(function(reason) {
+                                    socket.emit('topic:' + foundTopic.slug, TopicStruct(populatedTopic));
+                                    handleError(reason);
+                                });
+                                
                             }, handleError);
                             //
                             models.Comment.find({
