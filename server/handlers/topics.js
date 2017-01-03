@@ -116,9 +116,9 @@ function topics(socket, handleError) {
                 case 'topic':
                     if (subscription.slug)
                     models.Topic.findOne({slug: subscription.slug, spam: false}).then(function(foundTopic) {
-                        console.info('foundTopic', foundTopic);
+                        //console.info('foundTopic', foundTopic);
                         socket.join('topic:' + foundTopic.slug, function() {
-                            console.info('joined', foundTopic.slug);
+                            //console.info('joined', foundTopic.slug);
                             // we can load it in parallel
                             models.Topic.populate(foundTopic, [
                                 {path: 'category'},
