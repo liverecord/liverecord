@@ -10,10 +10,10 @@ const purify = require('./purify');
 const hljs = require('highlight.js');
 
 
-function question(socket, io) {
+function question(socket, io, errorHandler) {
 
     socket.on('ask', function (question, fn) {
-        console.log('we got question!', question);
+        errorHandler('we got question!', question);
 
 
         question = xtend({
@@ -27,16 +27,16 @@ function question(socket, io) {
 
         var newTopic = new Topic(question);
 
-        console.log('decoded token: ', socket.decoded_token._id);
+        errorHandler('decoded token: ', socket.decoded_token._id);
 
         newTopic.user = socket.webUser;
 
-        console.log('new Topic: ', newTopic);
+        errorHandler('new Topic: ', newTopic);
 
         newTopic.save(function (err, savedTopic) {
             if (err) {
                 fn(err);
-                return console.error(err);
+                return errorHandler(err);
             } else {
                 fn(TopicStruct(savedTopic));
 
@@ -46,7 +46,7 @@ function question(socket, io) {
 
                 Topic.populate(savedTopic, details, function(err, detailedTopic) {
                     if (err) {
-                        console.log(err);
+                        errorHandler(err);
                     } else {
                         var channel = 'topics:' + detailedTopic.category.slug;
                         setTimeout(function() {

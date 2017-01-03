@@ -9,7 +9,7 @@ app.controller(
 
     $scope.sending = false;
     $scope.comments = [];
-    $scope.typists = {};
+    $scope.typists = [];
     $scope.commentText = '';
     $scope.advancedCompose = false;
     $scope.sendButtonActive = false;
@@ -26,7 +26,47 @@ app.controller(
         return ([8,9, 13].indexOf(keyCode) || (keyCode > 46 && keyCode));
     }
 
-    var typingTimeout;
+    function array_id_merge(firstArray, secondArray) {
+        var items = [], newItems = [];
+        items = items.concat(firstArray);
+        items = items.concat(secondArray);
+
+        var extractValueToCompare = function (item) {
+            if (angular.isObject(item)) {
+                return item['_id'];
+            } else {
+                return item;
+            }
+        };
+
+        angular.forEach(items, function (item) {
+            var isDuplicate = false;
+            for (var i = 0; i < newItems.length; i++) {
+                var a = extractValueToCompare(newItems[i]);
+                var b = extractValueToCompare(item);
+                if (angular.equals(a, b)) {
+                    isDuplicate = true;
+                }
+            }
+            if (!isDuplicate) {
+                newItems.push(item);
+            }
+        });
+        items = newItems;
+        return items;
+    }
+
+    function array_id_remove(inputArray, id) {
+        var items = [];
+        items = inputArray.filter(function(item) {
+            return item['_id'] !== id;
+        });
+
+        return items;
+    }
+
+
+    var typingTimeouts = {};
 
     socket.on('topic:' + $routeParams.topic, function(envelope) {
         console.log('topic:envelope', envelope);
@@ -36,18 +76,14 @@ app.controller(
                 $scope.comments = $scope.comments.concat(envelope.data);
                 break;
             case 'typing':
-                if (! $scope.typists[envelope.data._id]) {
-                    $scope.typists[envelope.data._id] = envelope.data;
-                    if (typingTimeout) {
-                        $timeout.cancel(typingTimeout);
-                    }
-                    typingTimeout = $timeout(function() {
-                        if ($scope.typists[envelope.data._id]) {
-                            delete $scope.typists[envelope.data._id];
-                            $scope.$applyAsync();
-                        }
-                    }, 3000);
+                $scope.typists = array_id_merge($scope.typists, envelope.data);
+                if (typingTimeouts[envelope.data._id]) {
+                    $timeout.cancel(typingTimeouts[envelope.data._id]);
                 }
+                typingTimeouts[envelope.data._id] = $timeout(function() {
+                        $scope.typists = array_id_remove($scope.typists, envelope.data._id);
+                }, 3000);
+
                 break;
             case 'comment':
                 $scope.comments.unshift(envelope.data);
@@ -64,10 +100,9 @@ app.controller(
                         }
                         Ps.update(topicCont);
                     }
-                    if ($scope.typists[envelope.data.user]) {
-                        delete $scope.typists[envelope.data.user];
-                        $scope.$applyAsync();
-                    }
+
+                        $scope.typists = array_id_remove($scope.typists, envelope.data.user);
+
                 }, 100);
                 break;
 
@@ -81,14 +116,7 @@ app.controller(
 
                 break;
         }
-        $scope.$applyAsync(function() {
-            /*$timeout(function() {
-             var c = document.getElementById('topics');
-             if (c && c.lastElementChild) {
-             c.lastElementChild.scrollIntoView();
-             }
-             }, 100);*/
-        });
+
     });
 
     socket.emit('subscribe', {
@@ -99,23 +127,6 @@ app.controller(
     $scope.$on('$destroy' ,function(event) {
         socket.off('topic:' + $routeParams.topic);
     });
-
-    function setActiveTopic() {
-        if ($rootScope.messages) {
-            console.log('$scope.$parent.messages', $rootScope.messages);
-            $rootScope.messages.forEach(function(topic) {
-                if (topic.slug === $routeParams.topic) {
-                    topic.active = true;
-                } else {
-                    topic.active = false;
-                }
-            })
-        }
-    }
-
-    //setActiveTopic();
-
-
 
     $scope.switchAdvancedCompose = function() {
         $scope.advancedCompose = ! $scope.advancedCompose;

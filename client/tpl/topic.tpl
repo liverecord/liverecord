@@ -1,8 +1,15 @@
 <div class="topic-view" ng-class="{advancedcompose: advancedCompose}">
   <div class="topic" id="topic">
     <div class="details">
-      <h1>{{topic.title}}</h1>
 
+
+      <div style="display: flex;align-items: center">
+
+        <div style="flex-grow: 1;"><h1>{{topic.title}}</h1></div>
+        <div>
+          <bookmark topic="topic"></bookmark>
+        </div>
+      </div>
 
       <div class="topic-body" ng-bind-html="topic.body">
       </div>
@@ -17,11 +24,12 @@
         <div class="col">
           <span class="date" title="{{topic.created | date: 'medium'}}">{{topic.created | date:'short'}}</span>
         </div>
+        <div class="col">
+        </div>
       </div>
     </div>
 
     <div class="comments">
-      <bookmark topic="topic"></bookmark>
 
 
       <div class="comments-list" ng-init="firstUser=''" id="commentsList">

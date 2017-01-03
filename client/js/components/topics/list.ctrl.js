@@ -57,13 +57,6 @@ app.controller('TopicListCtrl', ['socket', '$scope', '$timeout', '$routeParams',
         }
     }
 
-    CategoriesFactory.load().then(function() {
-        $rootScope.categories = CategoriesFactory.get();
-        $rootScope.categories = CategoriesFactory.active($routeParams.category);
-
-        $rootScope.$applyAsync();
-    });
-
     function array_id_merge(firstArray, secondArray, slug) {
         var items = [], newItems = [];
         items = items.concat(firstArray);
@@ -130,6 +123,8 @@ app.controller('TopicListCtrl', ['socket', '$scope', '$timeout', '$routeParams',
 
 
     $scope.newTopics = function() {
+        $rootScope.messages = [];
+
         socket.emit('subscribe', {
             type: 'section',
             section: 'newTopics'
@@ -138,6 +133,8 @@ app.controller('TopicListCtrl', ['socket', '$scope', '$timeout', '$routeParams',
     };
 
     $scope.recentlyViewed = function() {
+        $rootScope.messages = [];
+
         socket.emit('subscribe', {
             type: 'section',
             section: 'recentlyViewed'
@@ -146,6 +143,8 @@ app.controller('TopicListCtrl', ['socket', '$scope', '$timeout', '$routeParams',
     };
 
     $scope.participated = function() {
+        $rootScope.messages = [];
+
         socket.emit('subscribe', {
             type: 'section',
             section: 'participated'
@@ -154,6 +153,8 @@ app.controller('TopicListCtrl', ['socket', '$scope', '$timeout', '$routeParams',
     };
 
     $scope.bookmarks = function() {
+        $rootScope.messages = [];
+
         socket.emit('subscribe', {
             type: 'section',
             section: 'bookmarks'

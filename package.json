@@ -85,6 +85,7 @@
     "socketio-file-upload": "^0.5.2",
     "socketio-jwt": "^4.5.0",
     "socketio-jwt-auth": "0.0.5",
+    "sticky-session": "^1.1.2",
     "ucfirst": "^1.0.0",
     "validator": "^6.2.0",
     "web-push": "^3.2.1"

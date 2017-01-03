@@ -10,7 +10,7 @@
 <body data-ng-controller="MainCtrl">
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
-            <div class="logo"><a href="/">LinuxQuestions.ru</a></div>
+            <div class="logo"><a href="/">LinuxQuestions.ru<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a></div>
             <div class="top-bar flex-row">
                 <div class="slogan">Живой <i>ф</i>орум о свободных программах и операционных системах</div>
                 <div class="user flex-row">
@@ -49,7 +49,7 @@
                         </div>
                         <div class="topic-info">
                             <a href="/{{ message.category.slug }}/{{ message.slug }}">
-                                {{message.title}}
+                                <span>{{message.title | limitTo:100}}</span><span ng-show="message.title.length > 100">&hellip;</span>
                             </a>
                         </div>
                     </div>

@@ -10,6 +10,7 @@ const question = require('./handlers/question');
 const comments = require('./handlers/comments');
 const loginHandler = require('./handlers/login');
 const lrCategories = require('./handlers/categories');
+const bookmarks = require('./handlers/bookmarks');
 const topics = require('./handlers/topics');
 const userHandler = require('./handlers/users');
 const SocketIOFileUpload = require("socketio-file-upload");
@@ -160,7 +161,8 @@ mongooseConnection.once('open', function() {
 
         comments(socket, io, antiSpam, errorHandler);
 
-        question(socket, io);
+        question(socket, io, errorHandler);
+        bookmarks(socket, errorHandler);
 
     });
 

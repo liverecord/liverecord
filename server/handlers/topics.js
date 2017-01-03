@@ -92,6 +92,22 @@ function topics(socket, handleError) {
                             case 'newTopics':
                                 break;
                             case 'bookmarks':
+                                models.Bookmark
+                                    .find({user: socket.webUser._id}, {topic: 1})
+                                    .sort({created: -1})
+                                    .limit(TOPICS_PER_PAGE)
+                                    .lean()
+                                    .then(function(bookmarks) {
+                                        console.log(bookmarks); // [ { maxBalance: 98000 } ]
+                                        conditions = {
+                                            '_id': {
+                                                '$in' : bookmarks.map(function(el) {
+                                                    return el.topic;
+                                                })
+                                            }
+                                        };
+                                        getTopics(conditions, 'newbie');
+                                    });
                                 break;
                         }
                     }
@@ -108,15 +124,17 @@ function topics(socket, handleError) {
                                 {path: 'category'},
                                 {path: 'user', select: 'name picture slug'}
                             ]).then(function(populatedTopic) {
-                                models.Bookmark.findOne({topic: populatedTopic._id}).then(function(bookmark){
+                                var clonedTopic = JSON.parse(JSON.stringify(populatedTopic));
+                                models.Bookmark.findOne({topic: clonedTopic._id}).then(function(bookmark){
                                     if (bookmark) {
-                                        populatedTopic.bookmark = bookmark;
+                                        clonedTopic.bookmark = bookmark;
                                     } else {
-                                        populatedTopic.bookmark = false;
+                                        clonedTopic.bookmark = false;
                                     }
-                                    socket.emit('topic:' + foundTopic.slug, TopicStruct(populatedTopic));
+                                    socket.emit('topic:' + foundTopic.slug, TopicStruct(clonedTopic));
                                 }).catch(function(reason) {
-                                    socket.emit('topic:' + foundTopic.slug, TopicStruct(populatedTopic));
+                                    clonedTopic.bookmark = false;
+                                    socket.emit('topic:' + foundTopic.slug, TopicStruct(clonedTopic));
                                     handleError(reason);
                                 });
                                 
@@ -142,14 +160,16 @@ function topics(socket, handleError) {
                                 });
 
                         });
+                        if (socket.webUser) {
+                            models.TopicFanOut.update({
+                                    topic: foundTopic._id,
+                                    user: socket.webUser._id
+                                },
+                                {$set: {updates: 0}},
+                                {upsert: true}
+                            );
+                        }
 
-                        models.TopicFanOut.update({
-                                topic: foundTopic._id,
-                                user: socket.webUser._id
-                            },
-                            {$set: {updates: 0}},
-                            {upsert: true}
-                        );
                     }).catch(handleError);
 
                     break;

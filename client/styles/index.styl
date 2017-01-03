@@ -334,7 +334,7 @@ body > .container.websocketAlive .body
       text-overflow ellipsis
 
     &.active
-      background rgb(48, 64,	80)
+      background rgb(48, 64, 80)
       position relative
       border-left solid 1px rgba(255,255,255,0.25)
       a
@@ -391,12 +391,12 @@ body > .container.websocketAlive .body
     height 0
     opacity  0
   100%
-    height 2em
+    height calc(1em + 2vh + 2px)
     opacity 1
 
 @keyframes fadeOutQuick
   0%
-    height 2em
+    height calc(1em + 2vh + 2px)
     opacity 1
   100%
     height 0
@@ -780,3 +780,7 @@ import('googlecode.styl')
   text-align right
 
 
+bookmark
+  display inline-block
+  .bookmark-this-topic
+    font-size 100

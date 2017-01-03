@@ -2,25 +2,28 @@
  * Created by zoonman on 11/23/16.
  */
 
-exports.topicList = function(data) {
+exports.topicList = function(data, verb) {
   return {
       type: 'topicList',
+      verb: verb ? verb : 'add',
       data: data
   }
 };
 
 
-exports.topic = function(data) {
+exports.topic = function(data, verb) {
     return {
         type: 'topic',
+        verb: verb ? verb : 'add',
         data: data
     }
 };
 
 
-exports.comment = function(data) {
+exports.comment = function(data, verb) {
     return {
         type: 'comment',
+        verb: verb ? verb : 'add',
         data: data
     }
 };
