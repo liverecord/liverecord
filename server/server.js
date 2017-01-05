@@ -20,11 +20,16 @@ const path = require('path');
 var fs = require('fs');
 //
 const app = express();
+//
+const Raven = require('raven');
+Raven.config(process.env.npm_package_config_sentry_dsn).install();
+app.use(Raven.requestHandler());
+//
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 //
 server.listen(process.env.npm_package_config_server_port, process.env.npm_package_config_server_host);
-
+//
 console.log('Listening on http://'+ process.env.npm_package_config_server_host +':' + process.env.npm_package_config_server_port);
 
 const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
@@ -55,7 +60,9 @@ mongooseConnection.once('open', function() {
     // we're connected!
     var models = require('./schema');
     const antiSpam = require('./handlers/antispam');
+    const siteMap = require('./handlers/sitemap');
     app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
+    app.get('/sitemap.xml', siteMap.router);
 
     // declare io handling
     io
@@ -149,21 +156,26 @@ mongooseConnection.once('open', function() {
         })(socket);
     })
     .on('authenticated', function (socket) {
+        //console.log('authenticated', socket.decoded_token._id);
+        try {
+            models.User.findById(socket.decoded_token._id, function (err, currentUser) {
+                if (currentUser) {
+                    var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug', 'roles']);
+                    // inform user
+                    socket.emit('user', webUser);
+                    socket.webUser = webUser;
+                    // now have a user context and can work
+                    Raven.setContext({user: webUser});
+                    // handlers
+                    comments(socket, io, antiSpam, errorHandler);
+                    question(socket, io, errorHandler);
+                    bookmarks(socket, errorHandler);
+                }
+            });
 
-        console.log('authenticated', socket.decoded_token._id);
-        models.User.findById(socket.decoded_token._id, function (err, currentUser) {
-            var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug', 'roles']);
-            // inform user
-            socket.emit('user', webUser);
-            socket.webUser = webUser;
-            // now have a user context and can work
-        });
-
-        comments(socket, io, antiSpam, errorHandler);
-
-        question(socket, io, errorHandler);
-        bookmarks(socket, errorHandler);
-
+        } catch (e) {
+            Raven.captureException(e);
+        }
     });
 
     app.get('*', function (req, res) {

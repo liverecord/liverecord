@@ -22,6 +22,9 @@
       "sender": "Sender Name <name@example.com>",
       "transport": "smtps://user%40gmail.com:pass@smtp.gmail.com"
     },
+    "sentry": {
+      "dsn": ""
+    },
     "files": {
       "dir": "files",
       "extensions": {
@@ -77,6 +80,7 @@
     "object.pick": "^1.2.0",
     "object.pluck": "^0.1.2",
     "perfect-scrollbar": "^0.6.14",
+    "raven": "^1.1.1",
     "run-sequence": "^1.2.2",
     "sharp": "^0.17.0",
     "socket.io": "^1.5.1",
