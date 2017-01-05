@@ -4,8 +4,8 @@
 
 app.controller(
     'TopicDetailsCtrl',
-    ['socket', '$scope', 'CategoriesFactory', '$routeParams', '$timeout', 'PerfectScrollBar', '$localStorage', '$rootScope',
-        function(socket, $scope, CategoriesFactory, $routeParams, $timeout, PerfectScrollBar, $localStorage, $rootScope) {
+    ['socket', '$scope', 'CategoriesFactory', '$routeParams', '$timeout', 'PerfectScrollBar', '$localStorage', '$rootScope', '$document',
+        function(socket, $scope, CategoriesFactory, $routeParams, $timeout, PerfectScrollBar, $localStorage, $rootScope, $document) {
 
     $scope.sending = false;
     $scope.comments = [];
@@ -110,6 +110,7 @@ app.controller(
                 $scope.topic = angular.copy(envelope.data);
                 PerfectScrollBar.setup('topic');
 
+                $document[0].title = $scope.topic.title;
                 $scope.commentText = $localStorage['topic_ct_' + $scope.topic._id] || '';
                 //setActiveTopic();
                 $rootScope.$applyAsync();
