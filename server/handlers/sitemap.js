@@ -43,7 +43,7 @@ module.exports.router = function (req, res, next) {
                             tag('loc', 'http://'+ process.env.npm_package_config_server_name + '/' +
                                 item.category.slug + '/' +
                                 item.slug) +
-                            tag('lastmod', item.updated) +
+                            tag('lastmod', item.updated.toISOString()) +
                             tag('priority', 0.5) +
                             tag('changefreq', 'daily')
                         ));
