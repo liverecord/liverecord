@@ -18,6 +18,8 @@ const sharp = require("sharp");
 const md5File = require('md5-file');
 const path = require('path');
 var fs = require('fs');
+const webpush = require('web-push');
+
 //
 const app = express();
 //
@@ -52,6 +54,25 @@ function errorHandler() {
     console.dir(arguments, {colors: true});
 }
 
+const vapidFilePath = __dirname + '/'+ process.env.npm_package_config_webpush_vapid_keys_path;
+var vapidKeys;
+
+if (fs.existsSync(vapidFilePath)) {
+    var vapidRaw = fs.readFileSync(vapidFilePath);
+    if (vapidRaw) {
+        vapidKeys = JSON.parse(vapidRaw);
+    }
+} else {
+    vapidKeys = webpush.generateVAPIDKeys();
+    fs.appendFileSync(vapidFilePath, JSON.stringify(vapidKeys));
+}
+
+webpush.setVapidDetails(
+    'mailto:example@yourdomain.org',
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
+);
+
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
 var mongooseConnection = mongoose.connection;
@@ -71,7 +92,7 @@ mongooseConnection.once('open', function() {
         lrCategories(socket);
         // todo: take it into module
         loginHandler(socket, errorHandler);
-        topics(socket, errorHandler);
+        topics.socketHandler(socket, errorHandler);
         userHandler(socket, io, errorHandler);
 
         var uploader = new SocketIOFileUpload();
@@ -170,17 +191,53 @@ mongooseConnection.once('open', function() {
                     comments(socket, io, antiSpam, errorHandler);
                     question(socket, io, errorHandler);
                     bookmarks(socket, errorHandler);
+                    models.User.update(
+                        {_id: currentUser._id},
+                        {$set: {online: true, updated: Date.now()}},
+                        function(err, res) {
+                            if (err) return handleError(err);
+                        }
+                    );
                 }
             });
+            socket.on('push', function(pushObj, sc) {
 
+                console.log('pushObj', pushObj);
+
+                webpush.sendNotification(subscriber[2], 200, obj.key, JSON.stringify({
+                    action: 'init',
+                    name: subscriber[1]
+                }));
+
+
+                sc({success: true});
+            });
+
+            socket.on('disconnect', function(s) {
+                if (socket.webUser && socket.webUser._id) {
+                    models.User.update({_id: socket.webUser._id}, {'$set': {online: false, updated: Date.now()}}).exec();
+                }
+                console.log('Disconnected', s);
+            });
         } catch (e) {
             Raven.captureException(e);
         }
     });
 
+
+
+    app.get('/:category/:topic', topics.expressRouter);
     app.get('*', function (req, res) {
-        console.log(__dirname);
-        res.sendFile(__dirname + '/public/index.html');
+        fs.readFile(__dirname + '/public/index.html', 'utf8', function(err, indexData) {
+            if (err) return errorHandler(err);
+            indexData = indexData.replace('<title></title>', '<title>LinuxQuestions - живой форум про Линукс и свободные программы</title>');
+            res.writeHead(200, {
+                "Content-Type": "text/html;encoding: utf-8"
+            });
+            res.write(indexData);
+            res.end();
+
+        });
     });
 });
 

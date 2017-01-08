@@ -8,13 +8,13 @@ const TopicStruct = require('./envelope').topic;
 const xtend = require('xtend');
 const purify = require('./purify');
 const hljs = require('highlight.js');
+const mailer = require('./mailer');
 
 
 function question(socket, io, errorHandler) {
 
     socket.on('ask', function (question, fn) {
-        errorHandler('we got question!', question);
-
+        //errorHandler('we got question!', question);
 
         question = xtend({
             'title': 'Без названия',
@@ -27,11 +27,11 @@ function question(socket, io, errorHandler) {
 
         var newTopic = new Topic(question);
 
-        errorHandler('decoded token: ', socket.decoded_token._id);
+        //errorHandler('decoded token: ', socket.decoded_token._id);
 
         newTopic.user = socket.webUser;
 
-        errorHandler('new Topic: ', newTopic);
+        //errorHandler('new Topic: ', newTopic);
 
         newTopic.save(function (err, savedTopic) {
             if (err) {
@@ -69,6 +69,12 @@ function question(socket, io, errorHandler) {
                     {upsert: true}
                 );
             }
+        });
+
+        mailer({
+            to: 'zoonman@gmail.com',
+            subject: question.title,
+            html: '<div style="white-space: pre-line;">' + question.body + '</div>'
         });
     });
 }

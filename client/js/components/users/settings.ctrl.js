@@ -2,8 +2,8 @@
  * Created by zoonman on 11/27/16.
  */
 
-app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage',  'PerfectScrollBar',
-function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar) {
+app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage',  'PerfectScrollBar', 'wpf',
+function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar, wpf) {
     //
     $scope.l = {};
     $scope.sending = false;

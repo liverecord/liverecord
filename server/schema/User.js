@@ -29,7 +29,8 @@ const UserSchema = new mongoose.Schema({
     roles: [String],
     created: { type: Date, default: Date.now },
     updated: { type: Date, default: Date.now },
-    deleted: { type: Boolean, default: false}
+    deleted: { type: Boolean, default: false},
+    online: { type: Boolean, default: false}
 });
 
 UserSchema.pre('save', function(next) {
@@ -49,6 +50,12 @@ UserSchema.pre('save', function(next) {
     lookupSlug();
 });
 
+UserSchema.methods.hasRole = function(role) {
+    if (this.roles instanceof Array) {
+        return this.roles.indexOf(role) > -1;
+    }
+    return false;
+};
 UserSchema.index({slug: 1});
 
 /*
