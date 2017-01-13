@@ -34,7 +34,7 @@ Array.prototype._idMerge = function(secondArray) {
     return this;
 };
 
-var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage']);
+var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage',  '720kb.socialshare']);
 
 app.config([
     '$locationProvider', '$routeProvider', '$localStorageProvider', '$sessionStorageProvider',
@@ -68,7 +68,7 @@ app.config([
         }).
         when('/:category', {
             controller: 'TopicStubCtrl',
-            controllerAs: 'topicList',
+            controllerAs: 'topicStub',
             templateUrl: '/dist/t/topics.tpl'
         }).
         when('/', {

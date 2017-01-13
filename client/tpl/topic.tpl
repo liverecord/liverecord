@@ -15,16 +15,17 @@
       </div>
 
       <div class="flex-row topic-authoring">
-        <div class="col">
+        <div class="col author">
           <a href="/users/{{topic.user.slug}}"><img ng-src="{{topic.user.picture}}" class="img-responsive"></a>
         </div>
-        <div class="col">
+        <div class="col" style="flex-grow: 1">
           <a href="/users/{{topic.user.slug}}">{{topic.user.name}}</a>
         </div>
         <div class="col">
           <span class="date" title="{{topic.created | date: 'medium'}}">{{topic.created | date:'short'}}</span>
         </div>
         <div class="col">
+          <a href="#" ng-show="experimental" target="_blank"><i class="fa fa-share"></i></a>
         </div>
       </div>
     </div>

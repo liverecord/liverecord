@@ -67,7 +67,12 @@ function lrLogin(socket, handleError) {
 
                     var newUser = new models.User({
                         name: name,
-                        email: loginData.email
+                        email: loginData.email,
+                        settings: {
+                            notifications: {
+                                email: true
+                            }
+                        }
                     });
                     pw.hash(loginData.password, function(err, pwHash) {
                         if (err) {

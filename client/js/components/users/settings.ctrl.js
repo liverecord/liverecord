@@ -2,8 +2,8 @@
  * Created by zoonman on 11/27/16.
  */
 
-app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage',  'PerfectScrollBar', 'wpf',
-function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar, wpf) {
+app.controller('SettingsCtrl', ['socket', '$scope', '$rootScope', '$localStorage',  'PerfectScrollBar', 'wpf', '$document',
+function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar, wpf, $document) {
     //
     $scope.l = {};
     $scope.sending = false;
@@ -11,7 +11,8 @@ function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar, wpf) {
     $scope.profile = angular.copy($rootScope.user);
     $scope.$localStorage = $localStorage;
 
-
+    $document[0].title = 'Настройки';
+    $rootScope.experimental = $localStorage.experimental;
 
     console.log('init SettingsCtrl')
 
@@ -48,7 +49,7 @@ function(socket, $scope, $rootScope, $localStorage, PerfectScrollBar, wpf) {
             });
             uploadSocket.on('user.avatar', function(payload) {
                 console.log(payload);
-                $scope.profile.picture = window.location.protocol + '//' + window.location.host +  '/' + payload.absoluteUrl.replace(/^\//, '');
+                $scope.profile.picture = window.location.protocol + '//' + window.location.host +  '/' + encodeURI(payload.absolutePath.replace(/^\//, '') );
                 $scope.$applyAsync();
             });
         };

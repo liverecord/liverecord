@@ -13,15 +13,17 @@ const lrCategories = require('./handlers/categories');
 const bookmarks = require('./handlers/bookmarks');
 const topics = require('./handlers/topics');
 const userHandler = require('./handlers/users');
-const SocketIOFileUpload = require("socketio-file-upload");
+const uploadHandler = require('./handlers/upload');
 const sharp = require("sharp");
-const md5File = require('md5-file');
 const path = require('path');
-var fs = require('fs');
+const xtend = require('xtend');
+const fs = require('fs');
 const webpush = require('web-push');
-
 //
 const app = express();
+const SocketIOFileUpload = require("socketio-file-upload");
+
+process.on('uncaughtException', console.error);
 //
 const Raven = require('raven');
 Raven.config(process.env.npm_package_config_sentry_dsn).install();
@@ -34,13 +36,15 @@ server.listen(process.env.npm_package_config_server_port, process.env.npm_packag
 //
 console.log('Listening on http://'+ process.env.npm_package_config_server_host +':' + process.env.npm_package_config_server_port);
 
+
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
 const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
 const filesUploadDirectory = __dirname + '/public/' + filesPublicDirectory;
 
-app.get('/', function (req, res) {
-    console.log(__dirname);
-    res.sendFile(__dirname + '/public/index.html');
-});
+
 
 app.use('/', express.static(__dirname + '/public'));
 app.use(SocketIOFileUpload.router);
@@ -72,6 +76,7 @@ webpush.setVapidDetails(
     vapidKeys.publicKey,
     vapidKeys.privateKey
 );
+webpush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
 
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
@@ -97,77 +102,8 @@ mongooseConnection.once('open', function() {
 
         var uploader = new SocketIOFileUpload();
         uploader.dir = filesUploadDirectory;
-        uploader.listen(socket);
-        uploader.on("start", function(event) {
-            var extension = path.extname(event.file.name).toLowerCase().replace('.', '');
 
-            if (process.env.npm_package_config_files_extensions_blacklist
-                && process.env.npm_package_config_files_extensions_blacklist.indexOf(extension) > -1) {
-                uploader.abort(event.file.id, socket);
-            }
-            if (process.env.npm_package_config_files_extensions_whitelist
-                && process.env.npm_package_config_files_extensions_whitelist.indexOf(extension) === -1) {
-                uploader.abort(event.file.id, socket);
-            }
-        });
-        uploader.on("saved", function(event) {
-            console.log(event.file.meta);
-            if (event.file.success) {
-                //return;
-                md5File(event.file.pathName, function(err, hash) {
-                    if (err) {
-                        errorHandler(err);
-                    } else {
-                        var extension = path.extname(event.file.name).replace('.', '');
-                        if (extension) {
-                            function buildPath(hash) {
-                                return hash.substr(0, 3);
-                            }
-                            //
-                            if (!fs.existsSync(filesUploadDirectory + buildPath(hash))) {
-                                fs.mkdirSync(filesUploadDirectory + buildPath(hash));
-                            }
-
-                            var filePath = filesUploadDirectory + buildPath(hash) + '/'  + event.file.base + '.' + extension;
-                            var fileWebPath = '/' + filesPublicDirectory + buildPath(hash) + '/'  + event.file.base + '.' + extension;
-
-                            if (event.file.meta.avatar) {
-
-                                console.log('event.file', event.file);
-                                console.log('filePath', filePath);
-                                // resize
-                                sharp(event.file.pathName)
-                                    .resize(200, 200)
-                                    .crop(sharp.strategy.entropy)
-                                    .toFile(filePath, function(err, info) {
-                                        if (err) {
-                                            fs.unlink(event.file.pathName);
-                                            return errorHandler(err)
-                                        } else {
-                                            socket.emit(
-                                                'user.avatar',
-                                                {absoluteUrl : fileWebPath}
-                                            );
-                                            fs.unlink(event.file.pathName);// don't care when it is done
-                                        }
-                                    });
-                            } else {
-                                fs.renameSync(event.file.pathName, filePath);
-                                // save file info
-                                socket.emit(
-                                    'file.uploaded',
-                                    {
-                                        name: event.file.name,
-                                        size: event.file.size,
-                                        absoluteUrl : fileWebPath
-                                    }
-                                );
-                            }
-                        }
-                    }
-                });
-            }
-        });
+        uploadHandler(socket, uploader, filesUploadDirectory, filesPublicDirectory, errorHandler);
 
         console.log('socketioJwt.authorize');
         return socketioJwt.authorize({
@@ -181,7 +117,7 @@ mongooseConnection.once('open', function() {
         try {
             models.User.findById(socket.decoded_token._id, function (err, currentUser) {
                 if (currentUser) {
-                    var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug', 'roles']);
+                    var webUser = pick(currentUser, ['_id', 'name', 'email', 'picture', 'slug', 'roles',  'settings']);
                     // inform user
                     socket.emit('user', webUser);
                     socket.webUser = webUser;
@@ -204,10 +140,25 @@ mongooseConnection.once('open', function() {
 
                 console.log('pushObj', pushObj);
 
-                webpush.sendNotification(subscriber[2], 200, obj.key, JSON.stringify({
-                    action: 'init',
-                    name: subscriber[1]
-                }));
+                const pushSubscription = {
+                    endpoint: pushObj.subscription.endpoint,
+                    keys: {
+                        p256dh: pushObj.subscription.p256dh,
+                        auth: pushObj.subscription.auth
+                    }
+                };
+
+                const payload = JSON.stringify({
+                    action: 'subscribe',
+                    name: 'KOOL'
+                });
+
+                setTimeout(function() {
+                    webpush.sendNotification(
+                        pushSubscription,
+                        payload
+                    );
+                }, 10000);
 
 
                 sc({success: true});

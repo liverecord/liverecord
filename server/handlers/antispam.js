@@ -50,7 +50,7 @@ function registerSpamClassifierSaver(classifier) {
     classifier.stemmer = natural.PorterStemmerRu;
 
     classifier.events.on('doneTraining', function(obj) {
-        console.log('training is done!', obj);
+        console.log('training is done!');
         ClassifierModel.update(
             {
                 classifier: classifierName
@@ -66,7 +66,7 @@ function registerSpamClassifierSaver(classifier) {
 }
 
 ClassifierModel.findOne({classifier: classifierName}).then(function(doc) {
-    console.log('edoc', doc);
+    //console.log('edoc', doc);
     if (doc) {
         classifier = natural.BayesClassifier.restore(JSON.parse(doc.data));
         registerSpamClassifierSaver(classifier);

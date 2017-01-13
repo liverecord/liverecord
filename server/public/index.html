@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="/dist/c/main.1.css" type="text/css" target="_self">
     <meta http-equiv="cleartype" content="on">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <script src="/dist/j/main.1.js" type="application/javascript" charset="UTF-8"></script>
+    <script src="/ga.js" type="application/javascript" charset="UTF-8"></script>
 </head>
 <body data-ng-controller="MainCtrl">
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
@@ -22,7 +24,7 @@
                         <div class="avatar"><img ng-src="{{user.picture}}" alt="" class="responsive avatar"></div>
                         <div class="small">
                             <div class="name">{{user.name}}</div>
-                            <div class="manage"><small><a href="/users/{{user.slug}}" >Профиль</a> <a href="/" ng-click="logout()">Выйти</a></small></div>
+                            <div class="manage"><small><a href="/users/{{user.slug}}" >Профиль</a> <a href="/" ng-click="logout()"><i class="fa fa-sign-out"></i></a></small></div>
                         </div>
                     </div>
                     <div ng-if="!user">
@@ -35,7 +37,7 @@
             <div class="categories" data-ng-controller="CategoriesCtrl">
                 <div class="menu">
                     <ul class="menu">
-                        <li ng-repeat="item in categories" ng-class="{active: item.active}"><a href="/{{item.slug}}">{{item.name}}</a></li>
+                        <li ng-repeat="item in categories" ng-class="{active: item.active}"><a href="/{{::item.slug}}">{{::item.name}}</a></li>
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
                     <a href="/ask" class="button" ng-show="user">Спросить</a>
@@ -48,11 +50,11 @@
                 <div class="topics" id="topics">
                     <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages | orderBy:'-updated' | unique:'_id' ">
                         <div class="topic-status">
-                            <div class="counter" ng-show="message.updates">{{message.updates}}</div>
+                            <div class="counter" ng-show="message.updates">{{::message.updates}}</div>
                         </div>
                         <div class="topic-info">
-                            <a href="/{{ message.category.slug }}/{{ message.slug }}">
-                                <span>{{message.title | limitTo:100}}</span><span ng-show="message.title.length > 100">&hellip;</span>
+                            <a href="/{{ ::message.category.slug }}/{{ ::message.slug }}" title="{{message.title}}">
+                                <span>{{::message.title | limitTo:100}}</span><span ng-show="::message.title.length > 100">&hellip;</span>
                             </a>
                         </div>
                     </div>
@@ -63,8 +65,8 @@
                 </div>
                 <div class="topics-switch" ng-show="user">
                     <a href="" ng-click="newTopics()" ng-class="{active: topicSwitch == 'newTopics'}"><i class="fa fa-newspaper-o" aria-hidden="true" title="Новые вопросы"></i></a>
-                    <a href="" ng-click="recentlyViewed()" ng-class="{active: topicSwitch == 'recentlyViewed'}"><i class="fa fa-history" aria-hidden="true" title="Недавно просмотренные"></i></a>
-                    <a href="" ng-click="participated()" ng-class="{active: topicSwitch == 'participated'}"><i class="fa fa-comments" aria-hidden="true" title="Поучаствованные"></i></a>
+                    <a href="" ng-show="experimental" ng-click="recentlyViewed()" ng-class="{active: topicSwitch == 'recentlyViewed'}"><i class="fa fa-history" aria-hidden="true" title="Недавно просмотренные"></i></a>
+                    <a href="" ng-show="experimental" ng-click="participated()" ng-class="{active: topicSwitch == 'participated'}"><i class="fa fa-comments" aria-hidden="true" title="Поучаствованные"></i></a>
                     <a href="" ng-click="bookmarks()" ng-class="{active: topicSwitch == 'bookmarks'}"><i class="fa fa-bookmark" aria-hidden="true" title="Избранное"></i></a>
                 </div>
             </div>

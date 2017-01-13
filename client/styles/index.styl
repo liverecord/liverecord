@@ -26,6 +26,9 @@ $topicPanelWidth = $ONE * $PHI
 $topicsPanelWidth = ($ONE / ($PHI))
 $categoriesPanelWidth = $ONE / (1+$PHI)
 
+$fastAnimationDuration = 100ms
+$slowAnimationDuration = 300ms
+
 vertical-gradient(topColor, bottomColor)
   background topColor
   background -webkit-linear-gradient(topColor, bottomColor)
@@ -108,7 +111,7 @@ input[type=number]
 
 body > .container  .body
   opacity 0.1
-  transition opacity 100ms linear
+  transition opacity $fastAnimationDuration linear
   cursor wait
   z-index 1
 
@@ -178,7 +181,7 @@ body > .container.websocketAlive .body
   vertical-align middle
   text-align center
   color $darkGrey
-  transition all 500ms ease
+  transition all $slowAnimationDuration ease
   &.ng-hide
     line-height 0
     opacity 0
@@ -195,7 +198,7 @@ body > .container.websocketAlive .body
       padding-top 1vh
 
       a
-        transition all ease 500ms
+        transition all ease $slowAnimationDuration
         display block
         min-height calc(1em + 1vh)
         color rgb(143,161,180)
@@ -272,7 +275,7 @@ body > .container.websocketAlive .body
       text-align center
       color $darkGrey
       box-shadow 0 0 5px -2px #000000
-      transition all 500ms
+      transition all $slowAnimationDuration
       opacity 1
       &.ng-hide
         line-height 0
@@ -349,14 +352,15 @@ body > .container.websocketAlive .body
         color lighten($blueDark, 50)
 
     &.ng-animate
+        transition:all
         animation-iteration-count 1
-        animation-duration 500ms
+        animation-duration $slowAnimationDuration
     &.ng-enter
         animation-name fadeInQuick
-        animation-timing-function ease
+        animation-timing-function ease-out
     &.ng-leave
         animation-name fadeOutQuick
-        animation-timing-function ease
+        animation-timing-function ease-in
 
 
   /*
@@ -390,6 +394,8 @@ body > .container.websocketAlive .body
   0% 
     height 0
     opacity  0
+  50%
+    opacity 0.25
   100%
     height calc(1em + 2vh + 2px)
     opacity 1
@@ -464,12 +470,9 @@ body > .container.websocketAlive .body
     > .topic
       height: calc(98vh - 3em);
       overflow-y auto
-      transition height ease 500ms
+      transition height ease $slowAnimationDuration
       position: relative
 
-      img
-        max-width 40vw
-        max-height 90vh
 
       .details
         padding-top 1px
@@ -484,15 +487,29 @@ body > .container.websocketAlive .body
           margin-top 1em
           margin-bottom 1em
           padding: 0.5vh
+          padding-left: 0
           padding-top: 1em
           line-height 3vh
           border-top solid 1px lighten($blueDark, 60)
+          font-size: 0.8em;
           img
             height 3vh
-            margin-left 0.5em
+            margin-left 0
             vertical-align middle
+            border none
+
           .col
-            margin-right 1em
+            margin-right 0.5vh
+            line-height 3vh
+            a
+              text-decoration none
+              font-weight 600
+          .col.author
+            margin-right 0
+            width 4vh
+
+            img
+                float left
         pre
           overflow auto
     > .compose
@@ -502,7 +519,8 @@ body > .container.websocketAlive .body
       box-shadow 0 0 5px -2px #000000
       overflow hidden
       width $topicPanelWidth
-      transition height ease 500ms
+      transition height ease 300ms
+      position: relative;
 
       button
         border dotted 1px transparent
@@ -514,8 +532,9 @@ body > .container.websocketAlive .body
         text-align center
         color $lightGrey
       .controls
-        width $topicPanelWidth * 0.05
+        width calc(4vh + 1vw)
         text-align center
+        min-width 1.5em
         button
           color $lightGrey
           border solid 2px $lightGrey
@@ -525,7 +544,8 @@ body > .container.websocketAlive .body
           text-align center
           padding 0
       .send
-        width $topicPanelWidth * 0.1
+        width 3vw
+        min-width 1em
         text-align center
         border-left solid 0 $lightGrey
         button
@@ -537,10 +557,10 @@ body > .container.websocketAlive .body
         button[disabled]
           color $lightGrey
       .text
-        width $topicPanelWidth * 0.875
+        width calc(100% - 5vh - 5vw)
 
         textarea
-          transition height ease 500ms
+          transition height ease $slowAnimationDuration
           width $topicPanelWidth * 0.85
           outline hidden
           font-size inherit
@@ -566,17 +586,23 @@ body > .container.websocketAlive .body
       .comment
         margin-bottom 0vh
         margin-top 1vh
-        padding 1vh
+        padding 1vh 1vh 1vh 0vh
+
         .date
           float right
+          width 3vw
           font-weight 100
+          text-align right
           color lighten($blueDark, 50)
+          overflow hidden
           .time
             font-size 0.6em
             color alpha($blueDark, 0.2)
-            transition color ease 200ms
+            transition color ease $fastAnimationDuration
+
         &:hover
           background-color rgba(0,0,0,0.01)
+
           .date
             .time
               color alpha($blueDark, 50)
@@ -585,6 +611,7 @@ body > .container.websocketAlive .body
           padding 0
           img
             height 3vh
+            max-width 4vh
 
         .comment-details
           width calc(100% - 4vh - 3vw)
@@ -600,8 +627,15 @@ body > .container.websocketAlive .body
             color $blueDark
             text-rendering optimizeLegibility
             -webkit-font-smoothing antialiased
+            img
+              max-width 50vw
+              max-height 80vh
+              box-shadow 0 0 1vw -0.5vw $blueDark
+              display block
+              margin 0.1vh auto
+              &.alpha
+                box-shadow none
         &.me
-
           .text
             color lighten($blueDark, 20)
         &.lp
@@ -626,7 +660,7 @@ body > .container.websocketAlive .body
       .list
         display inline-flex
         opacity 1
-        transition:0.1s linear all;
+        transition: $fastAnimationDuration linear all;
         &.ng-hide
           opacity 0
           transition:1s linear all;
@@ -638,7 +672,7 @@ body > .container.websocketAlive .body
 
       .typist
         &.ng-enter
-          transition:0.1s linear all;
+          transition: $fastAnimationDuration linear all;
           opacity 0
           img
             width 0
@@ -651,7 +685,7 @@ body > .container.websocketAlive .body
             height 3vh
             opacity 1
         &.ng-leave
-          transition:0.25s linear all;
+          transition: $slowAnimationDuration linear all;
           opacity 1
           img
             width 3vh
@@ -670,7 +704,7 @@ body > .container.websocketAlive .body
           vertical-align middle
           margin-right 0.5vh
           opacity 1
-          transition:0.25s linear all;
+          transition: $slowAnimationDuration linear all;
           &.ng-leave
             opacity 0
             height 0

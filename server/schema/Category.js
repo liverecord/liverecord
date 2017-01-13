@@ -13,6 +13,7 @@ const CategorySchema = new mongoose.Schema({
         }
     },
     slug: String,
+    description: String,
     order: {type: Number, default: 100}
 });
 

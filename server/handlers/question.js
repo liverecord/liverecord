@@ -52,6 +52,19 @@ function question(socket, io, errorHandler) {
                         setTimeout(function() {
                             io.emit(channel, TopicStruct(detailedTopic));
                         }, 100);
+
+                        mailer({
+                            to: 'zoonman@gmail.com',
+                            subject: question.title,
+                            html: '<div style="white-space: pre-line;">' + question.body + '</div>' +
+                            '<hr>' +
+                            '<a href="' +
+                            'http://'+ process.env.npm_package_config_server_name +
+                            '/' + detailedTopic.category.slug +
+                            '/' +
+                            '' + detailedTopic.slug +
+                            '">Открыть</a>'
+                        });
                     }
                 });
 
@@ -68,14 +81,12 @@ function question(socket, io, errorHandler) {
                     },
                     {upsert: true}
                 );
+
+
             }
         });
 
-        mailer({
-            to: 'zoonman@gmail.com',
-            subject: question.title,
-            html: '<div style="white-space: pre-line;">' + question.body + '</div>'
-        });
+
     });
 }
 

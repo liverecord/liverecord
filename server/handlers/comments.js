@@ -8,6 +8,7 @@ const CommentStruct = require('./envelope').comment;
 const TypingStruct = require('./envelope').typing;
 const TopicListStruct = require('./envelope').topicList;
 const purify = require('./purify');
+const mailer = require('./mailer');
 
 function comments(socket, io, antiSpam, handleError) {
 
@@ -71,6 +72,36 @@ function comments(socket, io, antiSpam, handleError) {
 
                                 io.emit('topic:' + detailedTopic.slug, detailedComment);
                                 //}, 100);
+
+                                models.Comment.distinct('user', {topic: savedComment.topic}, function(err, userList) {
+                                    if (err) return handleError(err);
+
+                                    if (userList) {
+                                        userList.push(detailedTopic.user);
+                                        //console.log('userList', userList);
+
+                                        models.User.find({_id: {$in: userList}, online: false, 'settings.notifications.email': true}).lean().then(function(users) {
+                                            console.log('userList', users);
+                                            //
+                                            users.forEach(function(user) {
+                                                console.log('emaill', user.email)
+                                                mailer({
+                                                    to: user.email,
+                                                    subject: 'Комментарий к теме ' + detailedTopic.title,
+                                                    html: '<div style="white-space: pre-wrap;">' + savedComment.body + '</div>' +
+                                                    '<hr>' +
+                                                    '<a href="' +
+                                                    'http://'+ process.env.npm_package_config_server_name +
+                                                    '/' + detailedTopic.category.slug +
+                                                    '/' +
+                                                    '' + detailedTopic.slug +
+                                                    '">Открыть тему</a>'
+                                                });
+                                            });
+                                        }, handleError);
+                                    }
+                                });
+
                             }
                         });
 
@@ -114,6 +145,7 @@ function comments(socket, io, antiSpam, handleError) {
                         ).exec();
 
                         antiSpam.processComment(savedComment);
+
 
                     }
                 });

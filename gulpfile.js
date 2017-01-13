@@ -34,6 +34,7 @@ var paths = {
         'node_modules/ngstorage/ngStorage.js',
         'node_modules/fastclick/lib/fastclick.js',
         'node_modules/socketio-file-upload/client.js',
+        'node_modules/angular-socialshare/dist/angular-socialshare.js',
         'client/js/**/*.js'
     ],
     bootstrap: [

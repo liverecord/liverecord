@@ -4,8 +4,8 @@
 
 app.controller(
     'TopicDetailsCtrl',
-    ['socket', '$scope', 'CategoriesFactory', '$routeParams', '$timeout', 'PerfectScrollBar', '$localStorage', '$rootScope', '$document',
-        function(socket, $scope, CategoriesFactory, $routeParams, $timeout, PerfectScrollBar, $localStorage, $rootScope, $document) {
+    ['socket', '$scope', 'CategoriesFactory', '$routeParams', '$timeout', 'PerfectScrollBar', '$localStorage', '$rootScope', '$document', 'Socialshare',
+        function(socket, $scope, CategoriesFactory, $routeParams, $timeout, PerfectScrollBar, $localStorage, $rootScope, $document, SocialShare) {
 
     $scope.sending = false;
     $scope.comments = [];
@@ -14,6 +14,13 @@ app.controller(
     $scope.advancedCompose = false;
     $scope.sendButtonActive = false;
     $scope.$localStorage = $localStorage;
+    $scope.socialshareAttrs = {
+        provider: 'email'
+    };
+
+    $scope.share = {
+        provider: 'email'
+    };
 
     var getScrollTopMax = function () {
         var ref;
@@ -81,7 +88,7 @@ app.controller(
                     $timeout.cancel(typingTimeouts[envelope.data._id]);
                 }
                 typingTimeouts[envelope.data._id] = $timeout(function() {
-                        $scope.typists = array_id_remove($scope.typists, envelope.data._id);
+                    $scope.typists = array_id_remove($scope.typists, envelope.data._id);
                 }, 3000);
 
                 break;
@@ -101,7 +108,7 @@ app.controller(
                         Ps.update(topicCont);
                     }
 
-                        $scope.typists = array_id_remove($scope.typists, envelope.data.user);
+                    $scope.typists = array_id_remove($scope.typists, envelope.data.user._id);
 
                 }, 100);
                 break;
@@ -268,9 +275,37 @@ app.controller(
     };
 
     try {
-        var uploader = new SocketIOFileUpload(io.connect());
+        var socketUploader = io.connect();
+        var uploader = new SocketIOFileUpload(socketUploader);
+        uploader.maxFileSize = 1024 * 1024 * 10;
         uploader.listenOnInput(document.getElementById("siofu_input"));
         uploader.listenOnDrop(document.getElementById("topic"));
+        uploader.listenOnDrop(document.getElementById("comment"));
+        socketUploader.on('file.uploaded', function(payload) {
+            console.log(payload);
+            var url = window.location.protocol + '//' + window.location.host +  '/' + payload.absolutePath.replace(/^\//, '');
+
+            var text = '\n<a href="' + url + '">';
+            if (['jpg', 'jpeg', 'png', 'gif'].indexOf(payload.extension) > -1) {
+                // an image
+                text += '<img src="' + url + '" alt="' + payload.friendlyName + '"' ;
+                if (payload.hasAlpha) {
+                    text += ' class="alpha"';
+                }
+                text += '>';
+            } else {
+                text += payload.friendlyName;
+            }
+            text += '</a>\n';
+
+            $scope.commentText = $scope.commentText + text;
+            $scope.$applyAsync();
+        });
+        uploader.addEventListener("error", function(data){
+            if (data.code === 1) {
+                alert("Используйте файлы не более 10 MB");
+            }
+        });
     } catch (e) {
         console.error(e)
     }

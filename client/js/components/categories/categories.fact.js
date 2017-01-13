@@ -5,6 +5,7 @@ app.factory('CategoriesFactory', ['$q', 'socket', function ($q, socket) {
 
     var service = {
         categories: [],
+        activeCategory: null,
         load: function () {
             var deferred = $q.defer();
             if (service.categories.length == 0) {
@@ -26,13 +27,14 @@ app.factory('CategoriesFactory', ['$q', 'socket', function ($q, socket) {
                 return service.categories;
             } else {
                 //
-                var activeCategory = null;
+                service.activeCategory = null;
                 service.categories.forEach(function(category) {
                     if (category.active) {
-                        return activeCategory = category;
+                        service.activeCategory = category;
+                        return service.activeCategory;
                     }
                 });
-                return activeCategory;
+                return service.activeCategory;
             }
         },
         get: function() {

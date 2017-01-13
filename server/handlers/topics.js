@@ -232,48 +232,39 @@ function expressRouter(req, res, next) {
                 {path: 'category'},
                 {path: 'user', select: 'name picture slug'}
             ]).then(function(populatedTopic) {
-
-                fs.readFile(__dirname + '/../public/index.html', 'utf8', function(err, indexData) {
-                    if (err) return errorHandler(err);
-
-                    fs.readFile(__dirname + '/../public/dist/t/topic.tpl', 'utf8', function(err, topicData) {
+                    fs.readFile(__dirname + '/../public/index.html', 'utf8', function(err, indexData) {
                         if (err) return errorHandler(err);
-
-
-                        indexData = indexData.replace('<title></title>', '<title>' + populatedTopic.title.substr(0, 80).replace(/\n/g, ' ') + '</title>');
-
-                        var body = purify(populatedTopic.body, true);
-
-                        indexData = indexData.replace('<meta name="description" content="">', '<meta name="description" content="' + body.substr(0, 250).replace(/\n/g, ' ') + '">');
-
-                        topicData = topicData.replace('{{topic.title}}', populatedTopic.title);
-                        topicData = topicData.replace(/\{\{topic\.user\.slug\}\}/g, populatedTopic.user.slug);
-                        topicData = topicData.replace('{{topic.user.picture}}', populatedTopic.user.picture);
-                        topicData = topicData.replace('{{topic.user.name}}', populatedTopic.user.name);
-                        topicData = topicData.replace('{{topic.created | date:\'short\'}}', populatedTopic.created.toDateString());
-                        topicData = topicData.replace('<div class="topic-body" ng-bind-html="topic.body">', '<div class="topic-body" ng-bind-html="topic.body">' +  populatedTopic.body);
-
-
-                        indexData = indexData.replace('<div class="view-panel flex-row" ng-view="">', '<div class="view-panel flex-row" ng-view="">' + topicData);
-
-
-                        if (populatedTopic.tags) {
-                            indexData = indexData.replace('<meta name="keywords" content="">', '<meta name="keywords" content="' + populatedTopic.tags + '">');
+                        if (populatedTopic) {
+                            fs.readFile(__dirname + '/../public/dist/t/topic.tpl', 'utf8', function(err, topicData) {
+                                if (err) return errorHandler(err);
+                                indexData = indexData.replace('<title></title>', '<title>' + populatedTopic.title.substr(0, 80).replace(/\n/g, ' ') + '</title>');
+                                var body = purify(populatedTopic.body, true);
+                                indexData = indexData.replace('<meta name="description" content="">', '<meta name="description" content="' + body.substr(0, 250).replace(/\n/g, ' ') + '">');
+                                topicData = topicData.replace('{{topic.title}}', populatedTopic.title);
+                                topicData = topicData.replace(/\{\{topic\.user\.slug}}/g, populatedTopic.user.slug);
+                                topicData = topicData.replace('{{topic.user.picture}}', populatedTopic.user.picture);
+                                topicData = topicData.replace('{{topic.user.name}}', populatedTopic.user.name);
+                                topicData = topicData.replace('{{topic.created | date:\'short\'}}', populatedTopic.created.toDateString());
+                                topicData = topicData.replace('<div class="topic-body" ng-bind-html="topic.body">', '<div class="topic-body" ng-bind-html="topic.body">' +  populatedTopic.body);
+                                indexData = indexData.replace('<div class="view-panel flex-row" ng-view="">', '<div class="view-panel flex-row" ng-view="">' + topicData);
+                                if (populatedTopic.tags) {
+                                    indexData = indexData.replace('<meta name="keywords" content="">', '<meta name="keywords" content="' + populatedTopic.tags + '">');
+                                }
+                                res.writeHead(200, {
+                                    "Content-Type": "text/html;encoding: utf-8"
+                                });
+                                res.write(indexData);
+                                res.end();
+                            });
+                        } else {
+                            res.writeHead(404, {
+                                "Content-Type": "text/html;encoding: utf-8"
+                            });
+                            res.write(indexData);
+                            res.end();
                         }
-
-                        res.writeHead(200, {
-                            "Content-Type": "text/html;encoding: utf-8"
-                        });
-                        res.write(indexData);
-                        res.end();
-
-
                     });
 
-
-
-
-                });
             }, errorHandler).catch(errorHandler);
         })
             .catch(errorHandler);

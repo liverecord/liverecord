@@ -3,8 +3,11 @@
  */
 
 
-app.controller('WelcomeCtrl', ['$scope', 'socket', '$rootScope','$window', 'PerfectScrollBar', function($scope, socket, $rootScope, $window, PerfectScrollBar) {
+app.controller('WelcomeCtrl', ['$scope', 'socket', '$rootScope','$window', 'PerfectScrollBar', '$document', function($scope, socket, $rootScope, $window, PerfectScrollBar, $document) {
     console.log('WelcomeCtrl...')
     PerfectScrollBar.setup('topic');
+
+    $document[0].title = 'LinuxQuestions';
+
 }]);
 

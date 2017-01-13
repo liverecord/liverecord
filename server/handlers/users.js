@@ -76,7 +76,12 @@ function userHandler(socket, io, errorHandler) {
 
         userRequest = xtend({
             'name': '',
-            'email': ''
+            'email': '',
+            settings: {
+                notifications: {
+                    email: true
+                }
+            }
         }, userRequest);
         userRequest.name = purify(userRequest.name, true);
         userRequest.email = purify(userRequest.email, true);
@@ -87,15 +92,24 @@ function userHandler(socket, io, errorHandler) {
         };
         if (validator.isEmail(userRequest.email)) {
             updateData['email'] = userRequest.email;
+        } else {
+            socketCallback({success: false, error: 'invalid_email'});
         }
 
         if (validator.isURL(userRequest.picture)) {
             updateData['picture'] = userRequest.picture;
+        } else {
+            socketCallback({success: false, error: 'picture_is_bad'});
         }
+
+        updateData['settings.notifications.email'] = userRequest.settings.notifications.email;
+
         if (userRequest.email === socket.webUser.email) {
             // the same user
             User.update({_id: socket.webUser._id}, updateData).then(function() {
                 socketCallback({success: true});
+                socket.webUser.name = updateData.name;
+                socket.webUser.picture = updateData.picture;
             });
         } else {
             // email needs validation
@@ -105,6 +119,8 @@ function userHandler(socket, io, errorHandler) {
 
                     User.update({_id: socket.webUser._id}, updateData).then(function() {
                         socketCallback({success: true});
+                        socket.webUser.picture = updateData.picture;
+                        socket.webUser.name = updateData.name;
                     });
 
                 } else {
@@ -112,7 +128,7 @@ function userHandler(socket, io, errorHandler) {
                 }
 
             }).catch(function(notFound) {
-                socketCallback({success: false, error: 'notFound'});
+                socketCallback({success: false, error: 'not_found'});
             });
 
         }

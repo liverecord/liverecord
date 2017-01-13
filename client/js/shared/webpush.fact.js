@@ -8,33 +8,26 @@ app.factory('wpf', function ($rootScope, socket) {
 
     Notification.requestPermission();
 
+    function convertSubscription(subscription) {
+        return {
+            endpoint: subscription.endpoint,
+            auth: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth')))),
+            p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh'))))
+        }
+    }
 
     function subscribe() {
-        // duplicateNameCheck(nameInput.value).then(function(dupeValue) {
-        //   console.log('Dupe value: ' + dupeValue);
-
-        //   if(dupeValue) {
-        //     alert('That username is already in use. Please choose another.');
-        //   } else {
-
-        // Disable the button so it can't be changed while
-        // we process the permission request
-
-        // subBtn.disabled = true;
-
         navigator.serviceWorker.ready.then(function(reg) {
             reg.pushManager.subscribe({userVisibleOnly: true})
                 .then(function(subscription) {
                     // The subscription was successful
                     isPushEnabled = true;
-                    // subBtn.textContent = 'Unsubscribe from Push Messaging';
-                    // subBtn.disabled = false;
-
                     // Update status to subscribe current user on server, and to let
                     // other users know this user has subscribed
-                    var endpoint = subscription.endpoint;
-                    var key = subscription.getKey('p256dh');
-                    updateStatus(endpoint,key,'subscribe');
+                    socket.emit('push', {
+                        statusType: 'subscribed',
+                        subscription: convertSubscription(subscription),
+                    });
                 })
                 .catch(function(e) {
                     if (Notification.permission === 'denied') {
@@ -66,13 +59,6 @@ app.factory('wpf', function ($rootScope, socket) {
             // subcription object, which you can call unsubscribe() on.
             reg.pushManager.getSubscription().then(
                 function(subscription) {
-
-                    // Update status to unsubscribe current user from server (remove details)
-                    // and let other subscribers know they have unsubscribed
-                    var endpoint = subscription.endpoint;
-                    var key = subscription.getKey('p256dh');
-                    updateStatus(endpoint,key,'unsubscribe');
-
                     // Check we have a subscription to unsubscribe
                     if (!subscription) {
                         // No subscription object, so set the state
@@ -90,19 +76,21 @@ app.factory('wpf', function ($rootScope, socket) {
                     // occurred, including the person unsubscribing. This is a dirty
                     // hack, and I'm probably going to hell for writing this.
                     setTimeout(function() {
+
+                        socket.emit('push', {
+                            statusType: 'unsubscribed',
+                            subscription: convertSubscription(subscription)
+                        });
+
                         // We have a subcription, so call unsubscribe on it
                         subscription.unsubscribe().then(function(successful) {
-                            // subBtn.disabled = false;
-                            // subBtn.textContent = 'Subscribe to Push Messaging';
                             isPushEnabled = false;
                         }).catch(function(e) {
                             // We failed to unsubscribe, this can lead to
                             // an unusual state, so may be best to remove
                             // the subscription id from your data store and
                             // inform the user that you disabled push
-
                             console.log('Unsubscription error: ', e);
-                            // subBtn.disabled = false;
                         })
                     },3000);
                 }).catch(function(e) {
@@ -112,82 +100,7 @@ app.factory('wpf', function ($rootScope, socket) {
         });
     }
 
-    function postSubscribeObj(statusType, name, endpoint, key) {
-        // Create a new XHR and send an array to the server containing
-        // the type of the request, the name of the user subscribing,
-        // and the push subscription endpoint + key the server needs
-        // to send push messages
-        var subscribeObj = {
-            statusType: statusType,
-            name: name,
-            endpoint: endpoint,
-            key: btoa(String.fromCharCode.apply(null, new Uint8Array(key)))
-        };
-        console.log(subscribeObj);
 
-        socket.emit('push', subscribeObj);
-    }
-
-    function updateStatus(endpoint,key,statusType) {
-        console.log("updateStatus, endpoint: ", endpoint);
-        console.log("updateStatus, key: " , key);
-        console.log("updateStatus, statusType: " , statusType);
-
-        var name = 'MyNameIS';
-
-        // If we are subscribing to push
-        if(statusType === 'subscribe' || statusType === 'init') {
-            // Create the input and button to allow sending messages
-            /*
-            sendBtn = document.createElement('button');
-            sendInput = document.createElement('input');
-
-            sendBtn.textContent = 'Send Chat Message';
-            sendInput.setAttribute('type','text');
-            // Append them to the document
-            controlsBlock.appendChild(sendBtn);
-            controlsBlock.appendChild(sendInput);
-
-            // Set up a listener so that when the Send Chat Message button is clicked,
-            // the sendChatMessage() function is fun, which handles sending the message
-            sendBtn.onclick = function() {
-                sendChatMessage(sendInput.value);
-            }
-             */
-            postSubscribeObj(statusType, name, endpoint, key);
-
-        } else if(statusType === 'unsubscribe') {
-            // If we are unsubscribing from push
-
-            // Remove the UI elements we added when we subscribed
-            //controlsBlock.removeChild(sendBtn);
-            //controlsBlock.removeChild(sendInput);
-
-            postSubscribeObj(statusType, name, endpoint, key);
-
-        }
-
-    }
-
-    function handleChannelMessage(data) {
-        if(data.action === 'subscribe' || data.action === 'init') {
-            var listItem = document.createElement('li');
-            listItem.textContent = data.name;
-            subscribersList.appendChild(listItem);
-        } else if(data.action === 'unsubscribe') {
-            for(i = 0; i < subscribersList.children.length; i++) {
-                if(subscribersList.children[i].textContent === data.name) {
-                    subscribersList.children[i].parentNode.removeChild(subscribersList.children[i]);
-                }
-            }
-            nameInput.disabled = false;
-        } else if(data.action === 'chatMsg') {
-            var listItem = document.createElement('li');
-            listItem.textContent = data.name + ": " + data.msg;
-            messagesList.appendChild(listItem);
-            sendInput.value = '';
-        }
-    }
 
     // Once the service worker is registered set the initial state
     function initialiseState(reg) {
@@ -221,8 +134,6 @@ app.factory('wpf', function ($rootScope, socket) {
                     // Enable any UI which subscribes / unsubscribes from
                     // push messages.
 
-                    // subBtn.disabled = false;
-
                     if (!subscription) {
                         console.log('Not yet subscribed to Push')
                         // We aren't subscribed to push, so set UI
@@ -232,19 +143,13 @@ app.factory('wpf', function ($rootScope, socket) {
 
                         return;
                     }
-
                     // Set your UI to show they have subscribed for
                     // push messages
-                    // subBtn.textContent = 'Unsubscribe from Push Messaging';
                     isPushEnabled = true;
-
-                    // initialize status, which includes setting UI elements for subscribed status
-                    // and updating Subscribers list via push
-                    console.log(subscription.toJSON());
-                    var endpoint = subscription.endpoint;
-                    var key = subscription.getKey('p256dh');
-                    console.log(key);
-                    updateStatus(endpoint,key,'init');
+                    socket.emit('push', {
+                        statusType: 'init',
+                        subscription: convertSubscription(subscription)
+                    });
                 })
                 .catch(function(err) {
                     console.log('Error during getSubscription()', err);
@@ -253,11 +158,9 @@ app.factory('wpf', function ($rootScope, socket) {
             // set up a message channel to communicate with the SW
             var channel = new MessageChannel();
             channel.port1.onmessage = function(e) {
-                console.log(e);
-                handleChannelMessage(e.data);
-            }
-
-            mySW = reg.active;
+                console.log('Service worker sent', e);
+            };
+            var mySW = reg.active;
             mySW.postMessage('hello', [channel.port2]);
         });
     }

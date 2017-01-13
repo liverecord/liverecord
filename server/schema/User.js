@@ -27,6 +27,11 @@ const UserSchema = new mongoose.Schema({
         iterations: Number
     },
     roles: [String],
+    settings: {
+        notifications: {
+            email: { type: Boolean, default: true}
+        }
+    },
     created: { type: Date, default: Date.now },
     updated: { type: Date, default: Date.now },
     deleted: { type: Boolean, default: false},

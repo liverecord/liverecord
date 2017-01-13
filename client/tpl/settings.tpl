@@ -14,6 +14,7 @@
                                                           placeholder="Имя" ng-disabled="sending"></div>
           <div><label for="email">Почта</label><input type="email" id="email" ng-model="profile.email" required
                                                       placeholder="email" ng-disabled="sending"></div>
+          <div><label for="sendEmailNotifications">Отправлять уведомления на почту</label><input type="checkbox" id="sendEmailNotifications" ng-model="profile.settings.notifications.email"  ng-disabled="sending"></div>
           <div><label for="profileAvatar">Аватар</label>
             <img ng-src="{{profile.picture}}" alt="-" class="responsive" width="100">
             <input type="file" id="profileAvatar" placeholder="Аватар" ng-disabled="sending"></div>
