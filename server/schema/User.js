@@ -32,6 +32,19 @@ const UserSchema = new mongoose.Schema({
             email: { type: Boolean, default: true}
         }
     },
+    devices: [
+        {
+            id: String,
+            ua: String,
+            pushSubscription: {
+                endpoint: String,
+                keys: {
+                    p256dh: String,
+                    auth: String
+                }
+            }
+        }
+    ],
     created: { type: Date, default: Date.now },
     updated: { type: Date, default: Date.now },
     deleted: { type: Boolean, default: false},

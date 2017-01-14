@@ -6,7 +6,15 @@ app.controller('MainCtrl', ['$scope', 'socket', '$window', '$rootScope', '$local
     $scope.currentCategorySlug = 'general';
     console.log("Main");
     $rootScope.websocketAlive = false;
-
+    var notificationIndex = 0;
+    $rootScope.notifications = {
+        list: {},
+        add: function(notification) {
+            notificationIndex++;
+            $rootScope.notifications.list[notificationIndex] = notification;
+            return notificationIndex;
+        }
+    };
     $localStorage.$default({
         rememberMe: true,
         experimental: false,

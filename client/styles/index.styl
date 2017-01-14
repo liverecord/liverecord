@@ -1,33 +1,5 @@
-$blueDark = #303E4D
-$blueRegular = #578FCC
-$blueLight = #81A5D4
-$orange = #EBA36F
-$greenLight = #97A346
-$greenDark = #808942
-
-$lightGrey = #D5D8DE
-$normalGrey = #BCC9CE
-$darkGrey = #8E949F
-$lightColor = #F7FAFC
-
-
-$categoriesTopColor = rgb(36, 50, 64)
-$categoriesBottomColor = rgb(49, 68, 87)
-
-
-// golden ratio
-$PHI = 1.618
-
-
-$ONE = (100vw / (1+$PHI))
-$topicPanelWidth = $ONE * $PHI
-
-
-$topicsPanelWidth = ($ONE / ($PHI))
-$categoriesPanelWidth = $ONE / (1+$PHI)
-
-$fastAnimationDuration = 100ms
-$slowAnimationDuration = 300ms
+@import "variables.styl"
+@import "growl.notifications.styl"
 
 vertical-gradient(topColor, bottomColor)
   background topColor
@@ -583,6 +555,8 @@ body > .container.websocketAlive .body
         padding-top 0
 
     .comments
+      @import "typists.styl"
+
       .comment
         margin-bottom 0vh
         margin-top 1vh
@@ -645,70 +619,7 @@ body > .container.websocketAlive .body
           padding-bottom 0.5vh
         &.up + .comment.lp
           margin-top -1vh
-    .typists
-      white-space nowrap
-      margin 0 auto
-      overflow hidden
-      text-align center
-      border-radius 3vh
-      line-height 3vh
-      font-size 2vh
-      min-width 3vh
-      padding 0.5vh
-      display inline-flex
-      justify-content center
-      .list
-        display inline-flex
-        opacity 1
-        transition: $fastAnimationDuration linear all;
-        &.ng-hide
-          opacity 0
-          transition:1s linear all;
 
-      .starter
-        padding-left 0.5vh
-        padding-right 0.5vh
-        color lighten($blueDark, 60)
-
-      .typist
-        &.ng-enter
-          transition: $fastAnimationDuration linear all;
-          opacity 0
-          img
-            width 0
-            opacity 0
-            height 0
-        &.ng-enter.ng-enter-active
-          opacity 1
-          img
-            width 3vh
-            height 3vh
-            opacity 1
-        &.ng-leave
-          transition: $slowAnimationDuration linear all;
-          opacity 1
-          img
-            width 3vh
-            height 3vh
-            opacity 1
-        &.ng-leave.ng-leave-active
-          opacity 0
-          img
-            width 0
-            opacity 0
-            height 0
-        img
-          height 3vh
-          width  3vh
-          border-radius 1.5vh
-          vertical-align middle
-          margin-right 0.5vh
-          opacity 1
-          transition: $slowAnimationDuration linear all;
-          &.ng-leave
-            opacity 0
-            height 0
-            width  0
     &.advancedcompose
       > .topic
         height: calc(50vh - 6em);
@@ -717,6 +628,7 @@ body > .container.websocketAlive .body
         .text
           textarea
             height: calc(2em + 40vh);
+
 
   .ask-form
     h1

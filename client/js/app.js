@@ -34,7 +34,7 @@ Array.prototype._idMerge = function(secondArray) {
     return this;
 };
 
-var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage',  '720kb.socialshare']);
+var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage',  '720kb.socialshare', '720kb.tooltips', 'growlNotifications']);
 
 app.config([
     '$locationProvider', '$routeProvider', '$localStorageProvider', '$sessionStorageProvider',

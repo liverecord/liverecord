@@ -10,6 +10,7 @@ app.controller(
     $scope.sending = false;
     $scope.comments = [];
     $scope.typists = [];
+    $scope.uploadStatus = '';
     $scope.commentText = '';
     $scope.advancedCompose = false;
     $scope.sendButtonActive = false;
@@ -274,6 +275,8 @@ app.controller(
         }
     };
 
+    $scope.uploadFiles = [];
+
     try {
         var socketUploader = io.connect();
         var uploader = new SocketIOFileUpload(socketUploader);
@@ -283,7 +286,7 @@ app.controller(
         uploader.listenOnDrop(document.getElementById("comment"));
         socketUploader.on('file.uploaded', function(payload) {
             console.log(payload);
-            var url = window.location.protocol + '//' + window.location.host +  '/' + payload.absolutePath.replace(/^\//, '');
+            var url = '/' + payload.absolutePath.replace(/^\//, '');
 
             var text = '\n<a href="' + url + '">';
             if (['jpg', 'jpeg', 'png', 'gif'].indexOf(payload.extension) > -1) {
@@ -306,6 +309,20 @@ app.controller(
                 alert("Используйте файлы не более 10 MB");
             }
         });
+        uploader.addEventListener("start", function(event){
+            event.file.fIndex = $rootScope.notifications.add(event);
+        });
+
+        uploader.addEventListener("progress", function(event){
+            $rootScope.notifications.list[event.file.fIndex] = event;
+        });
+        uploader.addEventListener("load", function(event){
+            $rootScope.notifications.list[event.file.fIndex] = event;
+        });
+        uploader.addEventListener("complete", function(event){
+            delete $rootScope.notifications.list[event.file.fIndex];
+        });
+
     } catch (e) {
         console.error(e)
     }

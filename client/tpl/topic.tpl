@@ -35,7 +35,7 @@
 
       <div class="comments-list" ng-init="firstUser=''" id="commentsList">
         <div class="comment flex-row"
-             ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))"
+             ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))  track by comment._id"
              ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id }">
           <div class="avatar">
             <a href="/users/{{comment.user.slug}}"><img ng-src="{{comment.user.picture}}" class="img-responsive"
@@ -58,7 +58,7 @@
         <div class="typists">
           <div class="list" ng-show="typists.numberOfKeys()">
             <div class="starter"><i class="fa fa-pencil"></i></div>
-            <div class="typist" ng-repeat="typist in typists"><img ng-src="{{typist.picture}}" alt="{{typist.name}}"
+            <div class="typist" ng-repeat="typist in typists track by typist._id"><img ng-src="{{typist.picture}}" alt="{{typist.name}}"
                                                                    title="{{typist.name}}" class="img-responsive"></div>
           </div>
         </div>
@@ -86,7 +86,7 @@
               cols="20" rows="1"
               placeholder="Новое сообщение"></textarea>
       <div class="toolbar small" ng-show="advancedCompose">
-        <small><input type="file" id="siofu_input" />  Поддерживаются теги:
+        <small><input type="file" id="siofu_input" /> {{uploadStatus}}   Поддерживаются теги:
           <kbd>b</kbd>,
           <kbd>i</kbd>,
           <kbd>a</kbd>,
