@@ -84,7 +84,7 @@
         </div>
         <growl-notifications></growl-notifications>
         <div ng-repeat="(id, notification) in notifications.list track by id">
-            <growl-notification ttl="-1">
+            <growl-notification ttl="100000">
                 <div class="flex-row">
                     <div><img file="{{notification}}" alt="..." src="/dist/i/logo.png" class="img-responsive" width="32"></div>
                     <div><small>{{notification.file.name}}</small> {{notification.bytesLoaded / notification.file.size * 100 | number: 2}}%</div>
