@@ -280,10 +280,45 @@ app.controller(
     try {
         var socketUploader = io.connect();
         var uploader = new SocketIOFileUpload(socketUploader);
-        uploader.maxFileSize = 1024 * 1024 * 10;
+        // uploader.maxFileSize = 1024 * 1024 * 10;
         uploader.listenOnInput(document.getElementById("siofu_input"));
-        uploader.listenOnDrop(document.getElementById("topic"));
-        uploader.listenOnDrop(document.getElementById("comment"));
+        //uploader.listenOnDrop(document.getElementById("topic"));
+
+
+        var commentElement = document.getElementById("comment");
+        uploader.listenOnDrop(commentElement);
+        var acceptObject = function (event) {
+            commentElement.style.cursor = 'copy';
+            commentElement.style.backgroundColor = '#81A5D4';
+        };
+        var declineObject = function (event) {
+            commentElement.style.cursor = 'none';
+            commentElement.style.backgroundColor = '';
+        };
+        var restoreTarget = function (event) {
+            commentElement.style.cursor = 'default';
+            commentElement.style.backgroundColor = '';
+        };
+
+        commentElement.addEventListener('dragenter', function(event) {
+            acceptObject(event);
+        });
+        commentElement.addEventListener('dragover', function(event) {
+            acceptObject(event);
+        });
+        commentElement.addEventListener('dragleave', function(event) {
+            restoreTarget(event);
+        });
+        commentElement.addEventListener('drop', function(event) {
+            restoreTarget(event);
+        });
+        commentElement.addEventListener('dragend', function(event) {
+            restoreTarget(event);
+        });
+        commentElement.addEventListener('dragexit', function(event) {
+            restoreTarget(event);
+        });
+
         socketUploader.on('file.uploaded', function(payload) {
             console.log(payload);
             var url = '/' + payload.absolutePath.replace(/^\//, '');
@@ -304,23 +339,30 @@ app.controller(
             $scope.commentText = $scope.commentText + text;
             $scope.$applyAsync();
         });
-        uploader.addEventListener("error", function(data){
+        uploader.addEventListener("error", function(data) {
             if (data.code === 1) {
                 alert("Используйте файлы не более 10 MB");
             }
+            console.log('upload error', data)
+            $rootScope.$applyAsync();
         });
         uploader.addEventListener("start", function(event){
             event.file.fIndex = $rootScope.notifications.add(event);
+            $rootScope.$applyAsync();
         });
 
         uploader.addEventListener("progress", function(event){
             $rootScope.notifications.list[event.file.fIndex] = event;
+            $rootScope.$applyAsync();
         });
         uploader.addEventListener("load", function(event){
             $rootScope.notifications.list[event.file.fIndex] = event;
+            $rootScope.$applyAsync();
         });
         uploader.addEventListener("complete", function(event){
-            delete $rootScope.notifications.list[event.file.fIndex];
+            //delete $rootScope.notifications.list[event.file.fIndex];
+            console.log('$rootScope.notifications.list', $rootScope.notifications.list)
+            $rootScope.$applyAsync();
         });
 
     } catch (e) {

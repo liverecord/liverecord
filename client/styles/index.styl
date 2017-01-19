@@ -1,3 +1,5 @@
+/* @charset="UTF-8"; */
+
 @import "variables.styl"
 @import "growl.notifications.styl"
 
@@ -49,7 +51,8 @@ input[type=number]
   padding 0.3em 0.5em
   margin 0.1em
 
-
+.flex
+  display flex
 .flex-column 
   display flex
   flex-direction column
@@ -267,6 +270,7 @@ body > .container.websocketAlive .body
 
   .topic-info
     width $topicsPanelWidth
+    display: block
   .topic-status
     width 2vw
     text-align center
@@ -400,7 +404,7 @@ body > .container.websocketAlive .body
 
 
   .user
-    margin-top 1vh
+    margin-top 0vh
     width 20vw
     color $lightGrey
     img.avatar

@@ -4,16 +4,32 @@
 
 app.controller(
     'TopicStubCtrl',
-    ['socket', '$scope', 'CategoriesFactory', '$routeParams', '$timeout', 'PerfectScrollBar', '$localStorage', function(socket, $scope, CategoriesFactory, $routeParams, $timeout, PerfectScrollBar, $localStorage) {
+    ['socket',
+     '$scope',
+     'CategoriesFactory',
+     '$routeParams',
+     '$timeout',
+     'PerfectScrollBar',
+     '$localStorage',
+     '$document',
+     function(socket,
+              $scope,
+              CategoriesFactory,
+              $routeParams,
+              $timeout,
+              PerfectScrollBar,
+              $localStorage,
+         $document) {
 
-
-        $scope.activeCategory = CategoriesFactory.active();
-
-
-        $timeout(function() {
-
-
-        console.log('$scope.activeCategory', $scope.activeCategory)
-    }, 1000);
-
-}]);
+       CategoriesFactory.load().then(function(cats) {
+         if ($routeParams.category) {
+           CategoriesFactory.active($routeParams.category);
+           $scope.activeCategory = CategoriesFactory.active();
+           $document[0].title = $scope.activeCategory.name;
+         } else {
+           $scope.activeCategory = CategoriesFactory.active();
+         }
+       });
+     }
+    ]
+);

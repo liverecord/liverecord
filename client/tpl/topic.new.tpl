@@ -9,7 +9,7 @@
     </div>
     <div class="flex-row">
       <label for="questionTitle">Заголовок</label>
-      <input id="questionTitle" type="text" data-ng-model="question.title" placeholder="Заголовок вопроса" required>
+      <input id="questionTitle" type="text" data-ng-model="question.title" placeholder="Заголовок вопроса" required autofocus>
     </div>
     <div  class="flex-row">
       <label for="questionDetails">Подробности</label>
@@ -28,7 +28,7 @@
     </div>
     <div class="flex-row">
       <label>&nbsp;</label>
-      <button data-ng-click="ask()">Задать</button>
+      <button data-ng-click="ask()" ng-disabled="!sendButtonActive">Задать</button>
     </div>
   </div>
 

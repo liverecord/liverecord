@@ -33,7 +33,7 @@
       "dir": "files",
       "extensions": {
         "blacklist": "",
-        "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip"
+        "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip,dmg"
       }
     }
   },

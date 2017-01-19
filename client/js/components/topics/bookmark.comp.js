@@ -3,37 +3,39 @@
  */
 
 function topicBookmarkController($rootScope, $scope, socket) {
-    var self = this;
+  var self = this;
 
-    self.show = false;
+  self.show = false;
 
-    function topicObserver(newValue, oldValue, scope) {
-        console.log('newValue', newValue)
-        self.bookmarked = !!(newValue && newValue.bookmark);
+  function topicObserver(newValue, oldValue, scope) {
+    console.log('newValue', newValue);
+    self.bookmarked = !!(newValue && newValue.bookmark);
+  }
+
+  function userObserver(newValue, oldValue, scope) {
+    self.show = !!newValue;
+  }
+
+  $rootScope.$watch('user', userObserver);
+  $scope.$watch('$ctrl.topic', topicObserver);
+
+  self.bookmarkIt = function() {
+    self.bookmarked = !self.bookmarked;
+    if (socket && self.topic) {
+      socket.emit('bookmark', {topic: self.topic._id}, function(result) {
+            self.bookmarked = result.bookmarked;
+          }
+      );
     }
-
-    function userObserver(newValue, oldValue, scope) {
-        self.show = !!newValue;
-    }
-
-    $rootScope.$watch('user', userObserver);
-    $scope.$watch('$ctrl.topic', topicObserver);
-
-    self.bookmarkIt = function() {
-        self.bookmarked = !self.bookmarked;
-        if (socket && self.topic) {
-            socket.emit('bookmark', {topic: self.topic._id}, function(result) {
-                self.bookmarked = result.bookmarked;
-            })
-        }
-    };
+  };
 
 }
 
 app.component('bookmark', {
-    templateUrl: '/dist/t/topic.bookmark.tpl',
-    controller: topicBookmarkController,
-    bindings: {
+      templateUrl: '/dist/t/topic.bookmark.tpl',
+      controller: topicBookmarkController,
+      bindings: {
         topic: '='
+      }
     }
-});
+);

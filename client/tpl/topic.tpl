@@ -5,24 +5,24 @@
 
       <div style="display: flex;align-items: center">
 
-        <div style="flex-grow: 1;"><h1>{{topic.title}}</h1></div>
+        <div style="flex-grow: 1;"><h1>{{::topic.title}}</h1></div>
         <div>
           <bookmark topic="topic"></bookmark>
         </div>
       </div>
 
-      <div class="topic-body" ng-bind-html="topic.body">
+      <div class="topic-body" ng-bind-html="::topic.body">
       </div>
 
       <div class="flex-row topic-authoring">
         <div class="col author">
-          <a href="/users/{{topic.user.slug}}"><img ng-src="{{topic.user.picture}}" class="img-responsive"></a>
+          <a href="/users/{{::topic.user.slug}}"><img ng-src="{{::topic.user.picture}}" class="img-responsive"></a>
         </div>
         <div class="col" style="flex-grow: 1">
-          <a href="/users/{{topic.user.slug}}">{{topic.user.name}}</a>
+          <a href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>
         </div>
         <div class="col">
-          <span class="date" title="{{topic.created | date: 'medium'}}">{{topic.created | date:'short'}}</span>
+          <span class="date" title="{{::topic.created | date: 'medium'}}">{{::topic.created | date:'short'}}</span>
         </div>
         <div class="col">
           <a href="#" ng-show="experimental" target="_blank"><i class="fa fa-share"></i></a>
@@ -38,18 +38,18 @@
              ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))  track by comment._id"
              ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id }">
           <div class="avatar">
-            <a href="/users/{{comment.user.slug}}"><img ng-src="{{comment.user.picture}}" class="img-responsive"
+            <a ng-href="/users/{{::comment.user.slug}}"><img ng-src="{{::comment.user.picture}}" class="img-responsive"
                  ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}"></a>
           </div>
           <div class="flex-column comment-details">
-            <div class="author" ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}">
-              <a href="/users/{{comment.user.slug}}">{{comment.user.name}}</a>
+            <div class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
+              <a ng-href="/users/{{::comment.user.slug}}">{{comment.user.name}}</a>
             </div>
-            <div class="text" ng-bind-html="comment.body"></div>
+            <div class="text" ng-bind-html="::comment.body"></div>
           </div>
           <div class="date">
             <span class="time"
-                  title="{{comment.created | date: 'medium'}}">{{comment.created | date:'shortTime'}}</span>
+                  title="{{::comment.created | date: 'medium'}}">{{::comment.created | date:'shortTime'}}</span>
           </div>
         </div>
       </div>
@@ -58,8 +58,8 @@
         <div class="typists">
           <div class="list" ng-show="typists.numberOfKeys()">
             <div class="starter"><i class="fa fa-pencil"></i></div>
-            <div class="typist" ng-repeat="typist in typists track by typist._id"><img ng-src="{{typist.picture}}" alt="{{typist.name}}"
-                                                                   title="{{typist.name}}" class="img-responsive"></div>
+            <div class="typist" ng-repeat="typist in typists track by typist._id"><img ng-src="{{::typist.picture}}" alt="{{::typist.name}}"
+                                                                   title="{{::typist.name}}" class="img-responsive"></div>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@
       <textarea
               name="comment" id="comment" class="mono"
               ng-model="commentText" ng-disabled="sending" ng-keydown="commentKeyDown($event)"
-              cols="20" rows="1"
+              cols="20" rows="1" autofocus
               placeholder="Новое сообщение"></textarea>
       <div class="toolbar small" ng-show="advancedCompose">
         <small><input type="file" id="siofu_input" /> {{uploadStatus}}   Поддерживаются теги:
