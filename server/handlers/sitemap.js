@@ -40,7 +40,7 @@ module.exports.router = function (req, res, next) {
                         if (item && item.category && item.category.slug && item.slug)
                         res.write(tag(
                             'url',
-                            tag('loc', 'http://'+ process.env.npm_package_config_server_name + '/' +
+                            tag('loc', 'https://'+ process.env.npm_package_config_server_name + '/' +
                                 item.category.slug + '/' +
                                 item.slug) +
                             tag('lastmod', item.updated.toISOString()) +
