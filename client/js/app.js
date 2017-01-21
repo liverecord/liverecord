@@ -12,7 +12,7 @@ if (window.history && window.history.pushState) {
 
 // polyfill to get length
 Object.prototype.numberOfKeys = function() {
-  return Object.keys(this).length
+  return Object.keys(this).length;
 };
 
 Array.prototype._idMerge = function(secondArray) {
@@ -34,11 +34,21 @@ Array.prototype._idMerge = function(secondArray) {
   return this;
 };
 
-var app = angular.module('app', ['ngSanitize', 'ngAnimate', 'ngRoute', 'ngStorage', '720kb.socialshare', '720kb.tooltips']);
+var app = angular.module(
+    'app',
+    [
+      'ngSanitize',
+      'ngAnimate', 'ngRoute', 'ngStorage', '720kb.socialshare', '720kb.tooltips'
+    ]
+    );
 
 app.config([
-  '$locationProvider', '$routeProvider', '$localStorageProvider', '$sessionStorageProvider',
-  function($locationProvider, $routeProvider, $localStorageProvider, $sessionStorageProvider) {
+  '$locationProvider', '$routeProvider',
+  '$localStorageProvider', '$sessionStorageProvider',
+  function(
+      $locationProvider, $routeProvider,
+      $localStorageProvider, $sessionStorageProvider) {
+    //
     $routeProvider.when('/ask', {
       controller: 'NewTopicCtrl',
       templateUrl: '/dist/t/topic.new.tpl'
@@ -79,6 +89,17 @@ app.config([
 
     $localStorageProvider.setKeyPrefix('lr_');
     $sessionStorageProvider.setKeyPrefix('lr_');
+
+    if ($localStorageProvider.supported()) {
+      var deviceId = $localStorageProvider.get('deviceId');
+      if (!deviceId) {
+        deviceId = Math.random().toString(36).substring(2, 15);
+        $localStorageProvider.set('deviceId', deviceId);
+      }
+    } else {
+      alert('Enable Local storage!');
+    }
+
   }
 ]);
 

@@ -14,6 +14,7 @@ const bookmarks = require('./handlers/bookmarks');
 const topics = require('./handlers/topics');
 const userHandler = require('./handlers/users');
 const uploadHandler = require('./handlers/upload');
+const userPush = require('./handlers/push');
 const sharp = require('sharp');
 const path = require('path');
 const xtend = require('xtend');
@@ -88,6 +89,9 @@ var mongooseConnection = mongoose.connection;
 mongooseConnection.on('error',
     console.error.bind(console, 'connection error:')
 );
+
+var threadConnections = 0;
+
 mongooseConnection.once('open', function() {
       // we're connected!
       var models = require('./schema');
@@ -99,6 +103,9 @@ mongooseConnection.once('open', function() {
       // declare io handling
       io
           .on('connection', function(socket) {
+
+            threadConnections++;
+            console.log('Number of connections', threadConnections);
             // load categories
             lrCategories(socket);
             // todo: take it into module
@@ -116,7 +123,13 @@ mongooseConnection.once('open', function() {
                 errorHandler
             );
 
-            console.log('socketioJwt.authorize');
+            console.log('socketioJwt.authorize', socket.id);
+
+            socket.on('disconnect', function() {
+              threadConnections--;
+              console.log('Number of connections', threadConnections);
+            });
+
             return socketioJwt.authorize({
               secret: process.env.npm_package_config_jwt_secret,
               required: false, // authorization is always not required
@@ -149,6 +162,8 @@ mongooseConnection.once('open', function() {
                           comments(socket, io, antiSpam, errorHandler);
                           question(socket, io, errorHandler);
                           bookmarks(socket, errorHandler);
+                          userPush(webpush, socket, errorHandler);
+
                           models.User.update(
                               {_id: currentUser._id},
                               {$set: {online: true, updated: Date.now()}},
@@ -161,34 +176,7 @@ mongooseConnection.once('open', function() {
                         }
                       }
                   );
-                  socket.on('push', function(pushObj, sc) {
 
-                        console.log('pushObj', pushObj);
-
-                        const pushSubscription = {
-                          endpoint: pushObj.subscription.endpoint,
-                          keys: {
-                            p256dh: pushObj.subscription.p256dh,
-                            auth: pushObj.subscription.auth
-                          }
-                        };
-
-                        const payload = JSON.stringify({
-                          action: 'subscribe',
-                          name: 'KOOL'
-                        });
-
-                        setTimeout(function() {
-                              webpush.sendNotification(
-                                  pushSubscription,
-                                  payload
-                              );
-                            }, 10000
-                        );
-
-                        sc({success: true});
-                      }
-                  );
 
                   socket.on('disconnect', function(s) {
                         if (socket.webUser && socket.webUser._id) {

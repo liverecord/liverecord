@@ -30,11 +30,15 @@ app.controller('MainCtrl',
         $localStorage.$default({
               rememberMe: true,
               experimental: false,
+              deviceId: Math.random().toString(36).substring(2, 15),
               sendCommentsCtrl: 'CtrlEnter'
             }
         );
 
         $rootScope.logout = function() {
+          socket.emit('logout', {}, function(user) {
+              }
+          );
           $localStorage.$reset();
           $sessionStorage.$reset();
           $localStorage.rememberMe = false;
