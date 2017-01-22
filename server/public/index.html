@@ -70,6 +70,8 @@
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
                     <a ng-href="/ask?category={{category}}" class="button" ng-show="user">Создать тему</a>
+
+                    <p class="text-center">На форуме {{totalConnections}}</p>
                 </div>
                 <div class="settings" ng-show="user">
                     <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true" ></i> Настройки</a>

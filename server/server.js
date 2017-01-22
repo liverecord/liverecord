@@ -128,7 +128,10 @@ mongooseConnection.once('open', function() {
             socket.on('disconnect', function() {
               threadConnections--;
               console.log('Number of connections', threadConnections);
+              io.volatile.emit('connections', threadConnections);
+
             });
+            io.volatile.emit('connections', threadConnections);
 
             return socketioJwt.authorize({
               secret: process.env.npm_package_config_jwt_secret,

@@ -18,6 +18,8 @@ app.controller('MainCtrl',
         $scope.currentCategorySlug = 'general';
         console.log('Main');
         $rootScope.websocketAlive = false;
+        $scope.totalConnections = 0;
+
         var notificationIndex = 0;
         $rootScope.notifications = {
           list: {},
@@ -77,6 +79,10 @@ app.controller('MainCtrl',
               $rootScope.websocketAlive = false;
             }
         );
+
+        socket.on('connections', function(num) {
+          $scope.totalConnections = num;
+        });
       }
     ]
 );
