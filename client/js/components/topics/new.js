@@ -4,55 +4,84 @@
 
 app.controller(
     'NewTopicCtrl',
-    ['socket',
-      '$scope',
-      'CategoriesFactory',
-      '$location',
+    [
       '$document',
       '$localStorage',
-      function(socket, $scope, CategoriesFactory, $location, $document, $localStorage) {
+      '$location',
+      '$scope',
+      '$timeout',
+      'CategoriesFactory',
+      'socket',
+      function(
+          $document,
+          $localStorage,
+          $location,
+          $scope,
+          $timeout,
+          CategoriesFactory,
+          socket) {
 
         $scope.question = {
           title: '',
           body: ''
         };
-        $scope.question.category = CategoriesFactory.active();
+        $scope.question.category = CategoriesFactory.active() || '';
 
-        $scope.question.title = $localStorage['topic_new_title_' + $scope.question.category._id] || '';
-        $scope.question.body = $localStorage['topic_new_body_' + $scope.question.category._id] || '';
+        $scope.question
+            .title = $localStorage['topic_new_title_' +
+            $scope.question.category._id] || '';
+        $scope.question
+            .body = $localStorage['topic_new_body_' +
+            $scope.question.category._id] || '';
 
-
-
-        $document[0].title = 'Создать тему ' + $scope.question.title + ' на форуме';
 
         $scope.previewHtml = '';
-        if ($scope.categories) {
-
-        }
 
         $scope.sendButtonActive = false;
 
+        var refreshTitle = function() {
+          $document[0].title = 'Создать тему ' +
+              ($scope.question.title || '') +
+              ' в разделе ' +
+              ($scope.question.category.name || '') +
+              ' на форуме СПО';
+        };
 
-        $scope.$watch('question.title', function(newValue, oldValue) {
+        refreshTitle();
+        $timeout(refreshTitle, 5000);
+
+        var storageTitleKey = function() {
+          return 'topic_new_title_' + $scope.question.category._id;
+        };
+
+        var storageBodyKey = function() {
+          return 'topic_new_body_' + $scope.question.category._id;
+        };
+
+        $scope.$watch('question.category', refreshTitle);
+
+
+          $scope.$watch('question.title', function(newValue, oldValue) {
           if (newValue) {
             $scope.sendButtonActive = newValue.length >= 1;
-            $localStorage['topic_new_title_' + $scope.question.category._id] = $scope.question.title;
+            $localStorage[storageTitleKey()] = $scope.question.title;
           } else {
             $scope.sendButtonActive = false;
-            if ($localStorage['topic_new_title_' + $scope.question.category._id]) {
-              delete $localStorage['topic_new_title_' + $scope.question.category._id];
+            if ($localStorage[storageTitleKey()]) {
+              delete $localStorage[storageTitleKey()];
             }
           }
+          refreshTitle();
           return newValue;
         });
         $scope.$watch('question.body', function(newValue, oldValue) {
           if (newValue) {
             $scope.sendButtonActive = newValue.length >= 1;
-            $localStorage['topic_new_body_' + $scope.question.category._id] = $scope.question.body;
+            $localStorage[storageBodyKey()] = $scope.question.body;
           } else {
             $scope.sendButtonActive = false;
-            if ($localStorage['topic_new_body_' + $scope.question.category._id]) {
-              delete $localStorage['topic_new_body_' + $scope.question.category._id];
+            if ($localStorage[storageBodyKey()]) {
+              delete $localStorage[storageBodyKey()];
             }
           }
           return newValue;
