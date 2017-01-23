@@ -65,12 +65,11 @@
         <div class="body flex-row">
             <div class="categories" data-ng-controller="CategoriesCtrl">
                 <div class="menu">
+                    <div><a ng-href="/ask?category={{category}}" class="button" ng-show="user"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Создать тему</a></div>
                     <ul class="menu">
                         <li ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}">{{::item.name}}</a></li>
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
-                    <a ng-href="/ask?category={{category}}" class="button" ng-show="user">Создать тему</a>
-
                     <p class="text-center">На форуме {{totalConnections}}</p>
                 </div>
                 <div class="settings" ng-show="user">
@@ -78,6 +77,10 @@
                 </div>
             </div>
             <div class="topics-panel" data-ng-controller="TopicListCtrl">
+                <div class="search-box">
+                    <a ng-click="search()"><i class="fa fa-search"></i></a>
+                    <input type="search" name="q" class="search" placeholder="Найти тему" ng-model="searchTerm">
+                </div>
                 <div class="topics" id="topics">
                     <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages | orderBy:'-updated' | unique:'_id'  track by message._id">
                         <div class="topic-status">

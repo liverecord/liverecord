@@ -29,6 +29,7 @@ app.controller(
 
         $rootScope.messages = [];
         $scope.topicSwitch = SECTION_NEW_TOPICS;
+        $scope.searchTerm = '';
         this.params = $routeParams;
         this.name = 'Test';
         $rootScope.category = $routeParams.category;
@@ -86,7 +87,8 @@ app.controller(
           listenSlug(category, socket);
           socket.emit('subscribe', {
                 type: 'category',
-                slug: category
+                slug: category,
+                term: $scope.searchTerm
               }
           );
         }
@@ -129,7 +131,8 @@ app.controller(
           socket.emit('subscribe', {
                 type: 'section',
                 section: SECTION_NEW_TOPICS,
-                slug: $rootScope.category
+                slug: $rootScope.category,
+                term: $scope.searchTerm
               }
           );
           $scope.topicSwitch = SECTION_NEW_TOPICS;
@@ -143,7 +146,8 @@ app.controller(
           socket.emit('subscribe', {
                 type: 'section',
                 section: SECTION_RECENTLY_VIEWED,
-                slug: $rootScope.category
+                slug: $rootScope.category,
+                term: $scope.searchTerm
               }
           );
         };
@@ -156,7 +160,8 @@ app.controller(
           socket.emit('subscribe', {
                 type: 'section',
                 section: SECTION_PARTICIPATED,
-                slug: $rootScope.category
+                slug: $rootScope.category,
+                term: $scope.searchTerm
               }
           );
         };
@@ -168,10 +173,33 @@ app.controller(
           socket.emit('subscribe', {
                 type: 'section',
                 section: SECTION_BOOKMARKS,
-                slug: $rootScope.category
+                slug: $rootScope.category,
+                term: $scope.searchTerm
               }
           );
         };
+
+        $scope.$watch('searchTerm', function(newv, oldv) {
+          if (newv) {
+            $rootScope.messages = [];
+            socket.emit('subscribe', {
+                  type: 'section',
+                  section: $scope.topicSwitch,
+                  slug: $rootScope.category,
+                  term: $scope.searchTerm
+                }
+            );
+          } else {
+            $rootScope.messages = [];
+            socket.emit('subscribe', {
+                  type: 'section',
+                  section: $scope.topicSwitch,
+                  slug: $rootScope.category,
+                  term: $scope.searchTerm
+                }
+            );
+          }
+        });
 
       }
     ]

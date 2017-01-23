@@ -22,8 +22,17 @@ function topics(socket, handleError) {
         if (subscription.type) {
 
           var getTopics = function(conditions, slug, patches) {
-            models.Topic.find(conditions)
-                .sort({updated: -1})
+            var options = {}, sortOptions = {};
+            if (subscription.term) {
+              conditions['$text'] = { $search: subscription.term };
+              options = { score: { $meta: 'textScore' } };
+              sortOptions = {score : { $meta : 'textScore' }, updated: -1};
+            } else {
+              sortOptions = {updated: -1};
+            }
+
+            models.Topic.find(conditions, options)
+                .sort(sortOptions)
                 .limit(TOPICS_PER_PAGE)
                 .select('title slug category created updated')
                 .populate('category')
@@ -66,6 +75,7 @@ function topics(socket, handleError) {
                     updated: {$gte: d},
                     spam: false
                   };
+
                   getTopics(conditions, foundCategory.slug);
                 });
           };
