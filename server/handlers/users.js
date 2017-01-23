@@ -30,7 +30,7 @@ function userHandler(socket, io, errorHandler) {
 
             if (foundUser) {
                 // отбираем только необходимые поля (надо было с проекцией заморочиться)
-                var webUser = pick(foundUser, ['_id', 'name', 'email', 'picture', 'slug']);
+                var webUser = pick(foundUser, ['_id', 'name', 'email', 'picture', 'slug', 'online']);
                 // запускаем 2 потока в параллель
                 async.parallel({
                         // ищем количество тем

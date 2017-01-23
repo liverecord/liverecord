@@ -196,17 +196,20 @@ body > .container.websocketAlive .body
         background-color rgba(0,0,0,0.1)
 
 
-  .menu
-    .button
-      background-color $blueRegular
-      color white
-      padding 1vh 1vw
-      text-align center
-      text-decoration none
-      margin 2vw
-      display block
-      opacity 0.8
+.button,
+input[type="submit"],
+input[type="reset"]
+  background-color $blueRegular
+  color white
+  padding 1vh 1vw
+  text-align center
+  text-decoration none
+  margin 2vw
 
+.menu
+  .button
+    display block
+    opacity 0.8
 
 .view-panel 
   width $topicPanelWidth
@@ -579,6 +582,7 @@ body > .container.websocketAlive .body
           overflow hidden
           .time
             font-size 0.6em
+            text-decoration none
             color alpha($blueDark, 0.2)
             transition color ease $fastAnimationDuration
 
@@ -742,3 +746,8 @@ bookmark
   display inline-block
   .bookmark-this-topic
     font-size 100
+
+.online
+  color $greenBright
+  font-size 0.6em
+  vertical-align: middle;

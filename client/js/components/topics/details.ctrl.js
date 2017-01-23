@@ -5,23 +5,29 @@
 app.controller(
     'TopicDetailsCtrl',
     ['socket',
+      '$anchorScroll',
       '$scope',
       'CategoriesFactory',
       '$routeParams',
       '$timeout',
       'PerfectScrollBar',
       '$localStorage',
+      '$location',
       '$rootScope',
+      '$route',
       '$document',
       'Socialshare',
       function(socket,
+          $anchorScroll,
           $scope,
           CategoriesFactory,
           $routeParams,
           $timeout,
           PerfectScrollBar,
           $localStorage,
+          $location,
           $rootScope,
+          $route,
           $document,
           SocialShare) {
         //
@@ -42,18 +48,30 @@ app.controller(
           provider: 'email'
         };
 
-        var getScrollTopMax = function() {
-          var ref;
-          return (ref = document.scrollingElement.scrollTopMax) != null
-              ? ref
-              : (document.scrollingElement.scrollHeight - document.documentElement.clientHeight);
+        var original = $location.hash;
+        $location.hash = function(hash, reload) {
+          if (reload === false) {
+            var lastRoute = $route.current;
+            var un = $rootScope.$on('$locationChangeSuccess', function() {
+              $route.current = lastRoute;
+              un();
+            });
+          }
+          return original.apply($location, [hash]);
         };
 
+        /*
+        var getScrollTopMax = function() {
+          var ref;
+          return (ref = document.scrollingElement.scrollTopMax) != null ? ref :
+            (document.scrollingElement.scrollHeight - document.documentElement.clientHeight);
+        };
+*/
         function isVisible(keyCode) {
           return ([8, 9, 13].indexOf(keyCode) || (keyCode > 46 && keyCode));
         }
 
-        function array_id_merge(firstArray, secondArray) {
+        /*function array_id_merge(firstArray, secondArray) {
           var items = [], newItems = [];
           items = items.concat(firstArray);
           items = items.concat(secondArray);
@@ -82,14 +100,13 @@ app.controller(
           );
           items = newItems;
           return items;
-        }
+        }*/
 
         function array_id_remove(inputArray, id) {
           var items = [];
           items = inputArray.filter(function(item) {
-                return item['_id'] !== id;
-              }
-          );
+            return item['_id'] !== id;
+          });
 
           return items;
         }
@@ -102,23 +119,31 @@ app.controller(
               switch (envelope.type) {
                 case 'commentList':
                   $scope.comments = $scope.comments.concat(envelope.data);
+                  $timeout($anchorScroll, 100);
+
                   break;
                 case 'typing':
-                  $scope.typists = array_id_merge($scope.typists, envelope.data);
+                  $scope.typists = array_id_merge(
+                      $scope.typists,
+                      envelope.data
+                  );
                   if (typingTimeouts[envelope.data._id]) {
                     $timeout.cancel(typingTimeouts[envelope.data._id]);
                   }
                   typingTimeouts[envelope.data._id] = $timeout(function() {
-                        $scope.typists = array_id_remove($scope.typists,
-                            envelope.data._id
-                        );
-                      }, 3000
-                  );
+                    $scope.typists = array_id_remove($scope.typists,
+                        envelope.data._id
+                    );
+                  }, 3000);
 
                   break;
                 case 'comment':
                   $scope.comments.unshift(envelope.data);
                   $timeout(function() {
+                    if (envelope.data._id) {
+                      $location.hash('comment_' + envelope.data._id, false);
+                    }
+
                         var topicCont = document.getElementById('topic');
                         if (topicCont && Ps) {
                           if (topicCont.hasOwnProperty('scrollTopMax')) {
@@ -143,10 +168,12 @@ app.controller(
                 case 'topic':
                   $scope.topic = angular.copy(envelope.data);
                   PerfectScrollBar.setup('topic');
-
+                  $rootScope.messages = array_id_merge($rootScope.messages,
+                      [envelope.data],
+                      $routeParams.topic
+                  );
                   $document[0].title = $scope.topic.title;
                   $scope.commentText = $localStorage['topic_ct_' + $scope.topic._id] || '';
-                  //setActiveTopic();
                   $rootScope.$applyAsync();
 
                   break;

@@ -19,7 +19,7 @@
           <a href="/users/{{::topic.user.slug}}"><img ng-src="{{::topic.user.picture}}" class="img-responsive"></a>
         </div>
         <div class="col" style="flex-grow: 1">
-          <a href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>
+          <a href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>  <span class="online" ng-show="topic.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
         </div>
         <div class="col">
           <span class="date" title="{{::topic.created | date: 'medium'}}">{{::topic.created | date:'short'}}</span>
@@ -43,13 +43,13 @@
           </div>
           <div class="flex-column comment-details">
             <div class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
-              <a ng-href="/users/{{::comment.user.slug}}">{{comment.user.name}}</a>
+              <a ng-href="/users/{{::comment.user.slug}}">{{comment.user.name}}</a> <span class="online" ng-show="comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
             </div>
             <div class="text" ng-bind-html="::comment.body"></div>
           </div>
           <div class="date">
-            <span class="time"
-                  title="{{::comment.created | date: 'medium'}}">{{::comment.created | date:'shortTime'}}</span>
+            <a class="time" name="comment_{{::comment._id}}" href="#comment_{{::comment._id}}" target="_self"
+                  title="{{::comment.created | date: 'medium'}}">{{::comment.created | date:'shortTime'}}</a>
           </div>
         </div>
       </div>

@@ -37,38 +37,43 @@ function topics(socket, handleError) {
 
                             for (var i = 0, l = topics.length; i < l; i++) {
                               patches.forEach(function(patch) {
-                                    console.log('topics[i]._id', topics[i]._id, patch._id);
-                                    if (topics[i]._id.toString() == patch._id.toString()) {
+                                console.log('topics[i]._id', topics[i]._id, patch._id);
+                                if (topics[i]._id.toString() === patch._id.toString()) {
 
-                                      console.log('match')
-                                      topics[i]['updates'] = patch.updates;
+                                  console.log('match')
+                                  topics[i]['updates'] = patch.updates;
 
-                                    }
-                                  }
-                              );
+                                }
+                              });
                             }
                             console.log(topics)
                           }
-                          socket.emit('topics:' + slug, TopicListStruct(topics));
+                          socket.emit(
+                              'topics:' + slug,
+                              TopicListStruct(topics)
+                          );
                         }
                       }
                     }
                 );
           };
 
+          var getCategoryTopics = function(slug) {
+            models.Category.findOne({slug: slug})
+                .then(function(foundCategory) {
+                  conditions = {
+                    category: foundCategory._id,
+                    updated: {$gte: d},
+                    spam: false
+                  };
+                  getTopics(conditions, foundCategory.slug);
+                });
+          };
+
           switch (subscription.type) {
             case 'category':
               if (subscription.slug) {
-                models.Category.findOne({slug: subscription.slug})
-                    .then(function(foundCategory) {
-                          conditions = {
-                            category: foundCategory._id,
-                            updated: {$gte: d},
-                            spam: false
-                          };
-                          getTopics(conditions, foundCategory.slug);
-                        }
-                    );
+                getCategoryTopics(subscription.slug);
               }
               break;
             case 'section':
@@ -102,12 +107,12 @@ function topics(socket, handleError) {
                             }
 
                           };
-
-                          getTopics(conditions, 'newbie', patch);
+                          getTopics(conditions, 'participated', patch);
                         }
                     );
                     break;
                   case 'newTopics':
+                    getCategoryTopics(subscription.slug);
                     break;
                   case 'bookmarks':
                     models.Bookmark
@@ -126,7 +131,7 @@ function topics(socket, handleError) {
                                   )
                                 }
                               };
-                              getTopics(conditions, 'newbie');
+                              getTopics(conditions, 'bookmarks');
                             }
                         );
                     break;
@@ -146,7 +151,8 @@ function topics(socket, handleError) {
                             // we can load it in parallel
                             models.Topic.populate(foundTopic, [
                                   {path: 'category'},
-                                  {path: 'user', select: 'name picture slug'}
+                                  {path: 'user',
+                                    select: 'name picture slug online'}
                                 ]
                             ).then(
                                 function(populatedTopic) {
@@ -188,11 +194,12 @@ function topics(socket, handleError) {
                                       topic: foundTopic._id,
                                       spam: false
                                 })
-                                .sort({created: 1})
+                                .sort({created: -1})
+                                .limit(500)
                                 .populate([
                                       {
                                         path: 'user',
-                                        select: 'name picture slug'
+                                        select: 'name picture slug online'
                                       }
                                     ]
                                 )

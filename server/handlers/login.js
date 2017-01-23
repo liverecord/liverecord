@@ -15,7 +15,7 @@ function lrLogin(socket, handleError) {
     socket.on('login', function (loginData, loginCallback) {
         console.log(loginData);
         function respondAuthUser(user) {
-            var webUser = pick(user, ['_id', 'name', 'email', 'picture', 'slug']);
+            var webUser = pick(user, ['_id', 'name', 'email', 'picture', 'slug', 'online']);
             var jwtUser = pick(user, ['_id', 'email']);
             jwtUser['nt'] = md5(
                 user.pw.hash.substr(17, 2).toLowerCase() +
