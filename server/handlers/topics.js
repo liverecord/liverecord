@@ -70,14 +70,22 @@ function topics(socket, handleError) {
           var getCategoryTopics = function(slug) {
             models.Category.findOne({slug: slug})
                 .then(function(foundCategory) {
-                  conditions = {
-                    category: foundCategory._id,
-                    updated: {$gte: d},
-                    spam: false
-                  };
+                  if (foundCategory) {
+                    conditions = {
+                      category: foundCategory._id,
+                      updated: {$gte: d},
+                      spam: false
+                    };
+                    getTopics(conditions, foundCategory.slug);
 
-                  getTopics(conditions, foundCategory.slug);
-                });
+                  } else {
+                    conditions = {
+                      updated: {$gte: d},
+                      spam: false
+                    };
+                  }
+
+                }).catch(handleError);
           };
 
           switch (subscription.type) {

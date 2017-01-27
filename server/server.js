@@ -24,7 +24,8 @@ const webpush = require('web-push');
 const app = express();
 const SocketIOFileUpload = require('socketio-file-upload');
 
-process.on('uncaughtException', console.error);
+process.on('uncaughtException', errorHandler);
+process.on('UnhandledPromiseRejectionWarning', errorHandler);
 //
 const Raven = require('raven');
 Raven.config(process.env.npm_package_config_sentry_dsn).install();
@@ -43,7 +44,32 @@ console.log(
 );
 
 app.get('/', function(req, res) {
-      res.sendFile(__dirname + '/public/index.html');
+      fs.readFile(
+          __dirname + '/public/index.html',
+          'utf8',
+          function(err, indexData) {
+            if (err) {
+              res.writeHead(502, {
+                    'Content-Type': 'text/html;encoding: utf-8'
+                  }
+              );
+              res.write(indexData);
+              res.end();
+              return errorHandler(err);
+            }
+            indexData = indexData.replace(
+                '<title></title>',
+                '<title>Форум про Линукс и свободные программы</title>'
+            );
+            res.writeHead(200, {
+                  'Content-Type': 'text/html;encoding: utf-8'
+                }
+            );
+            res.write(indexData);
+            res.end();
+
+          }
+      );
     }
 );
 
@@ -143,8 +169,13 @@ mongooseConnection.once('open', function() {
           .on('authenticated', function(socket) {
                 //console.log('authenticated', socket.decoded_token._id);
                 try {
+                  if (!socket.decoded_token) return;
                   models.User.findById(socket.decoded_token._id,
                       function(err, currentUser) {
+                        if (err) {
+                          return errorHandler(err);
+                        }
+
                         if (currentUser) {
                           var webUser = pick(currentUser,
                               ['_id',
@@ -185,7 +216,10 @@ mongooseConnection.once('open', function() {
                         if (socket.webUser && socket.webUser._id) {
                           models.User.update({_id: socket.webUser._id},
                               {'$set': {online: false, updated: Date.now()}}
-                          ).exec();
+                          ).exec(function(err, other) {
+                            if (err) return errorHandler(err);
+                            //
+                          });
                         }
                         console.log('Disconnected', s);
                       }

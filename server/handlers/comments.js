@@ -12,46 +12,50 @@ const mailer = require('./mailer');
 
 function comments(socket, io, antiSpam, handleError) {
 
-
-    socket.on('comment', function(comment, fn) {
+  socket.on('comment', function(comment, fn) {
 
         comment = xtend({
-            'body': '',
-            'topic': {_id: ''}
+          'body': '',
+          'topic': {_id: ''}
         }, comment);
 
         try {
-            comment.body = purify(comment.body);
-        } catch (e) {
-            comment.body = purify(comment.body, true);
+          comment.body = purify(comment.body);
         }
-
+        catch (e) {
+          comment.body = purify(comment.body, true);
+        }
 
         if (comment.body.length > 0) {
 
-            Topic.findOne({_id: comment.topic._id}).then(function(foundTopic) {
+          Topic
+              .findOne({_id: comment.topic._id})
+              .then(function(foundTopic) {
 
                 var newComment = new models.Comment(comment);
 
                 newComment.user = socket.webUser;
 
-                newComment.save(function (err, savedComment) {
-                    if (err) {
+                newComment
+                    .save(function(err, savedComment) {
+                      if (err) {
                         fn(err);
                         return handleError(err);
-                    } else {
+                      } else {
                         fn(CommentStruct(savedComment));
 
                         const details = [
-                            {path: 'category', options: {lean: true}}
+                          {path: 'category', options: {lean: true}}
                         ];
 
-                        models.Topic.populate(foundTopic, details, function(err, detailedTopic) {
-                            if (err) {
+                        models.Topic.populate(foundTopic,
+                            details,
+                            function(err, detailedTopic) {
+                              if (err) {
                                 handleError(err);
-                            } else {
-                                var channel = 'topics:' + detailedTopic.category.slug;
-                                //setTimeout(function() {
+                              } else {
+                                var channel = 'topics:' +
+                                    detailedTopic.category.slug;
 
                                 var pComment = JSON.parse(JSON.stringify(savedComment));
                                 pComment['user'] = socket.webUser;
@@ -62,111 +66,132 @@ function comments(socket, io, antiSpam, handleError) {
                                 const detailedComment = CommentStruct(pComment);
                                 io.emit(channel, detailedComment);
 
-
-
                                 var foundTopic2 = JSON.parse(JSON.stringify(detailedTopic));
                                 foundTopic2.updated = savedComment.created;
                                 foundTopic2.updates = +(foundTopic2.user._id != savedComment.user._id);
-                                io.emit(channel, TopicListStruct([foundTopic2]));
+                                io.emit(
+                                    channel,
+                                    TopicListStruct([foundTopic2]));
 
+                                io.emit(
+                                    'topic:' + detailedTopic.slug,
+                                    detailedComment
+                                );
 
-                                io.emit('topic:' + detailedTopic.slug, detailedComment);
-                                //}, 100);
+                                models.Comment.distinct('user',
+                                    {topic: savedComment.topic},
+                                    function(err, userList) {
+                                      if (err) {
+                                        return handleError(err);
+                                      }
 
-                                models.Comment.distinct('user', {topic: savedComment.topic}, function(err, userList) {
-                                    if (err) return handleError(err);
-
-                                    if (userList) {
+                                      if (userList) {
                                         userList.push(detailedTopic.user);
                                         //console.log('userList', userList);
 
-                                        models.User.find({_id: {$in: userList}, online: false, 'settings.notifications.email': true}).lean().then(function(users) {
-                                            console.log('userList', users);
-                                            //
-                                            users.forEach(function(user) {
-                                                console.log('emaill', user.email)
-                                                mailer({
-                                                    to: user.email,
-                                                    subject: 'Комментарий к теме ' + detailedTopic.title,
-                                                    html: '<div style="white-space: pre-wrap;">' + savedComment.body + '</div>' +
-                                                    '<hr>' +
-                                                    '<a href="' +
-                                                    'http://'+ process.env.npm_package_config_server_name +
-                                                    '/' + detailedTopic.category.slug +
-                                                    '/' +
-                                                    '' + detailedTopic.slug +
-                                                    '">Открыть тему</a>'
-                                                });
-                                            });
-                                        }, handleError);
+                                        models.User
+                                            .find({
+                                              _id: {$in: userList},
+                                              online: false,
+                                              deleted: false,
+                                              'settings.notifications.email':
+                                                  true
+                                            })
+                                            .lean()
+                                            .then(function(users) {
+                                              console.log('userList', users);
+                                              //
+                                              users.forEach(function(user) {
+                                                    console.log('emaill', user.email)
+                                                    mailer({
+                                                          to: user.email,
+                                                          subject: 'Комментарий к теме ' + detailedTopic.title,
+                                                          html: '<div style="white-space: pre-wrap;">' + savedComment.body + '</div>' +
+                                                          '<hr>' +
+                                                          '<a href="' +
+                                                          'http://' + process.env.npm_package_config_server_name +
+                                                          '/' + detailedTopic.category.slug +
+                                                          '/' +
+                                                          '' + detailedTopic.slug +
+                                                          '">Открыть тему</a>'
+                                                        }
+                                                    );
+                                                  }
+                                              );
+                                            },
+                                            handleError
+                                        );
+                                      }
                                     }
-                                });
+                                );
 
+                              }
                             }
-                        });
-
+                        );
+                        function updateHandler(err, data) {
+                          if (err) return handleError(err);
+                        }
                         models.TopicFanOut.update(
                             {
-                                topic: foundTopic._id,
-                                user: socket.webUser._id
+                              topic: foundTopic._id,
+                              user: socket.webUser._id
                             },
                             {
-                                $set: {
-                                    updates: 0,
-                                    updated: savedComment.created
-                                }
+                              $set: {
+                                updates: 0,
+                                updated: savedComment.created
+                              }
                             },
                             {upsert: true}
-                        ).exec();
+                        ).exec(updateHandler);
                         models.TopicFanOut.update(
                             {
-                                topic: foundTopic._id,
-                                user: {$ne: socket.webUser._id}
+                              topic: foundTopic._id,
+                              user: {$ne: socket.webUser._id}
                             },
                             {
-                                $inc: {
-                                    updates: 1
-                                },
-                                $set: {
-                                    updated: savedComment.created
-                                }
+                              $inc: {
+                                updates: 1
+                              },
+                              $set: {
+                                updated: savedComment.created
+                              }
                             }
-                        ).exec();
+                        ).exec(updateHandler);
 
                         models.Topic.update(
                             {
-                                topic: foundTopic._id
+                              topic: foundTopic._id
                             },
                             {
-                                $set: {
-                                    updated: savedComment.created
-                                }
+                              $set: {
+                                updated: savedComment.created
+                              }
                             }
-                        ).exec();
+                        ).exec(updateHandler);
 
                         antiSpam.processComment(savedComment);
 
-
+                      }
                     }
-                });
+            );
 
-            });
-
+          });
 
         } else {
-            fn({error: 'too_short'});
+          fn({error: 'too_short'});
         }
 
+      }
+  );
 
-    });
-
-    socket.on('typing', function(typing) {
+  socket.on('typing', function(typing) {
         typing = xtend({
-            'slug': '_'
+          'slug': '_'
         }, typing);
         io.volatile.emit('topic:' + typing.slug, TypingStruct(socket.webUser));
-    });
-
+      }
+  );
 
 }
 
