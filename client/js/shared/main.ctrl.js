@@ -33,7 +33,7 @@ app.controller('MainCtrl',
               rememberMe: true,
               experimental: false,
               deviceId: Math.random().toString(36).substring(2, 15),
-              sendCommentsCtrl: 'CtrlEnter'
+              sendCommentsCtrl: 'Enter'
             }
         );
 

@@ -33,7 +33,7 @@
         <div>
           Отправка комментариев через
           <br>
-          <input type="radio" value="CtrlEnter" name="sendComments" id="sendCommentsCtrlEnter"
+          <input type="radio" value="Ctrl+Enter" name="sendComments" id="sendCommentsCtrlEnter"
                  ng-model="$localStorage.sendCommentsCtrl">
           <label
                   for="sendCommentsCtrlEnter">Ctrl + Enter</label>

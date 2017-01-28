@@ -97,7 +97,7 @@
     </div>
     <div class="send">
       <button ng-click="sendComment()" ng-disabled="!sendButtonActive"
-              title="Нажмите Ctrl+Enter (или Cmd+Enter) для отправки">
+              title="Нажмите {{$localStorage.sendCommentsCtrl}} для отправки">
         <i class="fa fa-paper-plane"></i>
       </button>
     </div>
