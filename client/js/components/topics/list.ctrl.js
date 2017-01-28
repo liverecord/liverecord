@@ -56,6 +56,7 @@ app.controller(
                   //
                 }
               } else {
+                subscribeToCategory('', socket);
                 CategoriesFactory.active('-1');
                 $rootScope.category = '';
                 $rootScope.messages = [];

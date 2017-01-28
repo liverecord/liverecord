@@ -26,11 +26,11 @@ function topics(socket, handleError) {
             if (subscription.term) {
               conditions['$text'] = { $search: subscription.term };
               options = { score: { $meta: 'textScore' } };
-              sortOptions = {score : { $meta : 'textScore' }, updated: -1};
+              sortOptions = {score: { $meta: 'textScore' }, updated: -1};
             } else {
               sortOptions = {updated: -1};
             }
-
+            console.log(conditions);
             models.Topic.find(conditions, options)
                 .sort(sortOptions)
                 .limit(TOPICS_PER_PAGE)
@@ -83,6 +83,8 @@ function topics(socket, handleError) {
                       updated: {$gte: d},
                       spam: false
                     };
+                    getTopics(conditions, '');
+
                   }
 
                 }).catch(handleError);
@@ -296,13 +298,14 @@ function expressRouter(req, res, next) {
           'utf8',
           function(err, indexData) {
             if (err) {
-                return errorHandler(err);
+              return errorHandler(err);
             }
-            indexData = indexData.replace('<title></title>',
+            indexData = indexData.replace(
+                '<title></title>',
                 '<title>LinuxQuestions - живой форум про Линукс и свободные программы</title>'
             );
             res.writeHead(200, {
-                  "Content-Type": "text/html;encoding: utf-8"
+                  'Content-Type': 'text/html;encoding: utf-8'
                 }
             );
             res.write(indexData);
@@ -314,26 +317,31 @@ function expressRouter(req, res, next) {
 
       models.Topic.findOne({slug: req.params.topic, spam: false})
           .then(function(foundTopic) {
-                models.Topic.populate(foundTopic, [
-                      {path: 'category'},
-                      {path: 'user', select: 'name picture slug'}
-                    ]
-                ).then(function(populatedTopic) {
-                      fs.readFile(__dirname + '/../public/index.html',
+            models
+                .Topic
+                .populate(foundTopic, [
+                  {path: 'category'},
+                  {path: 'user', select: 'name picture slug'}
+                ])
+                .then(function(populatedTopic) {
+                  fs.readFile(__dirname + '/../public/index.html',
                           'utf8',
                           function(err, indexData) {
-                              if (err) {
-                                  return errorHandler(err);
-                              }
+                            if (err) {
+                              return errorHandler(err);
+                            }
                             if (populatedTopic) {
-                              fs.readFile(__dirname + '/../public/dist/t/topic.tpl',
+                              fs.readFile(
+                                  __dirname + '/../public/dist/t/topic.tpl',
                                   'utf8',
                                   function(err, topicData) {
-                                      if (err) {
-                                          return errorHandler(err);
-                                      }
-                                    indexData = indexData.replace('<title></title>',
-                                        '<title>' + populatedTopic.title.substr(0, 80)
+                                    if (err) {
+                                      return errorHandler(err);
+                                    }
+                                    indexData = indexData
+                                        .replace('<title></title>',
+                                        '<title>' +
+                                        populatedTopic.title.substr(0, 80)
                                             .replace(/\n/g, ' ') + '</title>'
                                     );
                                     var body = purify(populatedTopic.body, true);
@@ -344,7 +352,8 @@ function expressRouter(req, res, next) {
                                             250
                                         ).replace(/\n/g, ' ') + '">'
                                     );
-                                    topicData = topicData.replace('{{topic.title}}',
+                                    topicData = topicData.replace(
+                                        '{{topic.title}}',
                                         populatedTopic.title
                                     );
                                     topicData = topicData.replace(
@@ -355,7 +364,8 @@ function expressRouter(req, res, next) {
                                         '{{topic.user.picture}}',
                                         populatedTopic.user.picture
                                     );
-                                    topicData = topicData.replace('{{topic.user.name}}',
+                                    topicData = topicData.replace(
+                                        '{{topic.user.name}}',
                                         populatedTopic.user.name
                                     );
                                     topicData = topicData.replace(
@@ -377,7 +387,7 @@ function expressRouter(req, res, next) {
                                       );
                                     }
                                     res.writeHead(200, {
-                                          "Content-Type": "text/html;encoding: utf-8"
+                                          'Content-Type': 'text/html;encoding: utf-8'
                                         }
                                     );
                                     res.write(indexData);
@@ -386,19 +396,19 @@ function expressRouter(req, res, next) {
                               );
                             } else {
                               res.writeHead(404, {
-                                    "Content-Type": "text/html;encoding: utf-8"
+                                    'Content-Type': 'text/html;encoding: utf-8'
                                   }
                               );
                               res.write(indexData);
                               res.end();
                             }
                           }
-                      );
+                  );
 
-                    }, errorHandler
-                ).catch(errorHandler);
-              }
-          )
+                },
+                errorHandler)
+                .catch(errorHandler);
+          })
           .catch(errorHandler);
     }
   }

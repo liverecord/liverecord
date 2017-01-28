@@ -143,7 +143,10 @@ app.controller(
                     if (envelope.data._id) {
                       $location.hash('comment_' + envelope.data._id, false);
                     }
-
+                    setTimeout(
+                        'document.getElementById(\'comment\').focus();',
+                        1
+                    );
                         var topicCont = document.getElementById('topic');
                         if (topicCont && Ps) {
                           if (topicCont.hasOwnProperty('scrollTopMax')) {
@@ -155,6 +158,8 @@ app.controller(
                             }
                           }
                           Ps.update(topicCont);
+
+
                         }
 
                         $scope.typists = array_id_remove($scope.typists,
