@@ -32,17 +32,26 @@
         <h3>Поведение</h3>
         <div>
           Отправка комментариев через
-          <br>
-          <input type="radio" value="Ctrl+Enter" name="sendComments" id="sendCommentsCtrlEnter"
+          <div>
+            <input type="radio" value="Ctrl+Enter" name="sendComments" id="sendCommentsCtrlEnter"
                  ng-model="$localStorage.sendCommentsCtrl">
-          <label
+            <label
                   for="sendCommentsCtrlEnter">Ctrl + Enter</label>
-          <br>
-          <input type="radio" value="Enter" name="sendComments" id="sendCommentsEnter" ng-model="$localStorage.sendCommentsCtrl">
-          <label for="sendCommentsEnter">Enter
-            <small>(Используйте Shift+Enter для добавления новой строки)</small>
-          </label>
+          </div>
+          <div>
+            <input type="radio" value="Enter" name="sendComments" id="sendCommentsEnter" ng-model="$localStorage.sendCommentsCtrl">
+            <label for="sendCommentsEnter">Enter
+              <small>(Используйте Shift+Enter для добавления новой строки)</small>
+            </label>
+          </div>
         </div>
+        <div>
+          <label for="audioNotice">Звуковые уведомления</label>
+          <input type="checkbox" ng-model="$localStorage.notifications.newComment.audio" name="audioNotice" id="audioNotice"
+                 ><br>
+
+        </div>
+
         <hr size="1">
         <div>
           <label for="experimentalFunctions">Экспериментальные функции</label>

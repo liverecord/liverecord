@@ -212,7 +212,11 @@ function topics(socket, handleError) {
                                 .Comment
                                 .find({
                                       topic: foundTopic._id,
-                                      spam: false
+                                      deleted: false,
+                                      $or: [
+                                        {moderated: true, spam: false},
+                                        {moderated: false}
+                                      ]
                                 })
                                 .sort({created: -1})
                                 .limit(500)

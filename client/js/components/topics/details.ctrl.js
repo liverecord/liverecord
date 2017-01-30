@@ -147,27 +147,43 @@ app.controller(
                         'document.getElementById(\'comment\').focus();',
                         1
                     );
-                        var topicCont = document.getElementById('topic');
-                        if (topicCont && Ps) {
-                          if (topicCont.hasOwnProperty('scrollTopMax')) {
-                            topicCont.scrollTop = topicCont.scrollTopMax;
-                          } else {
-                            var c = document.getElementById('commentsList');
-                            if (c && c.lastElementChild) {
-                              c.lastElementChild.scrollIntoView();
-                            }
-                          }
-                          Ps.update(topicCont);
-
-
+                    var topicCont = document.getElementById('topic');
+                    if (topicCont && Ps) {
+                      if (topicCont.hasOwnProperty('scrollTopMax')) {
+                        topicCont.scrollTop = topicCont.scrollTopMax;
+                      } else {
+                        var c = document.getElementById('commentsList');
+                        if (c && c.lastElementChild) {
+                          c.lastElementChild.scrollIntoView();
                         }
+                      }
+                      Ps.update(topicCont);
 
-                        $scope.typists = array_id_remove($scope.typists,
-                            envelope.data.user._id
-                        );
 
-                      }, 100
-                  );
+                    }
+
+                    $localStorage.notifications = angular.merge(
+                        {},
+                        {newComment: {audio: true}},
+                        $localStorage.notifications
+                    );
+
+                    if (envelope.data.user._id != $rootScope.user._id) {
+                      if ($localStorage.notifications.newComment.audio) {
+                        var audE = document.getElementById('audioNotifications');
+                        if (audE.paused) {
+                          audE.play();
+                        }
+                      }
+                    }
+
+
+                    $scope.typists = array_id_remove($scope.typists,
+                        envelope.data.user._id
+                    );
+
+                  },
+                  100);
                   break;
 
                 case 'topic':
@@ -192,6 +208,28 @@ app.controller(
               slug: $routeParams.topic
             }
         );
+
+        $scope.moderateComment = function(comment, action) {
+          socket.emit('moderate', {
+                type: 'comment',
+                comment: comment,
+                action: action
+              }
+          );
+          comment.moderated = true;
+          switch (action) {
+            case 'spam':
+              comment.spam = true;
+              comment.moderated = true;
+              break;
+            case 'ok':
+              comment.moderated = true;
+
+              comment.spam = false;
+              break;
+          }
+
+        };
 
         $scope.$on('$destroy', function(event) {
           socket.off('topic:' + $routeParams.topic);
@@ -375,7 +413,7 @@ app.controller(
         $scope.uploadFiles = [];
 
         try {
-          var socketUploader = io.connect();
+          socketUploader = io.connect();
           var uploader = new SocketIOFileUpload(socketUploader);
           // uploader.maxFileSize = 1024 * 1024 * 10;
           uploader.listenOnInput(document.getElementById("siofu_input"));

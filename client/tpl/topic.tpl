@@ -36,16 +36,21 @@
       <div class="comments-list" ng-init="firstUser=''" id="commentsList">
         <div class="comment flex-row"
              ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))  track by comment._id"
-             ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id }">
+             ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id, spam: comment.spam, moderated: comment.moderated }">
           <div class="avatar">
             <a ng-href="/users/{{::comment.user.slug}}"><img ng-src="{{::comment.user.picture}}" class="img-responsive"
                  ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}"></a>
           </div>
           <div class="flex-column comment-details">
             <div class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
-              <a ng-href="/users/{{::comment.user.slug}}">{{comment.user.name}}</a> <span class="online" ng-show="comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
+              <a ng-href="/users/{{::comment.user.slug}}">{{::comment.user.name}}</a> <span class="online" ng-show="::comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
             </div>
             <div class="text" ng-bind-html="::comment.body"></div>
+            <div  class="text-moderation" ng-show="::user.roles.indexOf('moderator') > -1">
+
+              <a ng-click="moderateComment(comment, btn.label)" ng-repeat="btn in comment.classification track by btn._id" class="moderator button {{::btn.label}} " title="{{::btn.value}}">{{::btn.label}}</a>
+
+            </div>
           </div>
           <div class="date">
             <a class="time" name="comment_{{::comment._id}}" href="#comment_{{::comment._id}}" target="_self"
@@ -86,13 +91,9 @@
               cols="20" rows="1" autofocus
               placeholder="Новое сообщение"></textarea>
       <div class="toolbar small" ng-show="advancedCompose">
-        <small><input type="file" id="siofu_input" /> {{uploadStatus}}   Поддерживаются теги:
-          <kbd>b</kbd>,
-          <kbd>i</kbd>,
-          <kbd>a</kbd>,
-          <kbd>img</kbd>,
-          <kbd>code</kbd>,
-          <kbd>pre</kbd></small>
+        <small><input type="file" id="siofu_input" /> {{uploadStatus}}
+          Поддерживаются теги:
+          <kbd>b</kbd>, <kbd>i</kbd>, <kbd>a</kbd>, <kbd>img</kbd>, <kbd>code</kbd>, <kbd>pre</kbd>.</small>
       </div>
     </div>
     <div class="send">

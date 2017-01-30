@@ -32,6 +32,10 @@ function comments(socket, io, antiSpam, handleError) {
               .findOne({_id: comment.topic._id})
               .then(function(foundTopic) {
 
+                comment.classification = antiSpam.getClassifications(
+                    comment.body
+                );
+
                 var newComment = new models.Comment(comment);
 
                 newComment.user = socket.webUser;
@@ -192,6 +196,56 @@ function comments(socket, io, antiSpam, handleError) {
         io.volatile.emit('topic:' + typing.slug, TypingStruct(socket.webUser));
       }
   );
+
+  var markCommentAs = function(comment, label) {
+    models.Comment.findOne({_id: comment}).then(function(comment) {
+      if (comment) {
+        var commentText = purify(comment.body, true);
+        antiSpam.classifier.addDocument(commentText, label);
+        antiSpam.classifier.retrain();
+        if (label === 'spam') {
+          comment.spam = true;
+
+        }
+        comment.moderated = true;
+        comment.save(function(err) {
+              if (err) {
+                console.log(err);
+              }
+            }
+        );
+      } else {
+        //
+      }
+    }
+    );
+  };
+
+  socket.on('moderate', function(data) {
+    if (data.type) {
+      switch (data.type) {
+        case 'comment':
+          if (socket.webUser &&
+              socket.webUser.roles &&
+              socket.webUser.roles.indexOf('moderator') > -1) {
+            //
+            if (data.action) {
+              switch (data.action) {
+                case 'spam':
+                  markCommentAs(data.comment._id, data.action);
+                  break;
+                case 'ok':
+                  markCommentAs(data.comment._id, data.action);
+                  break;
+                case 'delete':
+                  break;
+              }
+            }
+          }
+          break;
+      }
+    }
+  });
 
 }
 

@@ -131,5 +131,8 @@
         if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); });
         else window.addEventListener('load', loadDeferredStyles);
     </script>
+    <audio id="audioNotifications" class="hidden audio" preload="auto" volume="0.5">
+        <source src="/dist/s/nmsg.mp3" type="audio/mp3">
+    </audio>
 </body>
 </html>

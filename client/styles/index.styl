@@ -630,9 +630,19 @@ input[type="reset"]
               margin 0.1vh auto
               &.alpha
                 box-shadow none
+          .text-moderation
+            border-bottom solid 1px $lightGrey
+            .button
+              padding 2px
+              font-size 0.8em
+              &.spam
+                background-color red
         &.me
           .text
             color lighten($blueDark, 20)
+        &.spam
+          .text
+            opacity 0.5
         &.lp
           margin-top 0
           margin-bottom 0

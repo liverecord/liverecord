@@ -12,38 +12,49 @@
 // public
 // spam
 
-const mongoose = require("mongoose");
-const CommentSchema = new mongoose.Schema({
-    topic: {
+const mongoose = require('mongoose');
+const CommentSchema = new mongoose.Schema(
+    {
+      topic: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Topic'
-    },
-    body: {
+      },
+      body: {
         type: String
-    },
-    created: { type: Date, default: Date.now },
-    updated: { type: Date, default: Date.now },
-    user: {
+      },
+      created: {type: Date, default: Date.now},
+      updated: {type: Date, default: Date.now},
+      user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    },
-    rating: {
+      },
+      rating: {
         type: Number,
         default: 0
-    },
-    deleted: {
+      },
+      deleted: {
         type: Boolean,
         default: false
-    },
-    solution: {
+      },
+      solution: {
         type: Boolean,
         default: false
-    },
-    spam: {
+      },
+      spam: {
         type: Boolean,
         default: false
-    }
-});
+      },
+      moderated: {
+        type: Boolean,
+        default: false
+      },
+      classification: [
+        {
+          label: String,
+          value: Number
+        }
+      ]
+    });
 CommentSchema.index({topic: 1});
 CommentSchema.index({user: 1});
 

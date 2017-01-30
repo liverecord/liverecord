@@ -32,6 +32,11 @@ app.controller('MainCtrl',
         $localStorage.$default({
               rememberMe: true,
               experimental: false,
+              notifications: {
+                newComment: {
+                  audio: true
+                }
+              },
               deviceId: Math.random().toString(36).substring(2, 15),
               sendCommentsCtrl: 'Enter'
             }
