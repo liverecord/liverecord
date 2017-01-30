@@ -15,7 +15,7 @@ const TOPICS_PER_PAGE = 50;
 function topics(socket, handleError) {
 
   var d = new Date(); // Today!
-  d.setMonth(d.getMonth() - 1);
+  d.setMonth(d.getMonth() - 3);
 
   socket.on('subscribe', function(subscription) {
 

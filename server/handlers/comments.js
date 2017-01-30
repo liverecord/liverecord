@@ -61,16 +61,16 @@ function comments(socket, io, antiSpam, handleError) {
                                 var channel = 'topics:' +
                                     detailedTopic.category.slug;
 
-                                var pComment = JSON.parse(JSON.stringify(savedComment));
+                                var pComment = savedComment.toObject();
                                 pComment['user'] = socket.webUser;
 
                                 console.log(' socket.webUser', socket.webUser);
-                                console.log('pComment', pComment);
+                                console.log('pComment', savedComment.toObject());
 
                                 const detailedComment = CommentStruct(pComment);
                                 io.emit(channel, detailedComment);
 
-                                var foundTopic2 = JSON.parse(JSON.stringify(detailedTopic));
+                                var foundTopic2 = detailedTopic.toObject();
                                 foundTopic2.updated = savedComment.created;
                                 foundTopic2.updates = +(foundTopic2.user._id != savedComment.user._id);
                                 io.emit(
