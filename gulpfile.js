@@ -208,7 +208,7 @@ gulp.task('default',
 
 gulp.task('build', function(callback) {
       runSequence('currentDeployInit',
-          ['css', 'scripts', 'images', 'fonts', 'tpl'],
+          ['scripts', 'tpl', 'css', 'images', 'fonts', 'sounds'],
           'currentDeployWrite',
           callback
       );
