@@ -39,6 +39,7 @@ app.controller('SettingsCtrl',
                  $rootScope.user.name = $scope.profile.name;
                  $rootScope.user.email = $scope.profile.email;
                  $rootScope.user.picture = $scope.profile.picture;
+                 $rootScope.$applyAsync();
                } else {
                  $scope.message = l[response.error] || 'error';
                }

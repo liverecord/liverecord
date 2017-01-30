@@ -12,101 +12,127 @@ const md5 = require('md5');
 
 function lrLogin(socket, handleError) {
 
-    socket.on('login', function (loginData, loginCallback) {
+  socket.on('login', function(loginData, loginCallback) {
         console.log(loginData);
         function respondAuthUser(user) {
-            var webUser = pick(user, ['_id', 'name', 'email', 'picture', 'slug', 'online']);
-            var jwtUser = pick(user, ['_id', 'email']);
-            jwtUser['nt'] = md5(
-                user.pw.hash.substr(17, 2).toLowerCase() +
-                user.pw.salt.substr(7, 2).toUpperCase()
-            );
-            jwt.sign(jwtUser, process.env.npm_package_config_jwt_secret, {}, function(err, token) {
+          var webUser = pick(user,
+              ['_id', 'name', 'email', 'picture', 'slug', 'online', 'roles']
+          );
+          var jwtUser = pick(user, ['_id', 'email']);
+          jwtUser['nt'] = md5(
+              user.pw.hash.substr(17, 2).toLowerCase() +
+              user.pw.salt.substr(7, 2).toUpperCase()
+          );
+          jwt.sign(jwtUser,
+              process.env.npm_package_config_jwt_secret,
+              {},
+              function(err, token) {
                 if (err) {
-                    loginCallback({
+                  loginCallback({
                         success: false,
                         error: 'jwt_cannot_be_created'
-                    });
-                    handleError(err);
+                      }
+                  );
+                  handleError(err);
                 } else {
-                    loginCallback({
+                  loginCallback({
                         success: true,
                         user: webUser,
                         token: token
-                    });
+                      }
+                  );
                 }
-            });
+              }
+          );
         }
+
         if (loginData && loginData.email && loginData.password) {
 
-            models.User.findOne({email: loginData.email}, function(err, user) {
-                if (err) return handleError(err);
-                if (user) {
-                    pw.verify(JSON.stringify(user.pw), loginData.password, function (err, isValid) {
+          models.User.findOne({email: loginData.email}, function(err, user) {
+            if (err) {
+              return handleError(err);
+            }
+            if (user) {
+                  pw.verify(JSON.stringify(user.pw),
+                      loginData.password,
+                      function(err, isValid) {
                         if (err) {
-                            loginCallback({
+                          loginCallback({
                                 success: false,
                                 error: 'password_verification_failed'
-                            });
-                            handleError(err);
+                              }
+                          );
+                          handleError(err);
                         }
                         if (isValid) {
-                            respondAuthUser(user);
+                          respondAuthUser(user);
                         } else {
-                            loginCallback({
+                          loginCallback({
                                 success: false,
                                 error: 'password_mismatch'
-                            });
+                              }
+                          );
                         }
-                    });
+                      }
+                  );
                 } else {
 
-                    var eparts = loginData.email.split('@');
-                    var name = eparts[0];
-                    name = ucfirst(name);
-
-                    var newUser = new models.User({
-                        name: name,
-                        email: loginData.email,
-                        settings: {
-                            notifications: {
-                                email: true
-                            }
-                        }
-                    });
-                    pw.hash(loginData.password, function(err, pwHash) {
+                  var eparts = loginData.email.split('@');
+                  var name = eparts[0];
+                  name = ucfirst(name);
+                  var newUser = new models.User({
+                    name: name,
+                    roles: [],
+                    email: loginData.email,
+                    settings: {
+                      notifications: {
+                        email: true
+                      }
+                    }
+                  });
+                  pw.hash(loginData.password, function(err, pwHash) {
                         if (err) {
-                            loginCallback({
+                          loginCallback({
                                 success: false,
                                 error: 'users_hash_cannot_be_created'
-                            });
-                            handleError(err);
+                              }
+                          );
+                          handleError(err);
                         } else {
-                            newUser.picture = gravatar.url(newUser.email, {s: '100', r: 'g', d: 'retro'}, true);
-                            newUser.pw = JSON.parse(pwHash);
-                            console.log(pwHash);
-                            newUser.save(function (err, savedUser) {
+                          newUser.picture = gravatar.url(newUser.email,
+                              {s: '100', r: 'g', d: 'retro'},
+                              true
+                          );
+                          newUser.pw = JSON.parse(pwHash);
+                          console.log(pwHash);
+                          newUser.save(function(err, savedUser) {
                                 if (err) {
-                                    loginCallback({
+                                  loginCallback({
                                         success: false,
                                         error: 'user_cannot_be_saved'
-                                    });
-                                    handleError(err);
+                                      }
+                                  );
+                                  handleError(err);
                                 } else {
-                                    respondAuthUser(savedUser);
+                                  respondAuthUser(savedUser);
                                 }
-                            });
+                              }
+                          );
                         }
-                    });
+                      }
+                  );
                 }
-            });
+              }
+          );
         } else {
-            loginCallback({
+          loginCallback({
                 success: false,
                 error: 'password_verification_failed'
-            });
+              }
+          );
         }
-    });
+      }
+  );
 }
 
 module.exports = lrLogin;

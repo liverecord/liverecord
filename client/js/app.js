@@ -38,7 +38,7 @@ var app = angular.module(
     'app',
     [
       'ngSanitize',
-      'ngAnimate', 'ngRoute', 'ngStorage', '720kb.socialshare', '720kb.tooltips'
+      'ngAnimate', 'ngRoute', 'ngStorage', '720kb.socialshare'
     ]
     );
 

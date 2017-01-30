@@ -48,10 +48,10 @@
             <div class="top-bar flex-row">
                 <div class="slogan">Живой <i>ф</i>орум о свободных программах и операционных системах</div>
                     <div ng-show="user" class="user flex">
-                        <div class="avatar"><img ng-src="{{::user.picture}}" alt="" class="responsive avatar"></div>
+                        <div class="avatar"><img ng-src="{{user.picture}}" alt="" class="responsive avatar"></div>
                         <div class="profile">
                             <div class="name">{{user.name}}</div>
-                            <div class="manage"><small><a ng-href="/users/{{::user.slug}}">Профиль</a> </small></div>
+                            <div class="manage"><small><a ng-href="/users/{{user.slug}}">Профиль</a> </small></div>
                         </div>
                         <div class="logout">
                             <div class="manage"> <a href="/" title="Выйти" ng-click="logout()"><i class="fa fa-sign-out"></i></a></div>

@@ -75,7 +75,7 @@ function uploadHandler(socket,
                       console.log('filePath', filePath);
                       // resize
                       sharp(event.file.pathName)
-                          .resize(200, 200)
+                          .resize(100, 100)
                           .crop(sharp.strategy.entropy)
                           .toFile(filePath, function(err, info) {
                                 if (err) {
