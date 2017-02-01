@@ -39,6 +39,8 @@ app.controller(
         $scope.commentText = '';
         $scope.advancedCompose = false;
         $scope.sendButtonActive = false;
+        $scope.pagination = {page: 0, total: 0, pages: 0, limit: 10};
+
         $scope.$localStorage = $localStorage;
         $scope.socialshareAttrs = {
           provider: 'email'
@@ -60,47 +62,9 @@ app.controller(
           return original.apply($location, [hash]);
         };
 
-        /*
-        var getScrollTopMax = function() {
-          var ref;
-          return (ref = document.scrollingElement.scrollTopMax) != null ? ref :
-            (document.scrollingElement.scrollHeight - document.documentElement.clientHeight);
-        };
-*/
         function isVisible(keyCode) {
           return ([8, 9, 13].indexOf(keyCode) || (keyCode > 46 && keyCode));
         }
-
-        /*function array_id_merge(firstArray, secondArray) {
-          var items = [], newItems = [];
-          items = items.concat(firstArray);
-          items = items.concat(secondArray);
-
-          var extractValueToCompare = function(item) {
-            if (angular.isObject(item)) {
-              return item['_id'];
-            } else {
-              return item;
-            }
-          };
-
-          angular.forEach(items, function(item) {
-                var isDuplicate = false;
-                for (var i = 0; i < newItems.length; i++) {
-                  var a = extractValueToCompare(newItems[i]);
-                  var b = extractValueToCompare(item);
-                  if (angular.equals(a, b)) {
-                    isDuplicate = true;
-                  }
-                }
-                if (!isDuplicate) {
-                  newItems.push(item);
-                }
-              }
-          );
-          items = newItems;
-          return items;
-        }*/
 
         function array_id_remove(inputArray, id) {
           var items = [];
@@ -118,9 +82,13 @@ app.controller(
 
               switch (envelope.type) {
                 case 'commentList':
-                  $scope.comments = $scope.comments.concat(envelope.data);
+                  $scope.comments = $scope.comments.concat(envelope.data.docs);
+                  if (envelope.data.pages) {
+                    $scope.pagination.total = envelope.data.total || 0;
+                    $scope.pagination.pages = envelope.data.pages || 0;
+                    $scope.pagination.page = envelope.data.page || 1;
+                  }
                   $timeout($anchorScroll, 100);
-
                   break;
                 case 'typing':
                   $scope.typists = array_id_merge(
@@ -158,8 +126,6 @@ app.controller(
                         }
                       }
                       Ps.update(topicCont);
-
-
                     }
 
                     $localStorage.notifications = angular.merge(
@@ -177,11 +143,9 @@ app.controller(
                       }
                     }
 
-
                     $scope.typists = array_id_remove($scope.typists,
                         envelope.data.user._id
                     );
-
                   },
                   100);
                   break;
@@ -199,15 +163,23 @@ app.controller(
 
                   break;
               }
-
+              $scope.$applyAsync();
             }
         );
 
-        socket.emit('subscribe', {
-              type: 'topic',
-              slug: $routeParams.topic
-            }
-        );
+
+        $scope.loadOlderComments = function(force) {
+          if ($scope.pagination.page < $scope.pagination.total || force) {
+            $scope.pagination.page++;
+            socket.emit('subscribe', {
+                  type: 'topic',
+                  slug: $routeParams.topic,
+                  page: $scope.pagination.page
+                }
+            );
+          }
+        };
+        $scope.loadOlderComments(true);
 
         $scope.moderateComment = function(comment, action) {
           socket.emit('moderate', {
@@ -224,7 +196,6 @@ app.controller(
               break;
             case 'ok':
               comment.moderated = true;
-
               comment.spam = false;
               break;
           }
@@ -244,11 +215,11 @@ app.controller(
         };
 
         function enableTextareaTabInsertion(t, evt) {
-          var kc = evt.which ? evt.which : evt.keyCode, isSafari = navigator.userAgent.toLowerCase()
-                  .indexOf("safari") != -1;
+          var kc = evt.which ? evt.which : evt.keyCode,
+              isSafari = navigator.userAgent.toLowerCase()
+                  .indexOf('safari') != -1;
           if (kc == 9 || (isSafari && kc == 25)) {
             t.focus();
-
             // hack for ie
             if (!t.selectionStart) {
               var range = document.selection.createRange();
@@ -260,83 +231,78 @@ app.controller(
               t.setSelectionRange = function(start, end) {
                 var range = this.createTextRange();
                 range.collapse(true);
-                range.moveStart("character", start);
-                range.moveEnd("character", end - start);
+                range.moveStart('character', start);
+                range.moveEnd('character', end - start);
                 range.select();
-              }
+              };
             }
-
-            var tablen = 1, tab = '\t', tab_regexp = /\n\t/g;
-            var ss = t.selectionStart, se = t.selectionEnd, ta_val = t.value, sel = ta_val.slice(
-                ss,
-                se
-            );
+            var tabLen = 1, tab = '\t', tabRegexp = /\n\t/g;
+            var ss = t.selectionStart,
+                se = t.selectionEnd,
+                ta_val = t.value, sel = ta_val.slice(ss, se);
             shft = (isSafari && kc == 25) || evt.shiftKey;
-            var was_tab = ta_val.slice(ss - tablen,
-                    ss
-                ) == tab, starts_with_tab = ta_val.slice(ss,
-                    ss + tablen
-                ) == tab, offset = shft ? 0 - tablen : tablen, full_indented_line = false, num_lines = sel.split(
-                "\n"
-            ).length;
+            var was_tab = ta_val.slice(ss - tabLen, ss) == tab,
+                startsWithTab = ta_val.slice(ss, ss + tabLen) == tab,
+                offset = shft ? 0 - tabLen : tabLen,
+                fullIndentedLine = false,
+                numLines = sel.split('\n').length;
 
             if (ss != se && sel[sel.length - 1] == '\n') {
               se--;
               sel = ta_val.slice(ss, se);
-              num_lines--;
+              numLines--;
             }
-              if (num_lines == 1 && starts_with_tab) {
-                  full_indented_line = true;
-              }
-
-            if (!shft || was_tab || num_lines > 1 || full_indented_line) {
+            if (numLines == 1 && startsWithTab) {
+              fullIndentedLine = true;
+            }
+            if (!shft || was_tab || numLines > 1 || fullIndentedLine) {
               // multi-line selection
-              if (num_lines > 1) {
+              if (numLines > 1) {
                 // tab each line
-                if (shft && (was_tab || starts_with_tab) && sel.split(tab_regexp).length == num_lines) {
-                    if (!was_tab) {
-                        sel = sel.substring(tablen);
-                    }
-                  t.value = ta_val.slice(0, ss - (was_tab ? tablen : 0))
-                      .concat(sel.replace(tab_regexp, "\n"))
+                if (shft && (was_tab || startsWithTab) && sel.split(tabRegexp).length == numLines) {
+                  if (!was_tab) {
+                    sel = sel.substring(tabLen);
+                  }
+                  t.value = ta_val.slice(0, ss - (was_tab ? tabLen : 0))
+                      .concat(sel.replace(tabRegexp, '\n'))
                       .concat(ta_val.slice(se, ta_val.length));
                   ss += was_tab ? offset : 0;
-                  se += offset * num_lines;
+                  se += offset * numLines;
                 }
                 else if (!shft) {
                   t.value = ta_val.slice(0, ss)
                       .concat(tab)
-                      .concat(sel.replace(/\n/g, "\n" + tab))
+                      .concat(sel.replace(/\n/g, '\n' + tab))
                       .concat(ta_val.slice(se, ta_val.length));
-                  se += offset * num_lines;
+                  se += offset * numLines;
                 }
               }
-
               // single-line selection
               else {
-                  if (shft) {
-                      t.value = ta_val.slice(0,
-                              ss - (full_indented_line ? 0 : tablen)
-                          )
-                          .concat(ta_val.slice(ss + (full_indented_line ? tablen : 0),
+                if (shft) {
+                  t.value = ta_val
+                      .slice(0, ss - (fullIndentedLine ? 0 : tabLen))
+                      .concat(
+                          ta_val.slice(
+                              ss + (fullIndentedLine ? tabLen : 0),
                               ta_val.length
-                              )
-                          );
-                  } else {
-                      t.value = ta_val.slice(0, ss)
-                          .concat(tab)
-                          .concat(ta_val.slice(ss, ta_val.length));
-                  }
-
-                  if (ss == se) {
-                      ss = se = ss + offset;
-                  } else {
-                      se += offset;
-                  }
+                          )
+                      );
+                } else {
+                  t.value = ta_val.slice(0, ss)
+                      .concat(tab)
+                      .concat(ta_val.slice(ss, ta_val.length));
+                }
+                if (ss == se) {
+                  ss = se = ss + offset;
+                } else {
+                  se += offset;
+                }
               }
             }
-
-            setTimeout("var t=document.getElementById('" + t.id + "'); t.focus(); t.setSelectionRange(" + ss + ", " + se + ");",
+            setTimeout(
+                'var t=document.getElementById(\'' + t.id +
+                '\'); t.focus(); t.setSelectionRange(' + ss + ', ' + se + ');',
                 0
             );
             evt.preventDefault();
@@ -352,7 +318,11 @@ app.controller(
 
         $scope.commentKeyDown = function(event) {
           console.log(event);
-          if (event.keyCode == 13 && (event.ctrlKey || event.metaKey || ($localStorage.sendCommentsCtrl === 'Enter' && !event.shiftKey)) && $scope.sendButtonActive) {
+          if (event.keyCode == 13 &&
+              (event.ctrlKey || event.metaKey ||
+              ($localStorage.sendCommentsCtrl == 'Enter' && !event.shiftKey)) &&
+              $scope.sendButtonActive) {
+            //
             $scope.sendComment();
           } else if (event.keyCode == 9) {
             enableTextareaTabInsertion(event.target, event);
@@ -377,7 +347,8 @@ app.controller(
                   $scope.advancedCompose = true;
                 }
                 $scope.sendButtonActive = newValue.length >= 1;
-                $localStorage['topic_ct_' + $scope.topic._id] = $scope.commentText;
+                $localStorage['topic_ct_' + $scope.topic._id] = $scope
+                    .commentText;
               } else {
                 $scope.sendButtonActive = false;
                 if ($localStorage['topic_ct_' + $scope.topic._id]) {
@@ -416,10 +387,10 @@ app.controller(
           socketUploader = io.connect();
           var uploader = new SocketIOFileUpload(socketUploader);
           // uploader.maxFileSize = 1024 * 1024 * 10;
-          uploader.listenOnInput(document.getElementById("siofu_input"));
+          uploader.listenOnInput(document.getElementById('siofu_input'));
           //uploader.listenOnDrop(document.getElementById("topic"));
 
-          var commentElement = document.getElementById("comment");
+          var commentElement = document.getElementById('comment');
           uploader.listenOnDrop(commentElement);
           var acceptObject = function(event) {
             commentElement.style.cursor = 'copy';
@@ -464,9 +435,12 @@ app.controller(
                 var url = '/' + payload.absolutePath.replace(/^\//, '');
 
                 var text = '\n<a href="' + url + '">';
-                if (['jpg', 'jpeg', 'png', 'gif'].indexOf(payload.extension) > -1) {
+
+            const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
+            if (IMAGE_EXTENSIONS.indexOf(payload.extension) > -1) {
                   // an image
-                  text += '<img src="' + url + '" alt="' + payload.friendlyName + '"';
+                  text += '<img src="' + url + '" alt="' +
+                      payload.friendlyName + '"';
                   if (payload.hasAlpha) {
                     text += ' class="alpha"';
                   }
@@ -480,31 +454,31 @@ app.controller(
                 $scope.$applyAsync();
               }
           );
-          uploader.addEventListener("error", function(data) {
+          uploader.addEventListener('error', function(data) {
                 if (data.code === 1) {
-                  alert("Используйте файлы не более 10 MB");
+                  alert('Используйте файлы не более 10 MB');
                 }
-                console.log('upload error', data)
+                console.log('upload error', data);
                 $rootScope.$applyAsync();
               }
           );
-          uploader.addEventListener("start", function(event) {
+          uploader.addEventListener('start', function(event) {
                 event.file.fIndex = $rootScope.notifications.add(event);
                 $rootScope.$applyAsync();
               }
           );
 
-          uploader.addEventListener("progress", function(event) {
+          uploader.addEventListener('progress', function(event) {
                 $rootScope.notifications.list[event.file.fIndex] = event;
                 $rootScope.$applyAsync();
               }
           );
-          uploader.addEventListener("load", function(event) {
+          uploader.addEventListener('load', function(event) {
                 $rootScope.notifications.list[event.file.fIndex] = event;
                 $rootScope.$applyAsync();
               }
           );
-          uploader.addEventListener("complete", function(event) {
+          uploader.addEventListener('complete', function(event) {
                 //delete $rootScope.notifications.list[event.file.fIndex];
                 console.log('$rootScope.notifications.list',
                     $rootScope.notifications.list

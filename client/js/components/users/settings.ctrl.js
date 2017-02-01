@@ -2,7 +2,7 @@
  * Created by zoonman on 11/27/16.
  */
 
-app.controller('SettingsCtrl',
+app.controller('SettingsController',
     ['socket',
      '$scope',
      '$rootScope',
@@ -22,12 +22,23 @@ app.controller('SettingsCtrl',
        $scope.sending = false;
        $scope.message = '';
        $scope.profile = angular.copy($rootScope.user);
+
+       $rootScope.$watch('user', function(newv, oldv) {
+         $scope.profile = angular.copy($rootScope.user);
+       });
+
        $scope.$localStorage = $localStorage;
 
        $document[0].title = 'Настройки';
        $rootScope.experimental = $localStorage.experimental;
 
        console.log('init SettingsCtrl')
+
+       $scope.$watch('profile.slug', function(newv, oldv) {
+          socket.emit('user.validate', $scope.profile, function(reponse) {
+
+          });
+       });
 
        $scope.update = function() {
          $scope.sending = true;

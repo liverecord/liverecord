@@ -576,7 +576,22 @@ input[type="reset"]
 
     .comments
       @import "typists.styl"
-
+      .pagination
+        margin-top 1vh
+        text-align center
+        .show-old-comments
+          background-color transparent
+          color $normalGrey
+          border solid 1px $lightGrey
+          border-radius 3px
+          font-size 0.8em
+          padding 0.5vh 1vw
+          text-align center
+          margin-left auto
+          margin-right auto
+          white-space nowrap
+          overflow hidden
+          text-overflow ellipsis
       .comment
         margin-bottom 0vh
         margin-top 1vh
@@ -604,7 +619,9 @@ input[type="reset"]
         .avatar
           width 4vh
           padding 0
+
           img
+            background-color $lightGrey
             height 3vh
             max-width 4vh
 
@@ -650,6 +667,7 @@ input[type="reset"]
           padding-bottom 0.5vh
         &.up + .comment.lp
           margin-top -1vh
+
 
     &.advancedcompose
       > .topic
@@ -760,6 +778,12 @@ import('googlecode.styl')
 .text-right
   text-align right
 
+.help-block
+  background-color lighten($orange, 20)
+  border solid 1px $lightGrey
+  margin-top 0
+  padding 1vh
+  font-size 0.8em
 
 bookmark
   display inline-block
@@ -770,3 +794,13 @@ bookmark
   color $greenBright
   font-size 0.6em
   vertical-align: middle;
+
+.rank
+  color lighten($greenDark, 50)
+  .ranked
+    color $greenDark
+  .fa-fw
+    width 0.5vh
+
+.avatar .rank
+  font-size 0.5vh

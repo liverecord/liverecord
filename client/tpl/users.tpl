@@ -1,12 +1,25 @@
 <div class="flex-column " style="width: 100%;">
   <div id="topic" style="position: relative">
     <div class="user-info flex-center">
-      <h1>{{::userInfo.name}}</h1>
-      <div><small>@{{::userInfo.slug}}</small></div>
+      <h1><span class="online" ng-show="userInfo.online" title="Онлайн"><i class="fa fa-circle"></i></span> {{::userInfo.name}}</h1>
       <div><img ng-src="{{::userInfo.picture}}" alt="{{::userInfo.slug}}" class="img-responsive"></div>
-      <div><p><span class="online" ng-show="userInfo.online" title="Онлайн"><i class="fa fa-circle"></i></span></p></div>
-      <div><p>Всего тем: {{::userInfo.details.topicCount}}</p></div>
-      <div><p>Всего комментариев: {{::userInfo.details.commentCount}}</p></div>
+      <div><small>@{{::userInfo.slug}}</small></div>
+      <div>
+
+        <div >
+          Рейтинг:
+          <span class="rank">
+          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 0}"></i>&nbsp;
+          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 1}"></i>&nbsp;
+          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 2}"></i>&nbsp;
+          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 3}"></i>&nbsp;
+          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 4}"></i></span>
+        </div>
+      </div>
+      <div><p></p></div>
+      <div><p>Всего тем: {{::userInfo.totals.topics}}</p></div>
+      <div><p>Всего комментариев: {{::userInfo.totals.comments}}</p></div>
+
       <div ng-show="userInfo._id === user._id">
         <a class="button" ng-href="/settings">Настройки</a>
       </div>

@@ -14,6 +14,7 @@ const bookmarks = require('./handlers/bookmarks');
 const topics = require('./handlers/topics');
 const userHandler = require('./handlers/users');
 const uploadHandler = require('./handlers/upload');
+const errorHandler = require('./handlers/errors');
 const userPush = require('./handlers/push');
 const sharp = require('sharp');
 const path = require('path');
@@ -82,10 +83,7 @@ app.use(SocketIOFileUpload.router);
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
 
-function errorHandler() {
-  console.trace(arguments[0]);
-  console.dir(arguments, {colors: true});
-}
+
 
 const vapidFilePath = __dirname + '/' +
     process.env.npm_package_config_webpush_vapid_keys_path;
@@ -184,6 +182,7 @@ mongooseConnection.once('open', function() {
                                 'picture',
                                 'slug',
                                 'roles',
+                                'rank',
                                 'settings'
                               ]
                           );
@@ -210,7 +209,6 @@ mongooseConnection.once('open', function() {
                         }
                       }
                   );
-
 
                   socket.on('disconnect', function(s) {
                         if (socket.webUser && socket.webUser._id) {

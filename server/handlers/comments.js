@@ -143,7 +143,8 @@ function comments(socket, io, antiSpam, handleError) {
                             {
                               $set: {
                                 updates: 0,
-                                updated: savedComment.created
+                                updated: savedComment.created,
+                                commented: true
                               }
                             },
                             {upsert: true}
@@ -219,9 +220,11 @@ function comments(socket, io, antiSpam, handleError) {
       }
     }
     );
+    return true;
   };
 
-  socket.on('moderate', function(data) {
+  socket.on('moderate', function(data, socketCallback) {
+    var r = {success: true};
     if (data.type) {
       switch (data.type) {
         case 'comment':
@@ -232,10 +235,10 @@ function comments(socket, io, antiSpam, handleError) {
             if (data.action) {
               switch (data.action) {
                 case 'spam':
-                  markCommentAs(data.comment._id, data.action);
+                  r['success'] = markCommentAs(data.comment._id, data.action);
                   break;
                 case 'ok':
-                  markCommentAs(data.comment._id, data.action);
+                  r['success'] = markCommentAs(data.comment._id, data.action);
                   break;
                 case 'delete':
                   break;
@@ -245,6 +248,7 @@ function comments(socket, io, antiSpam, handleError) {
           break;
       }
     }
+    socketCallback(r);
   });
 
 }

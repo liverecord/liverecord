@@ -32,21 +32,33 @@
 
     <div class="comments">
 
-
+      <div class="pagination">
+        <a class="show-old-comments" ng-click="loadOlderComments()" ng-show="pagination.page < pagination.pages">Показать более ранние комментарии ({{pagination.total - pagination.page * pagination.limit}})</a>
+      </div>
       <div class="comments-list" ng-init="firstUser=''" id="commentsList">
         <div class="comment flex-row"
              ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))  track by comment._id"
              ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id, spam: comment.spam, moderated: comment.moderated }">
           <div class="avatar">
-            <a ng-href="/users/{{::comment.user.slug}}"><img ng-src="{{::comment.user.picture}}" class="img-responsive"
-                 ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}"></a>
+            <div ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}">
+              <a ng-href="/users/{{::comment.user.slug}}"><img ng-src="{{::comment.user.picture}}" class="img-responsive"
+                ></a>
+              <div class="rank">
+                <i class="fa fa-fw fa-stop" ng-class="{ranked: comment.user.rank > 0}"></i>
+                <i class="fa fa-fw fa-stop" ng-class="{ranked: comment.user.rank > 1}"></i>
+                <i class="fa fa-fw fa-stop" ng-class="{ranked: comment.user.rank > 2}"></i>
+                <i class="fa fa-fw fa-stop" ng-class="{ranked: comment.user.rank > 3}"></i>
+                <i class="fa fa-fw fa-stop" ng-class="{ranked: comment.user.rank > 4}"></i>
+              </div>
+            </div>
+
           </div>
           <div class="flex-column comment-details">
             <div class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
               <a ng-href="/users/{{::comment.user.slug}}">{{::comment.user.name}}</a> <span class="online" ng-show="::comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
             </div>
             <div class="text" ng-bind-html="::comment.body"></div>
-            <div  class="text-moderation" ng-show="::user.roles.indexOf('moderator') > -1">
+            <div ng-hide="comment.moderated" class="text-moderation" ng-show="::user.roles.indexOf('moderator') > -1">
 
               <a ng-click="moderateComment(comment, btn.label)" ng-repeat="btn in comment.classification track by btn._id" class="moderator button {{::btn.label}} " title="{{::btn.value}}">{{::btn.label}}</a>
 

@@ -37,6 +37,7 @@ var paths = {
     'node_modules/angular-socialshare/dist/angular-socialshare.js',
     'node_modules/angular-growl-notifications/dist/angular-growl-notifications.js',
     'node_modules/angular-tooltips/dist/angular-tooltips.js',
+    'node_modules/angular-messages/angular-messages.js',
     'client/js/**/*.js'
   ],
   bootstrap: [],
@@ -55,7 +56,7 @@ var paths = {
     'node_modules/font-awesome/fonts/**/*'
   ],
   sounds: [
-    'client/sounds/**/*',
+    'client/sounds/**/*'
   ]
 };
 

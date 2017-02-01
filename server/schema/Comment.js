@@ -13,6 +13,7 @@
 // spam
 
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 const CommentSchema = new mongoose.Schema(
     {
       topic: {
@@ -57,5 +58,7 @@ const CommentSchema = new mongoose.Schema(
     });
 CommentSchema.index({topic: 1});
 CommentSchema.index({user: 1});
+CommentSchema.plugin(mongoosePaginate);
+
 
 module.exports = mongoose.model('Comment', CommentSchema);

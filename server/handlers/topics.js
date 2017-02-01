@@ -2,6 +2,7 @@
  * Created by zoonman on 12/12/16.
  */
 const fs = require('fs');
+const async = require('async');
 const models = require('../schema');
 const lrEnvelopes = require('./envelope');
 const purify = require('./purify');
@@ -11,6 +12,7 @@ const TopicStruct = lrEnvelopes.topic;
 const CommentListStruct = lrEnvelopes.commentList;
 
 const TOPICS_PER_PAGE = 50;
+
 
 function topics(socket, handleError) {
 
@@ -101,6 +103,33 @@ function topics(socket, handleError) {
               if (subscription.section) {
                 switch (subscription.section) {
                   case 'recentlyViewed':
+                    models.TopicFanOut.aggregate(
+                        {$match: {user: socket.webUser._id}},
+                        {$sort: {updated: -1}},
+                        {
+                          $group: {
+                            _id: '$topic',
+                            updates: {$first: '$updates'},
+                            updated: {$first: '$updated'}
+                          }
+                        },
+                        {$limit: TOPICS_PER_PAGE},
+                        function(err, patch) {
+                          if (err) {
+                            return handleError(err);
+                          }
+                          console.log(patch); // [ { maxBalance: 98000 } ]
+                          conditions = {
+                            '_id': {
+                              '$in': patch.map(function(el) {
+                                return el._id;
+                              })
+                            }
+
+                          };
+                          getTopics(conditions, 'recentlyViewed', patch);
+                        }
+                    );
                     break;
                   case 'participated':
                     models.TopicFanOut.aggregate(
@@ -167,82 +196,94 @@ function topics(socket, handleError) {
                       socket.join(
                           'topic:' + foundTopic.slug,
                           function() {
-                            //console.info('joined', foundTopic.slug);
-                            // we can load it in parallel
-                            models.Topic.populate(foundTopic, [
-                                  {path: 'category'},
-                                  {path: 'user',
-                                    select: 'name picture slug online'}
-                                ]
-                            ).then(
-                                function(populatedTopic) {
-                                    var clonedTopic = JSON.parse(JSON.stringify(
-                                        populatedTopic
-                                        )
-                                    );
-                                    models
-                                        .Bookmark
-                                        .findOne({topic: clonedTopic._id})
-                                        .then(function(bookmark) {
-                                            if (bookmark) {
-                                              clonedTopic.bookmark = bookmark;
-                                            } else {
-                                              clonedTopic.bookmark = false;
-                                            }
-                                            socket.emit(
-                                                'topic:' + foundTopic.slug,
-                                                TopicStruct(clonedTopic)
-                                            );
-                                            }
-                                        )
-                                        .catch(function(reason) {
-                                                clonedTopic.bookmark = false;
-                                                socket.emit(
-                                                    'topic:' + foundTopic.slug,
-                                                    TopicStruct(clonedTopic)
-                                                );
-                                                handleError(reason);
-                                            }
-                                        );
-
-                                }, handleError
-                            );
-                            //
-                            models
-                                .Comment
-                                .find({
-                                      topic: foundTopic._id,
-                                      deleted: false,
-                                      $or: [
-                                        {moderated: true, spam: false},
-                                        {moderated: false}
-                                      ]
-                                })
-                                .sort({created: -1})
-                                .limit(500)
-                                .populate([
-                                      {
-                                        path: 'user',
-                                        select: 'name picture slug online'
-                                      }
+                            async.parallel({
+                              topicData: function(callback) {
+                                models.Topic.populate(foundTopic, [
+                                      {path: 'category'},
+                                      {path: 'user',
+                                        select: 'name picture slug online rank'}
                                     ]
-                                )
-                                .lean()
-                                .exec(function(err, data) {
-                                      if (err) {
-                                        handleError(err);
-                                      } else {
-                                        if (data) {
-                                          socket.emit(
-                                              'topic:' + foundTopic.slug,
-                                              CommentListStruct(data)
-                                          );
-                                        }
-                                      }
+                                ).then(function(resolve, reject) {
+                                  callback(reject, resolve);
+                                });
+                              },
+                              bookmarkData: function(callback) {
+                                models
+                                    .Bookmark
+                                    .findOne({topic: foundTopic._id})
+                                    .then(function(resolve, reject) {
+                                      callback(reject, resolve);
+                                    });
+                              },
+                              fanOutData: function(callback) {
+                                models
+                                    .TopicFanOut
+                                    .findOne({topic: foundTopic._id})
+                                    .then(function(resolve, reject) {
+                                      callback(reject, resolve);
+                                    });
+                              }
+                            }, function(err, results) {
+                              console.log('err', err, 'r', results);
+                              var clonedTopic = results.topicData.toObject();
+                              clonedTopic.bookmark = results.bookmarkData || false;
+                              clonedTopic.fanOut = results.fanOutData || false;
+                              socket.emit(
+                                  'topic:' + foundTopic.slug,
+                                  TopicStruct(clonedTopic)
+                              );
+                            });
+                            //
+                            models.
+                                Comment.
+                                paginate({
+                                  topic: foundTopic._id,
+                                  deleted: false,
+                                  $or: [
+                                    {moderated: true, spam: false},
+                                    {moderated: false}
+                                  ]
+                                },{
+                                  sort: {created: -1},
+                                  populate: [
+                                    {
+                                      path: 'user',
+                                      select: 'name picture slug online rank'
+                                    }
+                                  ],
+                                  lean: true,
+                                  limit: 10,
+                                  page: subscription.page || 1
+                                },
+                                function(err, data) {
+                                  if (err) {
+                                    handleError(err);
+                                  } else {
+                                    if (data) {
+                                      socket.emit(
+                                          'topic:' + foundTopic.slug,
+                                          CommentListStruct(data)
+                                      );
+                                    }
+                                  }
                                 });
 
-                      }
-                      );
+                            models.TopicFanOut.update(
+                                {
+                                  topic: foundTopic._id,
+                                  user: socket.webUser._id
+                                },
+                                {
+                                  $set: {
+                                    updates: 0,
+                                    updated: Date.now()
+                                  }
+                                },
+                                {upsert: true}
+                            ).exec(function(err, result) {
+                              if (err) return handleError(err);
+                            });
+                      });
                       if (socket.webUser) {
                         models.TopicFanOut.update({
                               topic: foundTopic._id,
@@ -325,7 +366,7 @@ function expressRouter(req, res, next) {
                 .Topic
                 .populate(foundTopic, [
                   {path: 'category'},
-                  {path: 'user', select: 'name picture slug'}
+                  {path: 'user', select: 'name picture slug rank'}
                 ])
                 .then(function(populatedTopic) {
                   fs.readFile(__dirname + '/../public/index.html',

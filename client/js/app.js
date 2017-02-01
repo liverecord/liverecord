@@ -38,7 +38,8 @@ var app = angular.module(
     'app',
     [
       'ngSanitize',
-      'ngAnimate', 'ngRoute', 'ngStorage', '720kb.socialshare'
+      'ngAnimate', 'ngRoute', 'ngStorage', 'ngMessages',
+      '720kb.socialshare'
     ]
     );
 
@@ -56,7 +57,7 @@ app.config([
       controller: 'NewTopicCtrl',
       templateUrl: '/dist/t/topic.new.tpl'
     }).when('/settings', {
-      controller: 'SettingsCtrl',
+      controller: 'SettingsController',
       templateUrl: '/dist/t/settings.tpl'
     }).when('/users/:slug', {
       controller: 'UsersCtrl',
