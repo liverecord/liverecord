@@ -181,6 +181,36 @@ app.controller(
         };
         $scope.loadOlderComments(true);
 
+        $scope.vote = function(comment, action) {
+          socket.emit('vote', {
+                type: 'comment',
+                comment: comment,
+                action: action
+              }
+          );
+          if (!comment.voted) {
+            comment.voted = true;
+            switch (action) {
+              case 'up':
+                comment.rating = (comment.rating || 0) + 1;
+                break;
+              case 'down':
+                comment.rating = (comment.rating || 0) - 1;
+                break;
+            }
+          }
+        };
+
+        $scope.report = function(comment) {
+          socket.emit('report', {
+                type: 'comment',
+                comment: comment,
+                action: action
+              }
+          );
+          comment.spam = true;
+        };
+
         $scope.moderateComment = function(comment, action) {
           socket.emit('moderate', {
                 type: 'comment',

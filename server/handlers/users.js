@@ -213,13 +213,6 @@ function userHandler(socket, io, errorHandler) {
                               handleError(err);
                             } else {
                               // create reusable transporter object using the
-                              // default SMTP transport
-                              var transporter = nodemailer.createTransport(
-                                  process.env.npm_package_config_email_transport //'smtps://user%40gmail.com:pass@smtp.gmail.com'
-                              );
-
-                              //transporter.tls.rejectUnauthorized = false;
-
                               // setup e-mail data with unicode symbols
                               var mailOptions = {
                                 from: process.env.npm_package_config_email_sender, // sender address

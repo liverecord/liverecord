@@ -58,6 +58,12 @@
               <a ng-href="/users/{{::comment.user.slug}}">{{::comment.user.name}}</a> <span class="online" ng-show="::comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
             </div>
             <div class="text" ng-bind-html="::comment.body"></div>
+            <div class="text-feedback">
+              <a ng-click="vote(comment, 'up')"><i class="fa fa-fw fa-caret-up"></i></a>
+              <span>{{comment.rating}}</span>
+              <a ng-click="vote(comment, 'down')"><i class="fa fa-fw fa-caret-down"></i></a>
+              <a ng-click="report(comment)"><i class="fa fa-fw fa-flag"></i></a>
+            </div>
             <div ng-hide="comment.moderated" class="text-moderation" ng-show="::user.roles.indexOf('moderator') > -1">
 
               <a ng-click="moderateComment(comment, btn.label)" ng-repeat="btn in comment.classification track by btn._id" class="moderator button {{::btn.label}} " title="{{::btn.value}}">{{::btn.label}}</a>
@@ -65,7 +71,7 @@
             </div>
           </div>
           <div class="date">
-            <a class="time" name="comment_{{::comment._id}}" href="#comment_{{::comment._id}}" target="_self"
+            <a class="time hidden-xs" name="comment_{{::comment._id}}" href="#comment_{{::comment._id}}" target="_self"
                   title="{{::comment.created | date: 'medium'}}">{{::comment.created | date:'shortTime'}}</a>
           </div>
         </div>
