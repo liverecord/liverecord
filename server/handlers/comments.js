@@ -1,9 +1,10 @@
 /**
  * Created by zoonman on 12/10/16.
  */
+const xtend = require('xtend');
+const jp = require('jsonpath');
 const models = require('../schema');
 const Topic = models.Topic;
-const xtend = require('xtend');
 const CommentStruct = require('./envelope').comment;
 const TypingStruct = require('./envelope').typing;
 const TopicListStruct = require('./envelope').topicList;
@@ -36,7 +37,11 @@ function comments(socket, io, antiSpam, handleError) {
                     comment.body
                 );
 
+                comment.spam = jp
+                        .value(comment, 'classification.0.label') === 'spam';
+
                 var newComment = new models.Comment(comment);
+
 
                 newComment.user = socket.webUser;
 
@@ -197,6 +202,76 @@ function comments(socket, io, antiSpam, handleError) {
         io.volatile.emit('topic:' + typing.slug, TypingStruct(socket.webUser));
       }
   );
+
+  socket.on('vote', function(voteData) {
+
+    models.Comment
+        .findOne({_id: voteData.comment._id})
+        .select('topic')
+        .then(function(foundComment) {
+          'use strict';
+          var rating = 0;
+          switch (voteData.action) {
+            case 'up':
+              rating = 1;
+              break;
+            case 'down':
+              rating = -1;
+              break;
+          }
+          models
+              .CommentVote
+              .update({
+                comment: foundComment._id,
+                user: socket.webUser._id
+              }, {
+                $set: {
+                  topic: foundComment.topic,
+                  rating: rating
+                }
+              },
+              {upsert: true}
+              )
+              .then(function(updateResult) {
+                return models
+                    .CommentVote
+                    .aggregate([
+                          {$match: {comment: foundComment._id}},
+                          {
+                            $group: {
+                              _id: '$comment',
+                              commentRating: {$sum: '$rating'}
+                            }
+                          }
+                        ]
+                    );
+              })
+              .then(function(aggregationResults) {
+                if (aggregationResults[0]) {
+                  foundComment.rating = aggregationResults[0].commentRating;
+                  foundComment.save();
+                }
+              })
+              .catch(function(reason) {
+                console.log(reason);
+              });
+        });
+  });
+
+  socket.on('report', function(voteData) {
+    models.Comment
+        .findOne({_id: voteData.comment._id})
+        .then(function(foundComment) {
+          'use strict';
+          mailer({
+            to: 'zoonman@gmail.com',
+            subject: '[LQ] ' + socket.webUser.name,
+            text: 'Turn html mode on!',
+            html: foundComment.body
+          });
+        });
+  });
+
 
   var markCommentAs = function(comment, label) {
     models.Comment.findOne({_id: comment}).then(function(comment) {

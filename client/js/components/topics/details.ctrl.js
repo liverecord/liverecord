@@ -204,8 +204,7 @@ app.controller(
         $scope.report = function(comment) {
           socket.emit('report', {
                 type: 'comment',
-                comment: comment,
-                action: action
+                comment: comment
               }
           );
           comment.spam = true;

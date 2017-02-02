@@ -80,6 +80,7 @@
     "gulp-uglify": "^2.0.0",
     "highlight.js": "^9.9.0",
     "jsdom": "^9.8.3",
+    "jsonpath": "^0.2.9",
     "jsonwebtoken": "^7.1.9",
     "limax": "^1.4.1",
     "md5": "^2.2.1",
@@ -104,6 +105,7 @@
     "sticky-session": "^1.1.2",
     "ucfirst": "^1.0.0",
     "validator": "^6.2.0",
-    "web-push": "^3.2.1"
+    "web-push": "^3.2.1",
+    "webrtc-adapter": "^3.1.0"
   }
 }
