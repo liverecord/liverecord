@@ -330,10 +330,7 @@ function comments(socket, io, antiSpam, webpush, handleError) {
         var commentText = purify(comment.body, true);
         antiSpam.classifier.addDocument(commentText, label);
         antiSpam.classifier.retrain();
-        if (label === 'spam') {
-          comment.spam = true;
-
-        }
+        comment.spam = label === 'spam';
         comment.moderated = true;
         comment.save(function(err) {
               if (err) {
