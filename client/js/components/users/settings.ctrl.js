@@ -19,7 +19,14 @@ app.controller('SettingsController',
           wpf,
           $document) {
         //
-        $scope.l = {};
+        var l = {
+          bad_slug: 'Используйте другой псевдоним',
+          not_found: 'Ошибка сохранения данных, проверьте поля',
+          picture_is_bad: 'Используйте другое изображение',
+          invalid_email: 'Используйте другой email',
+        };
+
+        $scope.l = l;
         $scope.sending = false;
         $scope.message = '';
         $scope.profile = angular.copy($rootScope.user);
@@ -37,8 +44,18 @@ app.controller('SettingsController',
 
         console.log('init SettingsCtrl')
 
-        $scope.$watch('profile.slug', function(newv, oldv) {
-          socket.emit('user.validate', $scope.profile, function(reponse) {
+        $scope.$watch('profile', function(newv, oldv) {
+          socket.emit('user.validate', $scope.profile, function(response) {
+            'use strict';
+            console.log('user.validate', response);
+            if (response.email) {
+              $scope.userForm.email.$valid = false;
+              $scope.userForm.email.$invalid = true;
+            }
+            if (response.slug) {
+              $scope.userForm.slug.$valid = false;
+              $scope.userForm.slug.$invalid = true;
+            }
           });
         });
 
@@ -52,6 +69,7 @@ app.controller('SettingsController',
                   $rootScope.user.name = $scope.profile.name;
                   $rootScope.user.email = $scope.profile.email;
                   $rootScope.user.picture = $scope.profile.picture;
+                  $rootScope.user.slug = $scope.profile.slug;
                   $rootScope.$applyAsync();
                 } else {
                   $scope.message = l[response.error] || 'error';

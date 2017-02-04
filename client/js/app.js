@@ -62,17 +62,14 @@ app.config([
     }).when('/users/:slug', {
       controller: 'UsersCtrl',
       controllerAs: 'uctl',
-
-      templateUrl: '/dist/t/users.tpl'
+      templateUrl: '/dist/t/users.info.tpl'
     }).when('/users/password/restore', {
       controller: 'UsersPasswordRestoreCtrl',
       controllerAs: 'uctl',
-
       templateUrl: '/dist/t/users.password.restore.tpl'
     }).when('/:category/:topic', {
       controller: 'TopicDetailsCtrl',
       controllerAs: 'topic',
-
       templateUrl: '/dist/t/topic.tpl'
     }).when('/:category', {
       controller: 'TopicStubCtrl',

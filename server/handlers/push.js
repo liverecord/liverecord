@@ -18,46 +18,20 @@ module.exports = function(webpush, socket, errorHandler) {
           }
         };
 
-        /*
-        *
-      * id: String,
-         ua: String,
-         pushSubscription: {
-         endpoint: String,
-         keys: {
-         p256dh: String,
-         auth: String
-         }
-         }
-        *
-        *
-        * */
+        var remoteIp = socket.handshake.headers['x-forwarded-for'] ||
+            socket.request.connection.remoteAddress;
 
         const device = {
           _id: pushObj.subscription.deviceId,
           ua: pushObj.subscription.ua,
           pushEnabled: true,
-          lastIp: socket.request.connection.remoteAddress,
+          lastIp: remoteIp,
           pushSubscription: pushSubscription
         };
 
-    /*
-        const payload = JSON.stringify({
-          action: 'subscribe',
-          name: 'KOOL'
-        });
-
-        setTimeout(function() {
-              webpush.sendNotification(
-                  pushSubscription,
-                  payload
-              );
-            }, 10000
-        );*/
-
 
         if (socket.decoded_token._id) {
-          console.log('upadting push', socket.decoded_token._id)
+          console.log('upadting push', socket.decoded_token._id);
           models.User.update(
               {
                 _id: socket.decoded_token._id,

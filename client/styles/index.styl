@@ -40,6 +40,10 @@ button,input[type=submit],input[type=reset]
   text-overflow ellipsis
   margin 0.1em
   white-space nowrap
+  box-shadow 1px 1px 1px -1px rgba(255,255,255,0.2) inset
+
+button:active,input[type=submit]:active,input[type=reset]:active
+  box-shadow 1px 1px 1px -1px rgba(0,0,0,0.2) inset
 
 button[disabled],input[type=submit][disabled],input[type=reset][disabled]
   background-color desaturate($blueRegular, 20)
@@ -870,3 +874,5 @@ bookmark
 
 .avatar .rank
   font-size 0.5vh
+
+@import "settings.styl"

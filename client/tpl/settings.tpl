@@ -1,11 +1,10 @@
 <div class="flex-column">
 
-  <div class="wrapper" id="wrapper" style="position: relative">
+  <div class="wrapper settings" id="wrapper" style="position: relative">
     <h1>Настройки</h1>
 
     <div>
       <h2>Глобальные</h2>
-      <pre>myForm.myName.$error = {{ userForm.profileName.$error | json }}</pre>
       <div class="signinform">
         <h3>Профиль</h3>
         <div class="message" ng-show="message">{{message}}</div>
@@ -14,6 +13,10 @@
                                                           id="profileName" ng-model="profile.name"
                                                           required ng-minlength="2" ng-maxlength="32"
                                                            ng-disabled="sending">
+            <i class="fa fa-fw fa-times" ng-show="userForm.profileName.$invalid"></i>
+            <i class="fa fa-fw fa-check" ng-show="userForm.profileName.$valid"></i>
+
+
             <div ng-messages="userForm.profileName.$error" role="alert">
               <div ng-message="required" class="help-block">Введите имя, которое будет отображаться.</div>
               <div ng-message="minlength" class="help-block">Ваше имя слишком короткое.</div>
@@ -23,13 +26,20 @@
           </div>
           <div><label for="nickName">Псевдоним</label><input name="slug" type="text" id="nickName" ng-model="profile.slug" required
                                                              pattern="[a-zA-Z0-9-]+"
-                                                             ng-minlength="3" ng-maxlength="16"
+                                                             ng-minlength="3" ng-maxlength="64"
                                                              placeholder="Псевдоним" ng-disabled="sending">
-            <p ng-show="userForm.slug.$invalid && !userForm.slug.$pristine" class="help-block">Введите свой <kbd>@</kbd>псевдоним. Только латинские буквы, цифры и дефис от 3х до 16 символов.</p>
+            <i class="fa fa-fw fa-times" ng-show="userForm.slug.$invalid"></i>
+            <i class="fa fa-fw fa-check" ng-show="userForm.slug.$valid"></i>
+
+            <p ng-show="userForm.slug.$invalid && !userForm.slug.$pristine" class="help-block">
+              Введите свой <kbd>@</kbd>псевдоним. Только латинские буквы, цифры и дефис от 3х до 16 символов.
+            </p>
           </div>
           <div><label for="email">Почта</label><input name="email" type="email" id="email" ng-model="profile.email" required
                                                       ng-minlength="3" ng-maxlength="64"
                                                       placeholder="email" ng-disabled="sending">
+            <i class="fa fa-fw fa-times" ng-show="userForm.email.$invalid"></i>
+            <i class="fa fa-fw fa-check" ng-show="userForm.email.$valid"></i>
 
             <p ng-show="userForm.email.$invalid && !userForm.email.$pristine" class="help-block">Этот email неверен, попробуйте ввести другой.</p>
 
@@ -69,10 +79,7 @@
           <label for="audioNotice">Звуковые уведомления</label>
           <input type="checkbox" ng-model="$localStorage.notifications.newComment.audio" name="audioNotice" id="audioNotice"
                  ><br>
-
         </div>
-
-
 
         <hr size="1">
         <div>

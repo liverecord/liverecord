@@ -100,6 +100,7 @@ function userHandler(socket, io, errorHandler) {
         );
       }
     }, function(err, info) {
+      console.log(info);
       socketCallback(info);
     });
 
@@ -136,44 +137,61 @@ function userHandler(socket, io, errorHandler) {
           socketCallback({success: false, error: 'picture_is_bad'});
         }
 
+        if (validator.isAlphanumeric(userRequest.slug)) {
+          updateData['slug'] = userRequest.slug;
+        } else {
+          socketCallback({success: false, error: 'bad_slug'});
+        }
+
         updateData['settings.notifications.email'] = userRequest
             .settings.notifications.email;
 
-        if (userRequest.email === socket.webUser.email) {
-          // the same user
-          User.update({_id: socket.webUser._id}, updateData)
-              .then(function() {
-                socketCallback({success: true});
-                socket.webUser.name = updateData.name;
-                socket.webUser.picture = updateData.picture;
-              }
-          );
-        } else {
-          // email needs validation
-
-          User.findOne({email: userRequest.email})
-              .then(function(foundUser) {
-                if (foundUser._id === socket.webUser._id) {
-
+        User
+            .count({_id: {$ne: socket.webUser._id}, slug: userRequest.slug})
+            .then(function(count) {
+              if (count > 0) {
+                socketCallback({success: false, error: 'bad_slug'});
+              } else {
+                if (userRequest.email === socket.webUser.email) {
+                  // the same user
                   User.update({_id: socket.webUser._id}, updateData)
                       .then(function() {
-                        socketCallback({success: true});
-                        socket.webUser.picture = updateData.picture;
-                        socket.webUser.name = updateData.name;
+                            socketCallback({success: true});
+                            socket.webUser.name = updateData.name;
+                            socket.webUser.picture = updateData.picture;
+                            socket.webUser.slug = updateData.slug;
+                          }
+                      );
+                } else {
+                  // email needs validation
+                  User.findOne({email: userRequest.email})
+                      .then(function(foundUser) {
+                            if (foundUser._id === socket.webUser._id) {
+                              User.update({_id: socket.webUser._id}, updateData)
+                                  .then(function() {
+                                    socketCallback({success: true});
+                                    socket.webUser.picture = updateData.picture;
+                                    socket.webUser.name = updateData.name;
+                                    socket.webUser.slug = updateData.slug;
+                                  });
+                            } else {
+                              socketCallback({
+                                success: false,
+                                error: 'not_found'
+                              });
+                            }
+                          }
+                      ).catch(function(notFound) {
+                        socketCallback({success: false, error: 'not_found'});
                       }
                   );
-
-                } else {
-                  socketCallback({success: false, error: 'not_found'});
                 }
-
               }
-          ).catch(function(notFound) {
-                socketCallback({success: false, error: 'not_found'});
-              }
-          );
+            });
 
-        }
+
+
+
 
       }
   );

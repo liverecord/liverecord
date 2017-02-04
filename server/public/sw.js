@@ -36,7 +36,7 @@ function fireNotification(obj, event) {
     icon: icon,
     tag: obj._id,
     actions: [{
-      title: 'Hello',
+      title: 'Открыть',
       action: 'View',
       icon: '/dist/i/logo.png'
     }],
@@ -46,7 +46,7 @@ function fireNotification(obj, event) {
   };
 
   if (obj.image) {
-    notificationOptions.image = obj.image;
+    //notificationOptions.image = obj.image;
     notificationOptions.icon = obj.image;
   }
 
