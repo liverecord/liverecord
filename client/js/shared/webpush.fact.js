@@ -1,7 +1,7 @@
 /**
  * Created by zoonman on 12/16/16.
  */
-app.factory('wpf', function($rootScope, $localStorage, socket) {
+app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket) {
 
       var isPushEnabled = false;
       var useNotifications = false;
@@ -24,9 +24,33 @@ app.factory('wpf', function($rootScope, $localStorage, socket) {
         };
       }
 
+      function urlBase64ToUint8Array(base64String) {
+
+        console.log('vapidPublicKey', liveRecordConfig)
+
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (var i = 0; i < rawData.length; ++i) {
+          outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+      }
+
       function subscribe() {
         navigator.serviceWorker.ready.then(function(reg) {
-              reg.pushManager.subscribe({userVisibleOnly: true})
+              reg
+                  .pushManager
+                  .subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey:
+                        urlBase64ToUint8Array(liveRecordConfig.vapidPublicKey)
+                  })
                   .then(function(subscription) {
                     // The subscription was successful
                     isPushEnabled = true;
@@ -177,6 +201,10 @@ app.factory('wpf', function($rootScope, $localStorage, socket) {
               var channel = new MessageChannel();
               channel.port1.onmessage = function(e) {
                 console.log('Service worker sent', e);
+
+                if (e.data.link) {
+                  $location.url(e.data.link);
+                }
               };
               var mySW = reg.active;
               mySW.postMessage('hello', [channel.port2]);
@@ -186,16 +214,16 @@ app.factory('wpf', function($rootScope, $localStorage, socket) {
 
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').then(function(reg) {
-              if (reg.installing) {
-                console.log('Service worker installing');
-              } else if (reg.waiting) {
-                console.log('Service worker installed');
-              } else if (reg.active) {
-                console.log('Service worker active');
-              }
-
-              initialiseState(reg);
-            }
+          if (reg.installing) {
+            console.log('Service worker installing');
+          } else if (reg.waiting) {
+            console.log('Service worker installed');
+            reg.update();
+          } else if (reg.active) {
+            console.log('Service worker active');
+          }
+          initialiseState(reg);
+        }
         );
       } else {
         console.log('Service workers aren\'t supported in this browser.');

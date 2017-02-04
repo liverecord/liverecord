@@ -27,19 +27,31 @@ function userHandler(socket, io, errorHandler) {
           'slug': ''
         }, userRequest
         );
+        var fields = {
+          '_id' : 1,
+          'name' : 1,
+          'email' : 1,
+          'picture': 1,
+          'slug': 1,
+          'online': 1,
+          'rank': 1,
+          'totals': 1
+        };
+        if (socket.webUser && userRequest.slug === socket.webUser.slug) {
+          fields['devices._id'] = 1;
+          fields['devices.ua'] = 1;
+          fields['devices.pushEnabled'] = 1;
+        }
         // ищем пользователя по слагу
         User
-            .findOne({slug: userRequest.slug})
+            .findOne({slug: userRequest.slug}, fields)
             .then(function(foundUser) {
               if (foundUser) {
                 // отбираем только необходимые поля (надо было с проекцией
                 // заморочиться)
-                var webUser = pick(foundUser,
-                    [
-                      '_id', 'name', 'email', 'picture', 'slug',
-                      'online', 'rank', 'totals'
-                    ]
-                );
+
+
+                var webUser = foundUser.toObject();
                 Topic.find({'user': foundUser._id, deleted: false, spam: false})
                     .limit(100)
                     .populate([{path: 'category'}])

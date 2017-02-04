@@ -38,8 +38,10 @@ const UserSchema = new mongoose.Schema({
   },
   devices: [
     {
-      id: String,
+      _id: String,
       ua: String,
+      lastIp: String,
+      pushEnabled: {type: Boolean, default: true},
       pushSubscription: {
         endpoint: String,
         keys: {

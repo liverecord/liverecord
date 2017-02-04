@@ -34,8 +34,10 @@ module.exports = function(webpush, socket, errorHandler) {
         * */
 
         const device = {
-          id: pushObj.subscription.deviceId,
+          _id: pushObj.subscription.deviceId,
           ua: pushObj.subscription.ua,
+          pushEnabled: true,
+          lastIp: socket.request.connection.remoteAddress,
           pushSubscription: pushSubscription
         };
 
@@ -59,7 +61,7 @@ module.exports = function(webpush, socket, errorHandler) {
           models.User.update(
               {
                 _id: socket.decoded_token._id,
-                'devices.id': pushObj.subscription.deviceId
+                'devices._id': pushObj.subscription.deviceId
               },
               {
                 $set: {

@@ -133,7 +133,10 @@ body > .container.websocketAlive .body
 .logo a 
   text-decoration none
   color $orange
-
+  span
+    font-feature-settings "liga"
+    font-variant-ligatures common-ligatures
+    font-kerning normal
 
 .categories
   width $categoriesPanelWidth
@@ -173,6 +176,7 @@ body > .container.websocketAlive .body
     li
       margin 0
       padding-top 1vh
+      user-select none
 
       a
         transition all ease $slowAnimationDuration
@@ -207,6 +211,17 @@ input[type="reset"]
   text-align center
   text-decoration none
   margin 2vw
+
+
+.button,
+.topic-info,
+.show-old-comments,
+input[type="submit"],
+input[type="reset"]
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select none
 
 .menu
   .button
@@ -595,6 +610,17 @@ input[type="reset"]
           text-overflow ellipsis
           display inline-block
           max-width 40vw
+          cursor pointer
+          &:hover
+            color darken($normalGrey, 10)
+            border solid 1px $normalGrey
+            box-shadow 1px 1px 0px white inset
+          &:active
+            box-shadow 1px 1px 1px rgba(0,0,0,0.1) inset
+          &:focus
+            color darken($normalGrey, 10)
+            box-shadow 1px 1px 0px white inset
+
       .comment
         margin-bottom 0vh
         margin-top 1vh
@@ -666,6 +692,9 @@ input[type="reset"]
               display inline-block
               padding 2px 3px
               line-height inherit
+              cursor pointer
+              &:hover
+                color $blueDark
             span
               line-height inherit
               color $greenDark

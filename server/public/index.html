@@ -10,25 +10,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="LocalVox Social">
+    <meta name="apple-mobile-web-app-title" content="">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="msapplication-tap-highlight" content="no" />
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <style>
         [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak],
-        .ng-cloak, .x-ng-cloak,
-        .ng-hide:not(.ng-hide-animate) {
-            display: none !important;
-        }
-        ng\:form {
-            display: block;
-        }
-        .ng-animate-shim {
-            visibility:hidden;
-        }
-        .ng-anchor {
-            position:absolute;
-        }
+            .ng-cloak, .x-ng-cloak,
+            .ng-hide:not(.ng-hide-animate) {display: none !important;}
+        ng\:form {display: block;}
+        .ng-animate-shim {visibility:hidden;}
+        .ng-anchor {position:absolute;}
         body{background-color:#f7fafc;color:#303e4d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";margin:0;-webkit-box-sizing:border-box;box-sizing:border-box}
         body>.connecting{position:fixed;left:0;top:0;width:100vw;height:100vh;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-content:center;-ms-flex-line-pack:center;align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgba(48,62,77,.9)}
         .categories,.logo{width:14.590182208031484vw;overflow:hidden;text-overflow:ellipsis}
@@ -39,6 +31,7 @@
         @media (max-width:767px) {body>.connecting div.center h1{color:#eba36f;font-size:3vh;margin:1vh 0}}
     </style>
     <script type="application/javascript">
+        var liveRecordConfig = {};
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
                     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
                 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -137,7 +130,7 @@
         if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); });
         else window.addEventListener('load', loadDeferredStyles);
     </script>
-    <audio id="audioNotifications" class="hidden audio" preload="auto" volume="0.5">
+    <audio id="audioNotifications" class="hidden audio" preload="none" volume="0.5">
         <source src="/dist/s/nmsg.mp3" type="audio/mp3">
     </audio>
 </body>

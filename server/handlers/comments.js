@@ -11,7 +11,7 @@ const TopicListStruct = require('./envelope').topicList;
 const purify = require('./purify');
 const mailer = require('./mailer');
 
-function comments(socket, io, antiSpam, handleError) {
+function comments(socket, io, antiSpam, webpush, handleError) {
 
   socket.on('comment', function(comment, fn) {
 
@@ -86,7 +86,12 @@ function comments(socket, io, antiSpam, handleError) {
                                     'topic:' + detailedTopic.slug,
                                     detailedComment
                                 );
-
+                                var commentUrl = 'http://' +
+                                    process.env.npm_package_config_server_name +
+                                    '/' + detailedTopic.category.slug +
+                                    '/' +
+                                    detailedTopic.slug +
+                                    '#comment_' + savedComment._id;
                                 models.Comment.distinct('user',
                                     {topic: savedComment.topic},
                                     function(err, userList) {
@@ -118,10 +123,8 @@ function comments(socket, io, antiSpam, handleError) {
                                                           html: '<div style="white-space: pre-wrap;">' + savedComment.body + '</div>' +
                                                           '<hr>' +
                                                           '<a href="' +
-                                                          'http://' + process.env.npm_package_config_server_name +
-                                                          '/' + detailedTopic.category.slug +
-                                                          '/' +
-                                                          '' + detailedTopic.slug +
+                                                          commentUrl +
+
                                                           '">Открыть тему</a>'
                                                         }
                                                     );
@@ -133,6 +136,54 @@ function comments(socket, io, antiSpam, handleError) {
                                       }
                                     }
                                 );
+                                const pushPayload = JSON.stringify({
+                                  action: 'subscribe',
+                                  title: socket.webUser.name +
+                                  ' комментирует ' + detailedTopic.title,
+                                  id: savedComment._id,
+                                  link: commentUrl,
+                                  image: socket.webUser.picture,
+                                  body: purify(comment.body, true)
+                                });
+                                models
+                                    .TopicFanOut
+                                    .find({
+                                      topic: foundTopic._id,
+                                      user: {$ne: socket.webUser._id}
+                                    })
+                                    .lean()
+                                    .populate({
+                                      path: 'user',
+                                      select: 'name settings devices'
+                                    })
+                                    .then(function(topicFans) {
+                                      topicFans.forEach(function(fan) {
+                                        console.log('fan', fan);
+
+                                        if (fan.user.devices) {
+                                          fan.user
+                                              .devices
+                                              .forEach(function(device) {
+                                                console.log('device', device);
+                                                if (device.pushEnabled) {
+                                                  webpush
+                                                      .sendNotification(
+                                                      device.pushSubscription,
+                                                      pushPayload
+                                                      )
+                                                      .then(function(result) {
+                                                        console.log('Pushed', result);
+                                                      })
+                                                      .catch(function(reason) {
+                                                        console.log('Push failed', reason);
+                                                      });
+                                                }
+                                          });
+                                        }
+                                      });
+                                    })
+                                    .catch(handleError);
+                                    //
 
                               }
                             }

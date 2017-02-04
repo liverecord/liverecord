@@ -44,6 +44,12 @@ console.log(
     process.env.npm_package_config_server_port
 );
 
+
+var frontLiveRecordConfig = {
+  gaId: process.env.npm_package_config_analytics_ga_id,
+};
+
+
 app.get('/', function(req, res) {
       fs.readFile(
           __dirname + '/public/index.html',
@@ -62,6 +68,11 @@ app.get('/', function(req, res) {
                 '<title></title>',
                 '<title>Форум про Линукс и свободные программы</title>'
             );
+
+            indexData = indexData.replace('liveRecordConfig = {}',
+                'liveRecordConfig = ' + JSON.stringify(frontLiveRecordConfig)
+            );
+
             res.writeHead(200, {
                   'Content-Type': 'text/html;encoding: utf-8'
                 }
@@ -106,6 +117,11 @@ webpush.setVapidDetails(
     vapidKeys.privateKey
 );
 webpush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
+
+frontLiveRecordConfig['vapidPublicKey'] = vapidKeys.publicKey;
+
+
+
 
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
@@ -183,6 +199,7 @@ mongooseConnection.once('open', function() {
                                 'slug',
                                 'roles',
                                 'rank',
+                                'devices',
                                 'settings'
                               ]
                           );
@@ -192,7 +209,7 @@ mongooseConnection.once('open', function() {
                           // now have a user context and can work
                           Raven.setContext({user: webUser});
                           // handlers
-                          comments(socket, io, antiSpam, errorHandler);
+                          comments(socket, io, antiSpam, webpush, errorHandler);
                           question(socket, io, errorHandler);
                           bookmarks(socket, errorHandler);
                           userPush(webpush, socket, errorHandler);
@@ -240,6 +257,11 @@ mongooseConnection.once('open', function() {
                   indexData = indexData.replace('<title></title>',
                     '<title>LinuxQuestions - живой форум про Линукс и свободные программы</title>'
                   );
+
+                  indexData = indexData.replace('liveRecordConfig = {}',
+                      'liveRecordConfig = ' + JSON.stringify(frontLiveRecordConfig)
+                  );
+
                   res.writeHead(200, {
                         'Content-Type': 'text/html;encoding: utf-8'
                       }

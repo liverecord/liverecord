@@ -134,7 +134,8 @@ app.controller(
                         $localStorage.notifications
                     );
 
-                    if (envelope.data.user._id != $rootScope.user._id) {
+                    if ($rootScope.user &&
+                        envelope.data.user._id != $rootScope.user._id) {
                       if ($localStorage.notifications.newComment.audio) {
                         var audE = document.getElementById('audioNotifications');
                         if (audE.paused) {

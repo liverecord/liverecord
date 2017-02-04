@@ -72,17 +72,31 @@
 
         </div>
 
+
+
         <hr size="1">
         <div>
           <label for="experimentalFunctions">Экспериментальные функции</label>
-          <input type="checkbox" ng-model="$localStorage.experimental" name="remember" id="experimentalFunctions"
+          <input type="checkbox" ng-model="experimental" name="remember" id="experimentalFunctions"
                  ng-disabled="sending"><br>
           <small><b>Не рекомендуется неопытным пользователям!</b>
             Это опция включает поддержку нестандартных и недокументированных возможностей, часть из которых может влиять
             на работу с сайтом.
           </small>
         </div>
-
+        <div ng-show="experimental">
+          <h2>Уведомления</h2>
+          <table width="100%">
+            <thead>
+            <tr><th>Push</th><th>Браузер</th><th>Ip</th></tr>
+            </thead>
+            <tr ng-repeat="dev in user.devices">
+              <td><input type="checkbox" ng-model="dev.pushEnabled"></td>
+              <td>{{dev.ua}}</td>
+              <td>{{dev.lastIp}}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
 
