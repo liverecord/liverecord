@@ -66,6 +66,21 @@ function userHandler(socket, io, errorHandler) {
         });
       }
   );
+  socket.on('user.lookup', function(userRequest, socketCallback) {
+    'use strict';
+    User
+        .findOne({email: userRequest}, {name: 1, slug: 1, picture: 1})
+        .then(function(doc) {
+          socketCallback({
+            success: !!doc,
+            user: doc
+          });
+        })
+        .catch(function(reason) {
+          errorHandler(reason);
+        });
+  });
+
   socket.on('user.validate', function(userRequest, socketCallback) {
     'use strict';
     userRequest = xtend({

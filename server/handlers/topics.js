@@ -6,6 +6,7 @@ const async = require('async');
 const models = require('../schema');
 const lrEnvelopes = require('./envelope');
 const purify = require('./purify');
+const staticHandlers = require('./static');
 
 const TopicListStruct = lrEnvelopes.topicList;
 const TopicStruct = lrEnvelopes.topic;
@@ -31,6 +32,16 @@ function topics(socket, handleError) {
               sortOptions = {score: { $meta: 'textScore' }, updated: -1};
             } else {
               sortOptions = {updated: -1};
+            }
+            if (socket.webUser) {
+              //
+              conditions['$or'] = [
+                {private: false},
+                {user: socket.webUser._id},
+                {acl: socket.webUser._id}
+              ];
+            } else {
+              conditions['private'] = false;
             }
             console.log(conditions);
             models.Topic.find(conditions, options)
@@ -190,17 +201,38 @@ function topics(socket, handleError) {
               break;
             case 'topic':
               if (subscription.slug) {
-                models.Topic.findOne({slug: subscription.slug, spam: false})
+
+                var oneTopicConditions = {
+                  slug: subscription.slug,
+                  deleted: false,
+                  spam: false
+                };
+                if (socket.webUser) {
+                  //
+                  oneTopicConditions['$or'] = [
+                    {private: false},
+                    {user: socket.webUser._id},
+                    {acl: socket.webUser._id}
+                  ];
+                } else {
+                  oneTopicConditions['private'] = false;
+                }
+
+                models.Topic.findOne(oneTopicConditions)
                     .then(function(foundTopic) {
-                      //console.info('foundTopic', foundTopic);
+                      if (!foundTopic) return;
                       socket.join(
                           'topic:' + foundTopic.slug,
                           function() {
                             async.parallel({
                               topicData: function(callback) {
-                                models.Topic.populate(foundTopic, [
+                                models
+                                    .Topic
+                                    .populate(foundTopic, [
                                       {path: 'category'},
                                       {path: 'user',
+                                        select: 'name picture slug online rank'},
+                                      {path: 'acl',
                                         select: 'name picture slug online rank'}
                                     ]
                                 ).then(function(resolve, reject) {
@@ -305,7 +337,12 @@ function topics(socket, handleError) {
       }
   );
 
-  models.Topic.find({updated: {$gte: d}, spam: false})
+  models.Topic.find({
+        updated: {$gte: d},
+        spam: false,
+        deleted: false,
+        private: false
+  })
       .sort({updated: -1})
       .limit(TOPICS_PER_PAGE)
       .select('title slug category created updated')
@@ -339,28 +376,17 @@ function expressRouter(req, res, next) {
       req.params.hasOwnProperty('topic')) {
 
     if ('users' === req.params.category) {
-      fs.readFile(__dirname + '/../public/index.html',
-          'utf8',
-          function(err, indexData) {
-            if (err) {
-              return errorHandler(err);
-            }
-            indexData = indexData.replace(
-                '<title></title>',
-                '<title>LinuxQuestions - живой форум про Линукс и свободные программы</title>'
-            );
-            res.writeHead(200, {
-                  'Content-Type': 'text/html;encoding: utf-8'
-                }
-            );
-            res.write(indexData);
-            res.end();
-
-          }
-      );
+      staticHandlers.expressRouter(req, res, next);
     } else {
 
-      models.Topic.findOne({slug: req.params.topic, spam: false})
+      models
+          .Topic
+          .findOne({
+            slug: req.params.topic,
+            spam: false,
+            deleted: false,
+            private: false
+          })
           .then(function(foundTopic) {
             models
                 .Topic
@@ -369,86 +395,76 @@ function expressRouter(req, res, next) {
                   {path: 'user', select: 'name picture slug rank'}
                 ])
                 .then(function(populatedTopic) {
-                  fs.readFile(__dirname + '/../public/index.html',
-                          'utf8',
-                          function(err, indexData) {
-                            if (err) {
-                              return errorHandler(err);
-                            }
-                            if (populatedTopic) {
-                              fs.readFile(
-                                  __dirname + '/../public/dist/t/topic.tpl',
-                                  'utf8',
-                                  function(err, topicData) {
-                                    if (err) {
-                                      return errorHandler(err);
-                                    }
-                                    indexData = indexData
-                                        .replace('<title></title>',
-                                        '<title>' +
-                                        populatedTopic.title.substr(0, 80)
-                                            .replace(/\n/g, ' ') + '</title>'
-                                    );
-                                    var body = purify(populatedTopic.body, true);
-                                    indexData = indexData.replace(
-                                        '<meta name="description" content="">',
-                                        '<meta name="description" content="' + body.substr(
-                                            0,
-                                            250
-                                        ).replace(/\n/g, ' ') + '">'
-                                    );
-                                    topicData = topicData.replace(
-                                        '{{topic.title}}',
-                                        populatedTopic.title
-                                    );
-                                    topicData = topicData.replace(
-                                        /\{\{topic\.user\.slug}}/g,
-                                        populatedTopic.user.slug
-                                    );
-                                    topicData = topicData.replace(
-                                        '{{topic.user.picture}}',
-                                        populatedTopic.user.picture
-                                    );
-                                    topicData = topicData.replace(
-                                        '{{topic.user.name}}',
-                                        populatedTopic.user.name
-                                    );
-                                    topicData = topicData.replace(
-                                        '{{topic.created | date:\'short\'}}',
-                                        populatedTopic.created.toDateString()
-                                    );
-                                    topicData = topicData.replace(
-                                        '<div class="topic-body" ng-bind-html="topic.body">',
-                                        '<div class="topic-body" ng-bind-html="topic.body">' + populatedTopic.body
-                                    );
-                                    indexData = indexData.replace(
-                                        '<div class="view-panel flex-row" ng-view="">',
-                                        '<div class="view-panel flex-row" ng-view="">' + topicData
-                                    );
-                                    if (populatedTopic.tags) {
-                                      indexData = indexData.replace(
-                                          '<meta name="keywords" content="">',
-                                          '<meta name="keywords" content="' + populatedTopic.tags + '">'
-                                      );
-                                    }
-                                    res.writeHead(200, {
-                                          'Content-Type': 'text/html;encoding: utf-8'
-                                        }
-                                    );
-                                    res.write(indexData);
-                                    res.end();
-                                  }
-                              );
-                            } else {
-                              res.writeHead(404, {
-                                    'Content-Type': 'text/html;encoding: utf-8'
-                                  }
-                              );
-                              res.write(indexData);
-                              res.end();
-                            }
-                          }
-                  );
+                      if (populatedTopic) {
+                        // dirty business for SEO
+                        var bodyModifier = function(inputHtml) {
+                          //
+                          inputHtml = staticHandlers.modifyBody(
+                              inputHtml,
+                              {
+                                title: populatedTopic.title.substr(0, 80)
+                                    .replace(/\n/g, ' '),
+                                description: populatedTopic.body.substr(
+                                    0,
+                                    250
+                                ).replace(/\n/g, ' '),
+                                keywords: [
+                                  'Linux', 'СПО', 'форум',
+                                  'чат', 'обсуждения', 'дискуссии'
+                                ],
+                                frontLiveRecordConfig:
+                                    req.app.get('frontLiveRecordConfig')
+                              });
+                          var topicData = fs.readFileSync(
+                              __dirname + '/../public/dist/t/topic.tpl',
+                              'utf8'
+                          );
+                          topicData = topicData.replace(
+                              '{{topic.title}}',
+                              populatedTopic.title
+                          );
+                          topicData = topicData.replace(
+                              /\{\{topic\.user\.slug}}/g,
+                              populatedTopic.user.slug
+                          );
+                          topicData = topicData.replace(
+                              '{{topic.user.picture}}',
+                              populatedTopic.user.picture
+                          );
+                          topicData = topicData.replace(
+                              '{{topic.user.name}}',
+                              populatedTopic.user.name
+                          );
+                          topicData = topicData.replace(
+                              '{{topic.created | date:\'short\'}}',
+                              populatedTopic.created.toDateString()
+                          );
+                          topicData = topicData.replace(
+                              'ng-bind-html="topic.body">',
+                              'ng-bind-html="topic.body">' + populatedTopic.body
+                          );
+                          inputHtml = inputHtml.replace(
+                              'ng-view="">',
+                              'ng-view="">' + topicData
+                          );
+                          return inputHtml;
+                        };
+                        staticHandlers.serveIndex(res, bodyModifier);
+                      } else {
+                        var bodyModifier = function(inputHtml) {
+                          //
+                          return staticHandlers.modifyBody(
+                              inputHtml,
+                              {
+                                title: 'Нет такой темы',
+                                description: '',
+                                keywords: [],
+                                frontLiveRecordConfig:
+                                    req.app.get('frontLiveRecordConfig')
+                              });
+                        };
+                        staticHandlers.serveIndex(res, bodyModifier, 403);
+                      }
 
                 },
                 errorHandler)
@@ -457,7 +473,6 @@ function expressRouter(req, res, next) {
           .catch(errorHandler);
     }
   }
-
 }
 
 module.exports.socketHandler = topics;

@@ -495,6 +495,9 @@ input[type="reset"]
           white-space: pre-line
           text-rendering optimizeLegibility
           -webkit-font-smoothing antialiased
+          img
+            max-width 50vw
+            max-height 90vh
         .topic-authoring
           margin-top 1em
           margin-bottom 1em
@@ -756,11 +759,11 @@ input[type="reset"]
       -webkit-appearance none
       -moz-appearance none
       font-size 1em
-      margin 1vmin
+      margin-bottom  1vh
       padding 1vh 1vw
       font-family inherit
       border-radius 3px
-    select,input,textarea
+    select,input[type="text"],textarea
       width 40vw
       border solid 1px $normalGrey
       color $blueDark
@@ -771,7 +774,25 @@ input[type="reset"]
       color $lightColor
       border solid 1px $blueRegular
 
-  .preview
+    button[disabled]
+      background-color desaturate($blueRegular, 10%)
+
+    .private
+      background rgba(0,0,0,0.1)
+      input[type="email"], button, .button
+        padding 0.1vh 0.1vw
+        margin 0
+
+    form
+      i.fa
+        line-height: calc(1.5em + 2vh);
+      i.fa-times
+        color red
+      i.fa-check
+        color $greenDark
+
+
+.preview
     overflow auto
     padding 1vmin
     margin 1vmin

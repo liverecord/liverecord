@@ -16,11 +16,24 @@ const userHandler = require('./handlers/users');
 const uploadHandler = require('./handlers/upload');
 const errorHandler = require('./handlers/errors');
 const userPush = require('./handlers/push');
+const staticHandlers = require('./handlers/static');
 const sharp = require('sharp');
 const path = require('path');
 const xtend = require('xtend');
 const fs = require('fs');
 const webpush = require('web-push');
+
+//
+// Initialize app config
+var frontLiveRecordConfig = {
+  gaId: process.env.npm_package_config_analytics_ga_id,
+  version: '1'
+};
+
+frontLiveRecordConfig.version = fs.readFileSync(
+    __dirname + '/public/version.txt', 'utf8'
+).trim();
+
 //
 const app = express();
 const SocketIOFileUpload = require('socketio-file-upload');
@@ -31,6 +44,8 @@ process.on('UnhandledPromiseRejectionWarning', errorHandler);
 const Raven = require('raven');
 Raven.config(process.env.npm_package_config_sentry_dsn).install();
 app.use(Raven.requestHandler());
+
+app.set('frontLiveRecordConfig', frontLiveRecordConfig);
 //
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -45,49 +60,11 @@ console.log(
 );
 
 
-var frontLiveRecordConfig = {
-  gaId: process.env.npm_package_config_analytics_ga_id,
-};
-
-
-app.get('/', function(req, res) {
-      fs.readFile(
-          __dirname + '/public/index.html',
-          'utf8',
-          function(err, indexData) {
-            if (err) {
-              res.writeHead(502, {
-                    'Content-Type': 'text/html;encoding: utf-8'
-                  }
-              );
-              res.write(indexData);
-              res.end();
-              return errorHandler(err);
-            }
-            indexData = indexData.replace(
-                '<title></title>',
-                '<title>Форум про Линукс и свободные программы</title>'
-            );
-
-            indexData = indexData.replace('liveRecordConfig = {}',
-                'liveRecordConfig = ' + JSON.stringify(frontLiveRecordConfig)
-            );
-
-            res.writeHead(200, {
-                  'Content-Type': 'text/html;encoding: utf-8'
-                }
-            );
-            res.write(indexData);
-            res.end();
-
-          }
-      );
-    }
-);
 
 const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
 const filesUploadDirectory = __dirname + '/public/' + filesPublicDirectory;
 
+app.get('/', staticHandlers.expressRouter);
 app.use('/', express.static(__dirname + '/public'));
 app.use(SocketIOFileUpload.router);
 
@@ -247,32 +224,7 @@ mongooseConnection.once('open', function() {
           );
 
       app.get('/:category/:topic', topics.expressRouter);
-      app.get('*', function(req, res) {
-            fs.readFile(__dirname + '/public/index.html',
-                'utf8',
-                function(err, indexData) {
-                  if (err) {
-                    return errorHandler(err);
-                  }
-                  indexData = indexData.replace('<title></title>',
-                    '<title>LinuxQuestions - живой форум про Линукс и свободные программы</title>'
-                  );
-
-                  indexData = indexData.replace('liveRecordConfig = {}',
-                      'liveRecordConfig = ' + JSON.stringify(frontLiveRecordConfig)
-                  );
-
-                  res.writeHead(200, {
-                        'Content-Type': 'text/html;encoding: utf-8'
-                      }
-                  );
-                  res.write(indexData);
-                  res.end();
-
-                }
-            );
-          }
-      );
+      app.get('*', staticHandlers.expressRouter);
     }
 );
 

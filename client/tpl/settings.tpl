@@ -84,7 +84,7 @@
         <hr size="1">
         <div>
           <label for="experimentalFunctions">Экспериментальные функции</label>
-          <input type="checkbox" ng-model="experimental" name="remember" id="experimentalFunctions"
+          <input type="checkbox" ng-model="$localStorage.experimental" name="remember" id="experimentalFunctions"
                  ng-disabled="sending"><br>
           <small><b>Не рекомендуется неопытным пользователям!</b>
             Это опция включает поддержку нестандартных и недокументированных возможностей, часть из которых может влиять

@@ -21,6 +21,14 @@
         <div class="col" style="flex-grow: 1">
           <a href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>  <span class="online" ng-show="topic.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
         </div>
+        <div class="col" ng-show="topic.private">
+          <i class="fa fa-fw fa-lock" title="Доступ к теме ограничен для пользователей"></i>
+
+          <a href="/users/{{::aclu.slug}}" ng-repeat="aclu in topic.acl track by aclu._id"  title="{{::aclu.name}}">
+            <img ng-src="{{::aclu.picture}}" class="img-responsive" alt="{{::aclu.name}}">
+            </a>
+
+        </div>
         <div class="col">
           <span class="date" title="{{::topic.created | date: 'medium'}}">{{::topic.created | date:'short'}}</span>
         </div>

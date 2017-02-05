@@ -41,6 +41,7 @@ app.controller('MainCtrl',
               sendCommentsCtrl: 'Enter'
             }
         );
+        $rootScope.experimental = $localStorage.experimental;
 
         $rootScope.logout = function() {
           socket.emit('logout', {}, function(user) {

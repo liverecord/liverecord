@@ -131,7 +131,7 @@ gulp.task('images', function() {
 
 gulp.task('currentDeployInit', function() {
       currentDeployId = +new Date();
-      currentDeployId = 1;
+      //currentDeployId = 1;
     }
 );
 gulp.task('currentDeployWrite', function() {
@@ -195,7 +195,7 @@ gulp.task('watch', function() {
 
 // The default task (called when you run `gulp` from cli)
 gulp.task('default',
-    ['watch',
+    [
       'currentDeployInit',
       'scripts',
       'tpl',
@@ -203,7 +203,8 @@ gulp.task('default',
       'css',
       'fonts',
       'sounds',
-      'currentDeployWrite'
+      'currentDeployWrite',
+      'watch'
     ]
 );
 

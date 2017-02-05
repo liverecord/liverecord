@@ -10,17 +10,19 @@ const purify = require('./purify');
 const hljs = require('highlight.js');
 const mailer = require('./mailer');
 
-
 function question(socket, io, errorHandler) {
 
-    socket.on('ask', function (question, fn) {
+  socket.on('ask', function(question, fn) {
         //errorHandler('we got question!', question);
 
         question = xtend({
-            'title': 'Без названия',
-            'body': '',
-            'category': {_id: ''}
-        }, question);
+          'title': 'Без названия',
+          'body': '',
+          'category': {_id: ''},
+          private: false,
+          acl: []
+        }, question
+        );
 
         question.body = purify(question.body);
         question.title = purify(question.title, true);
@@ -33,61 +35,64 @@ function question(socket, io, errorHandler) {
 
         //errorHandler('new Topic: ', newTopic);
 
-        newTopic.save(function (err, savedTopic) {
-            if (err) {
+        newTopic.save(function(err, savedTopic) {
+              if (err) {
                 fn(err);
                 return errorHandler(err);
-            } else {
+              } else {
                 fn(TopicStruct(savedTopic));
 
                 const details = [
-                    {path: 'category'}
+                  {path: 'category'}
                 ];
 
                 Topic.populate(savedTopic, details, function(err, detailedTopic) {
-                    if (err) {
+                      if (err) {
                         errorHandler(err);
-                    } else {
+                      } else {
                         var channel = 'topics:' + detailedTopic.category.slug;
                         setTimeout(function() {
-                            io.emit(channel, TopicStruct(detailedTopic));
-                        }, 100);
+                              io.emit(channel, TopicStruct(detailedTopic));
+                            }, 100
+                        );
 
                         mailer({
-                            to: 'zoonman@gmail.com',
-                            subject: question.title,
-                            html: '<div style="white-space: pre-line;">' + question.body + '</div>' +
-                            '<hr>' +
-                            '<a href="' +
-                            'http://'+ process.env.npm_package_config_server_name +
-                            '/' + detailedTopic.category.slug +
-                            '/' +
-                            '' + detailedTopic.slug +
-                            '">Открыть</a>'
-                        });
+                              to: 'zoonman@gmail.com',
+                              subject: question.title,
+                              html: '<div style="white-space: pre-line;">' + question.body + '</div>' +
+                              '<hr>' +
+                              '<a href="' +
+                              'http://' + process.env.npm_package_config_server_name +
+                              '/' + detailedTopic.category.slug +
+                              '/' +
+                              '' + detailedTopic.slug +
+                              '">Открыть</a>'
+                            }
+                        );
+                      }
                     }
-                });
+                );
 
                 models.TopicFanOut.update(
                     {
-                        topic: savedTopic._id,
-                        user: socket.webUser._id
+                      topic: savedTopic._id,
+                      user: socket.webUser._id
                     },
                     {
-                        $set: {
-                            updates: 0,
-                            updated: Date.now()
-                        }
+                      $set: {
+                        updates: 0,
+                        updated: Date.now()
+                      }
                     },
                     {upsert: true}
                 );
 
-
+              }
             }
-        });
+        );
 
-
-    });
+      }
+  );
 }
 
 module.exports = question;
