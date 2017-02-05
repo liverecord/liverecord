@@ -19,7 +19,7 @@ module.exports.router = function(req, res, next) {
   var d = new Date(); // Today!
   d.setMonth(d.getMonth() - 1);
 
-  Topic.find({updated: {$gte: d}, spam: false})
+  Topic.find({updated: {$gte: d}, spam: false, private: false, deleted: false})
       .sort({updated: -1})
       .limit(TOPICS_PER_PAGE)
       .select('slug category created updated')
