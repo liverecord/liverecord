@@ -250,7 +250,7 @@ function comments(socket, io, antiSpam, webpush, handleError) {
         typing = xtend({
           'slug': '_'
         }, typing);
-        io.volatile.emit('topic:' + typing.slug, TypingStruct(socket.webUser));
+        socket.to('topic:' + typing.slug).emit('topic:' + typing.slug, TypingStruct(socket.webUser));
       }
   );
 

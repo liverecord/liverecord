@@ -299,22 +299,24 @@ function topics(socket, handleError) {
                                     }
                                   }
                                 });
-
-                            models.TopicFanOut.update(
-                                {
-                                  topic: foundTopic._id,
-                                  user: socket.webUser._id
-                                },
-                                {
-                                  $set: {
-                                    updates: 0,
-                                    updated: Date.now()
-                                  }
-                                },
-                                {upsert: true}
-                            ).exec(function(err, result) {
-                              if (err) return handleError(err);
-                            });
+                            if (socket.webUser) {
+                              models.
+                              TopicFanOut.
+                              update({
+                                topic: foundTopic._id,
+                                user: socket.webUser._id
+                              },
+                              {
+                                $set: {
+                                  updates: 0,
+                                  updated: Date.now()
+                                }
+                              },
+                              {upsert: true}
+                              ).exec(function(err, result) {
+                                if (err) return handleError(err);
+                              });
+                            }
                       });
                       if (socket.webUser) {
                         models.TopicFanOut.update({

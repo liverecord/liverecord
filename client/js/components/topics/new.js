@@ -31,12 +31,6 @@ app.controller(
         };
         $scope.question.category = CategoriesFactory.active() || '';
 
-        $scope.question
-            .title = $localStorage['topic_new_title_' +
-            $scope.question.category._id] || '';
-        $scope.question
-            .body = $localStorage['topic_new_body_' +
-            $scope.question.category._id] || '';
 
 
         $scope.previewHtml = '';
@@ -62,6 +56,13 @@ app.controller(
         var storageBodyKey = function() {
           return 'topic_new_body_' + $scope.question.category._id;
         };
+
+        $scope.question
+            .title = $localStorage[storageTitleKey()] || '';
+        $scope.question
+            .body = $localStorage[storageBodyKey()] || '';
+
+
 
         $scope.$watch('question.category', refreshTitle);
 
@@ -127,11 +128,13 @@ app.controller(
               } else {
                 $scope.question.title = '';
                 $scope.question.body = '';
-                //$scope.$applyAsync();
-                $location.path(
-                    '/' + $scope.question.category.slug + '/' +
-                    confirmation.data.slug
-                );
+                $scope.$applyAsync(); // reset local storage
+                $timeout(function() {
+                  $location.path(
+                      '/' + $scope.question.category.slug + '/' +
+                      confirmation.data.slug
+                  );
+                }, 100);
               }
             });
           } else {

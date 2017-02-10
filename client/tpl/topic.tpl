@@ -111,6 +111,9 @@
       </button>
     </div>
     <div class="text">
+      <div class="progress">
+        <div class="bar" ng-style="{width: uploadProgress+'%'}" ></div>
+      </div>
       <textarea
               name="comment" id="comment" class="mono"
               ng-model="commentText" ng-disabled="sending" ng-keydown="commentKeyDown($event)"

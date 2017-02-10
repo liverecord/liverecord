@@ -16,6 +16,7 @@ app.controller(
       '$rootScope',
       '$route',
       '$document',
+      '$sce',
       'Socialshare',
       function(socket,
           $anchorScroll,
@@ -29,6 +30,7 @@ app.controller(
           $rootScope,
           $route,
           $document,
+          $sce,
           SocialShare) {
         //
         var socketUploader;
@@ -83,12 +85,18 @@ app.controller(
               switch (envelope.type) {
                 case 'commentList':
                   $scope.comments = $scope.comments.concat(envelope.data.docs);
+                  $scope.comments.map(function(i) {
+                    if (i.body && typeof i.body === 'string') {
+                      i.body = $sce.trustAsHtml(i.body || '');
+                    }
+                  });
                   if (envelope.data.pages) {
                     $scope.pagination.total = envelope.data.total || 0;
                     $scope.pagination.pages = envelope.data.pages || 0;
                     $scope.pagination.page = envelope.data.page || 1;
                   }
                   $timeout($anchorScroll, 100);
+                  PerfectScrollBar.setup('topic');
                   break;
                 case 'typing':
                   $scope.typists = array_id_merge(
@@ -103,9 +111,12 @@ app.controller(
                         envelope.data._id
                     );
                   }, 3000);
-
+                  PerfectScrollBar.setup('topic');
                   break;
                 case 'comment':
+                  envelope.data.body = $sce.trustAsHtml(
+                      envelope.data.body || ''
+                  );
                   $scope.comments.unshift(envelope.data);
                   $timeout(function() {
                     if (envelope.data._id) {
@@ -137,9 +148,9 @@ app.controller(
                     if ($rootScope.user &&
                         envelope.data.user._id != $rootScope.user._id) {
                       if ($localStorage.notifications.newComment.audio) {
-                        var audE = document.getElementById('audioNotifications');
-                        if (audE.paused) {
-                          audE.play();
+                        var ae = document.getElementById('audioNotifications');
+                        if (ae.paused) {
+                          ae.play();
                         }
                       }
                     }
@@ -152,7 +163,10 @@ app.controller(
                   break;
 
                 case 'topic':
-                  $scope.topic = angular.copy(envelope.data);
+                  var ntopic = angular.copy(envelope.data);
+                  ntopic.body = $sce.trustAsHtml(ntopic.body ||
+                  '');
+                  $scope.topic = ntopic;
                   PerfectScrollBar.setup('topic');
                   $rootScope.messages = array_id_merge($rootScope.messages,
                       [envelope.data],
@@ -270,7 +284,7 @@ app.controller(
             var ss = t.selectionStart,
                 se = t.selectionEnd,
                 ta_val = t.value, sel = ta_val.slice(ss, se);
-            shft = (isSafari && kc == 25) || evt.shiftKey;
+            var shft = (isSafari && kc == 25) || evt.shiftKey;
             var was_tab = ta_val.slice(ss - tabLen, ss) == tab,
                 startsWithTab = ta_val.slice(ss, ss + tabLen) == tab,
                 offset = shft ? 0 - tabLen : tabLen,
@@ -412,6 +426,7 @@ app.controller(
         };
 
         $scope.uploadFiles = [];
+        $scope.uploadProgress = 0;
 
         try {
           socketUploader = io.connect();
@@ -460,14 +475,16 @@ app.controller(
               }
           );
 
+
+
           socketUploader.on('file.uploaded', function(payload) {
                 console.log(payload);
                 var url = '/' + payload.absolutePath.replace(/^\//, '');
 
                 var text = '\n<a href="' + url + '">';
 
-            const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
-            if (IMAGE_EXTENSIONS.indexOf(payload.extension) > -1) {
+                const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
+                if (IMAGE_EXTENSIONS.indexOf(payload.extension) > -1) {
                   // an image
                   text += '<img src="' + url + '" alt="' +
                       payload.friendlyName + '"';
@@ -475,37 +492,56 @@ app.controller(
                     text += ' class="alpha"';
                   }
                   text += '>';
+                  text += '</a>\n';
+                } else if (payload.extension === 'mp4') {
+                  text += payload.friendlyName;
+                  text += '</a>\n';
+                  text += '<video src="' + url + '"';
+                  text += ' preload="metadata" controls> Play video ' +
+                      payload.friendlyName + '</video>';
                 } else {
                   text += payload.friendlyName;
+                  text += '</a>\n';
                 }
-                text += '</a>\n';
 
                 $scope.commentText = $scope.commentText + text;
                 $scope.$applyAsync();
-              }
-          );
+          });
+
           uploader.addEventListener('error', function(data) {
                 if (data.code === 1) {
                   alert('Используйте файлы не более 10 MB');
                 }
                 console.log('upload error', data);
                 $rootScope.$applyAsync();
+                $scope.uploadProgress = 0;
+
               }
           );
           uploader.addEventListener('start', function(event) {
                 event.file.fIndex = $rootScope.notifications.add(event);
-                $rootScope.$applyAsync();
+            $scope.uploadProgress = 0;
+
+            $rootScope.$applyAsync();
               }
           );
 
           uploader.addEventListener('progress', function(event) {
                 $rootScope.notifications.list[event.file.fIndex] = event;
-                $rootScope.$applyAsync();
+            console.log('upload progress', event)
+            if (event.file.size > 0) {
+              $scope.uploadProgress = event.bytesLoaded / event.file.size * 100;
+            }
+
+
+            $rootScope.$applyAsync();
               }
           );
           uploader.addEventListener('load', function(event) {
                 $rootScope.notifications.list[event.file.fIndex] = event;
-                $rootScope.$applyAsync();
+            $scope.uploadProgress = 0;
+
+            $rootScope.$applyAsync();
               }
           );
           uploader.addEventListener('complete', function(event) {
@@ -521,6 +557,10 @@ app.controller(
         catch (e) {
           console.error(e)
         }
+
+        window.addEventListener('resize', function() {
+          PerfectScrollBar.setup('topic');
+        });
 
       }
     ]

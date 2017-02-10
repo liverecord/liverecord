@@ -36,11 +36,14 @@
       </div>
     </div>
     <div class="flex-row" ng-show="experimental">
-      <label for="questionPrivate">Приватный</label>
+      <label></label>
       <input id="questionPrivate" type="checkbox" data-ng-model="question.private">
+      <label for="questionPrivate">секретная тема</label>
     </div>
-    <div class="flex-row private" ng-show="question.private">
+    <div class="flex-row " ng-show="question.private">
       <label for="questionAcl1"></label>
+      <div  class="flex-row private">
+
 
       <label for="questionAcl">Доступ будет дан:</label>
 
@@ -59,10 +62,11 @@
         <input id="questionAcl" name="lookupEmail" type="email" data-ng-model="lookupEmail" placeholder="E-mail адреса для приватного доступа">
         <a class="button" data-ng-click="lookupAndAddToAcl()" ng-disabled="!sendButtonActive || addNewTopicForm.lookupEmail.$invalid">Добавить</a>
       </div>
+      </div>
     </div>
     <div class="flex-row">
       <label>&nbsp;</label>
-      <button ng-disabled="!sendButtonActive || addNewTopicForm.$invalid">Задать</button>
+      <button ng-disabled="!sendButtonActive || addNewTopicForm.$invalid">Создать тему</button>
     </div>
     </form>
   </div>

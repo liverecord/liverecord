@@ -52,7 +52,12 @@ function userHandler(socket, io, errorHandler) {
 
 
                 var webUser = foundUser.toObject();
-                Topic.find({'user': foundUser._id, deleted: false, spam: false})
+                Topic.find({
+                      'user': foundUser._id,
+                      deleted: false,
+                      spam: false,
+                      private: false
+                })
                     .limit(100)
                     .populate([{path: 'category'}])
                     .then(function(list) {
@@ -69,7 +74,12 @@ function userHandler(socket, io, errorHandler) {
   socket.on('user.lookup', function(userRequest, socketCallback) {
     'use strict';
     User
-        .findOne({email: userRequest}, {name: 1, slug: 1, picture: 1})
+        .findOne({
+          '$or': [
+            {email: userRequest},
+            {slug: userRequest}
+          ]
+        }, {name: 1, slug: 1, picture: 1})
         .then(function(doc) {
           socketCallback({
             success: !!doc,

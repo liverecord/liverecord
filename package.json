@@ -36,7 +36,7 @@
       "dir": "files",
       "extensions": {
         "blacklist": "",
-        "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip,dmg"
+        "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg"
       }
     }
   },

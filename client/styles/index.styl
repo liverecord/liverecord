@@ -495,7 +495,7 @@ input[type="reset"]
           white-space: pre-line
           text-rendering optimizeLegibility
           -webkit-font-smoothing antialiased
-          img
+          img, video
             max-width 50vw
             max-height 90vh
         .topic-authoring
@@ -583,10 +583,17 @@ input[type="reset"]
           border none
           padding 0
           line-height  1em
-          margin-top calc(1em + 0.5vh)
+          margin-top 1em
           resize none
           outline 0
-
+        .progress
+          height 0.5vh
+          .bar
+            width 0
+            margin-top 0.1vh
+            background-color $greenDark
+            height 0.25vh
+            transition width ease $slowAnimationDuration
 
     .details,.comments
       padding-left 1vw
@@ -676,7 +683,7 @@ input[type="reset"]
             color $blueDark
             text-rendering optimizeLegibility
             -webkit-font-smoothing antialiased
-            img
+            img, video
               max-width 50vw
               max-height 80vh
               box-shadow 0 0 1vw -0.5vw $blueDark
@@ -684,6 +691,8 @@ input[type="reset"]
               margin 0.1vh auto
               &.alpha
                 box-shadow none
+            video
+              background-color $darkGrey
           .text-feedback
             border solid 1px $lightGrey
             border-radius 3px
@@ -711,7 +720,7 @@ input[type="reset"]
             .fa-flag
               float right
           .text-moderation
-            border-bottom solid 0px $lightGrey
+            border-bottom solid 0 $lightGrey
             .button
               padding 2px
               font-size 0.8em
@@ -743,7 +752,6 @@ input[type="reset"]
         .text
           textarea
             height: calc(2em + 40vh);
-
 
   .ask-form
     h1
