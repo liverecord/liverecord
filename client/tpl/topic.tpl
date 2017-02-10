@@ -100,7 +100,7 @@
           <users-login-form></users-login-form>
         </div>
       </div>
-
+      <div id="topicAnchor"><span></span></div>
     </div>
   </div>
 

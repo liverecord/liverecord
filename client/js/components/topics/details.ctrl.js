@@ -387,8 +387,22 @@ app.controller(
         $scope.$watch('commentText', function(newValue, oldValue) {
               if (newValue) {
                 console.log(newValue);
-                if (newValue.indexOf('\n') > 0 || newValue.length > 80) {
-                  $scope.advancedCompose = true;
+                if (!$scope.advancedCompose) {
+                  if (newValue.indexOf('\n') > 0 || newValue.length > 80) {
+                    $scope.advancedCompose = true;
+
+                    $timeout(function() {
+                      PerfectScrollBar.setup('topic');
+
+                      $timeout(function() {
+                        var c = document.getElementById('topicAnchor');
+                        if (c ) {
+                          c.scrollIntoView();
+                        }}, 150);
+                    }, 50);
+
+                  }
+
                 }
                 $scope.sendButtonActive = newValue.length >= 1;
                 $localStorage['topic_ct_' + $scope.topic._id] = $scope

@@ -37,8 +37,7 @@ function comments(socket, io, antiSpam, webpush, handleError) {
                     comment.body
                 );
 
-                comment.spam = jp
-                        .value(comment, 'classification.0.label') === 'spam';
+                comment.spam = false;
 
                 var newComment = new models.Comment(comment);
 
