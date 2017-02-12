@@ -35,7 +35,7 @@
             {{::topic.updated | date:'short'}}
           </span>
         </div>
-        <div class="col" ng-show="experimental && topic.user._id == user._id">
+        <div class="col" ng-show="topic.user._id == user._id">
           <a href="/edit/{{::topic.slug}}"><i class="fa fa-edit"></i></a>
         </div>
         <div class="col">

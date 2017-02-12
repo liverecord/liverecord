@@ -131,13 +131,13 @@ module.exports = function(str, strict) {
 
     newStr = DOMPurify.sanitize(newStr, {
       ALLOWED_TAGS: [
-        'a', 'b', 'strong', 'i', 'em', 'q', 'kbd',
+        'a', 'b', 'strong', 'i', 'em', 'q', 'kbd', 'span', 'sub', 'sup', 's',
         'img', 'video',
         'ol', 'ul', 'li',
-        'p', 'blockquote', 'code', 'pre', 'span'
+        'p', 'blockquote', 'code', 'pre'
       ],
       ADD_ATTR: [
-          'controls'
+        'controls'
       ]
     }
     ).trim();

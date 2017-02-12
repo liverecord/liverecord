@@ -34,7 +34,7 @@
         <kbd>pre</kbd>. <a href="#" id="pickFile">Приложить файл</a>
       </div>
     </div>
-    <div class="flex-row" ng-show="experimental">
+    <div class="flex-row">
       <label class="label"></label>
       <input id="questionPrivate" type="checkbox" data-ng-model="topic.private">
       <label for="questionPrivate">секретная тема</label>
