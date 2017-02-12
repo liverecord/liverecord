@@ -46,39 +46,51 @@ var app = angular.module(
 app.config([
   '$locationProvider', '$routeProvider',
   '$localStorageProvider', '$sessionStorageProvider',
-  function(
-      $locationProvider, $routeProvider,
+  function($locationProvider, $routeProvider,
       $localStorageProvider, $sessionStorageProvider) {
     //
-    $routeProvider.when('/ask', {
-      controller: 'NewTopicCtrl',
-      templateUrl: '/dist/t/topic.new.tpl'
-    }).when('/ask?category=:category', {
-      controller: 'NewTopicCtrl',
-      templateUrl: '/dist/t/topic.new.tpl'
-    }).when('/settings', {
-      controller: 'SettingsController',
-      templateUrl: '/dist/t/settings.tpl'
-    }).when('/users/:slug', {
-      controller: 'UsersCtrl',
-      controllerAs: 'uctl',
-      templateUrl: '/dist/t/users.info.tpl'
-    }).when('/users/password/restore', {
-      controller: 'UsersPasswordRestoreCtrl',
-      controllerAs: 'uctl',
-      templateUrl: '/dist/t/users.password.restore.tpl'
-    }).when('/:category/:topic', {
-      controller: 'TopicDetailsCtrl',
-      controllerAs: 'topic',
-      templateUrl: '/dist/t/topic.tpl'
-    }).when('/:category', {
-      controller: 'TopicStubCtrl',
-      controllerAs: 'topicStub',
-      templateUrl: '/dist/t/topics.tpl'
-    }).when('/', {
-      controller: 'WelcomeCtrl',
-      templateUrl: '/dist/t/welcome.tpl'
-    }).otherwise('/');
+    $routeProvider
+        .when('/ask', {
+          controller: 'EditTopicController',
+          templateUrl: '/dist/t/topic.edit.tpl'
+        })
+        .when('/ask?category=:category', {
+          controller: 'EditTopicController',
+          templateUrl: '/dist/t/topic.edit.tpl'
+        })
+        .when('/edit/:slug', {
+              controller: 'EditTopicController',
+              templateUrl: '/dist/t/topic.edit.tpl'
+        })
+        .when('/settings', {
+              controller: 'SettingsController',
+              templateUrl: '/dist/t/settings.tpl'
+        })
+        .when('/users/:slug', {
+          controller: 'UsersCtrl',
+          controllerAs: 'uctl',
+          templateUrl: '/dist/t/users.info.tpl'
+        })
+        .when('/users/password/restore', {
+          controller: 'UsersPasswordRestoreCtrl',
+          controllerAs: 'uctl',
+          templateUrl: '/dist/t/users.password.restore.tpl'
+        })
+        .when('/:category/:topic', {
+          controller: 'TopicDetailsCtrl',
+          controllerAs: 'topic',
+          templateUrl: '/dist/t/topic.tpl'
+        })
+        .when('/:category', {
+          controller: 'TopicStubCtrl',
+          controllerAs: 'topicStub',
+          templateUrl: '/dist/t/topics.tpl'
+        })
+        .when('/', {
+          controller: 'WelcomeCtrl',
+          templateUrl: '/dist/t/welcome.tpl'
+        })
+        .otherwise('/');
 
     $locationProvider.html5Mode({
       enabled: true,

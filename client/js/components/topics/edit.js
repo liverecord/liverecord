@@ -3,13 +3,14 @@
  */
 
 app.controller(
-    'NewTopicCtrl',
+    'EditTopicController',
     [
       '$document',
       '$localStorage',
       '$location',
       '$scope',
       '$timeout',
+      '$routeParams',
       'CategoriesFactory',
       'socket',
       function(
@@ -18,18 +19,19 @@ app.controller(
           $location,
           $scope,
           $timeout,
+          $routeParams,
           CategoriesFactory,
           socket) {
 
         var socketUploader;
 
-        $scope.question = {
+        $scope.topic = {
           title: '',
           body: '',
           private: false,
           acl: []
         };
-        $scope.question.category = CategoriesFactory.active() || '';
+        $scope.topic.category = CategoriesFactory.active() || '';
 
 
 
@@ -40,9 +42,9 @@ app.controller(
 
         var refreshTitle = function() {
           $document[0].title = 'Создать тему ' +
-              ($scope.question.title || '') +
+              ($scope.topic.title || '') +
               ' в разделе ' +
-              ($scope.question.category.name || '') +
+              ($scope.topic.category.name || '') +
               ' на форуме СПО';
         };
 
@@ -50,27 +52,35 @@ app.controller(
         $timeout(refreshTitle, 5000);
 
         var storageTitleKey = function() {
-          return 'topic_new_title_' + $scope.question.category._id;
+          return 'topic_new_title_' + $scope.topic.category._id;
         };
 
         var storageBodyKey = function() {
-          return 'topic_new_body_' + $scope.question.category._id;
+          return 'topic_new_body_' + $scope.topic.category._id;
         };
 
-        $scope.question
+        $scope.topic
             .title = $localStorage[storageTitleKey()] || '';
-        $scope.question
+        $scope.topic
             .body = $localStorage[storageBodyKey()] || '';
 
+        $scope.editing = !!$routeParams.slug;
+
+        if ($routeParams.slug) {
+          socket.emit('topic.get', {slug: $routeParams.slug}, function(response) {
+            if (response.success) {
+              $scope.topic = response.topic;
+            }
+          });
+        }
+
+        $scope.$watch('topic.category', refreshTitle);
 
 
-        $scope.$watch('question.category', refreshTitle);
-
-
-          $scope.$watch('question.title', function(newValue, oldValue) {
+          $scope.$watch('topic.title', function(newValue, oldValue) {
           if (newValue) {
             $scope.sendButtonActive = newValue.length >= 1;
-            $localStorage[storageTitleKey()] = $scope.question.title;
+            $localStorage[storageTitleKey()] = $scope.topic.title;
           } else {
             $scope.sendButtonActive = false;
             if ($localStorage[storageTitleKey()]) {
@@ -80,10 +90,10 @@ app.controller(
           refreshTitle();
           return newValue;
         });
-        $scope.$watch('question.body', function(newValue, oldValue) {
+        $scope.$watch('topic.body', function(newValue, oldValue) {
           if (newValue) {
             $scope.sendButtonActive = newValue.length >= 1;
-            $localStorage[storageBodyKey()] = $scope.question.body;
+            $localStorage[storageBodyKey()] = $scope.topic.body;
           } else {
             $scope.sendButtonActive = false;
             if ($localStorage[storageBodyKey()]) {
@@ -96,7 +106,7 @@ app.controller(
         var sending = false;
         $scope.removeFromAcl = function(friend) {
           'use strict';
-          $scope.question.acl = $scope.question.acl.filter(function(item) {
+          $scope.topic.acl = $scope.topic.acl.filter(function(item) {
             return item._id != friend._id;
           });
         };
@@ -104,7 +114,7 @@ app.controller(
           'use strict';
           socket.emit('user.lookup', $scope.lookupEmail, function(result) {
             if (result.success) {
-              $scope.question.acl = array_id_merge($scope.question.acl, [result.user]);
+              $scope.topic.acl = array_id_merge($scope.topic.acl, [result.user]);
               $scope.lookupEmail = '';
             } else {
               alert('Email "' + $scope.lookupEmail + '" не найден! ' +
@@ -117,21 +127,21 @@ app.controller(
 
           console.log($scope.addNewTopic);
           if (!sending &&
-              $scope.question.title.length > 0 &&
+              $scope.topic.title.length > 0 &&
               $scope.addNewTopicForm.$valid) {
             sending = true;
-            socket.emit('ask', $scope.question, function(confirmation) {
+            socket.emit('topic.save', $scope.topic, function(confirmation) {
               sending = false;
               console.log('confirmation', confirmation);
               if (confirmation.errors) {
                 // error!
               } else {
-                $scope.question.title = '';
-                $scope.question.body = '';
+                $scope.topic.title = '';
+                $scope.topic.body = '';
                 $scope.$applyAsync(); // reset local storage
                 $timeout(function() {
                   $location.path(
-                      '/' + $scope.question.category.slug + '/' +
+                      '/' + $scope.topic.category.slug + '/' +
                       confirmation.data.slug
                   );
                 }, 100);
@@ -221,7 +231,7 @@ app.controller(
                 }
                 text += '</a>\n';
 
-            $scope.question.body = $scope.question.body + text;
+            $scope.topic.body = $scope.topic.body + text;
                 $scope.$applyAsync();
               }
           );

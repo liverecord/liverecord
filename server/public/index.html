@@ -108,10 +108,13 @@
     </div>
     <div class="connecting " ng-hide="websocketAlive">
         <div class="flex-column center">
-            <div>живая конференция</div>
+            <div ng-cloak="">живая конференция</div>
             <h1>LinuxQuestions.ru</h1>
             <div>Только вместе мы сделаем этот мир лучше.</div>
-            <div class="text-right"><small>подключаемся...</small></div>
+            <div class="text-right" ng-cloak=""><small>подключаемся...</small></div>
+            <noscript>
+                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">Для этого сайта необходима поддержка JavaScript!</p>
+            </noscript>
         </div>
     </div>
     <noscript id="deferred-styles">

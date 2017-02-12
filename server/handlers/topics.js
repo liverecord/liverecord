@@ -339,6 +339,8 @@ function topics(socket, handleError) {
       }
   );
 
+
+
   models.Topic.find({
         updated: {$gte: d},
         spam: false,

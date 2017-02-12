@@ -396,7 +396,7 @@ app.controller(
 
                       $timeout(function() {
                         var c = document.getElementById('topicAnchor');
-                        if (c ) {
+                        if (c) {
                           c.scrollIntoView();
                         }}, 150);
                     }, 50);
@@ -433,7 +433,7 @@ app.controller(
                   $scope.commentText = '';
                   console.log(confirmation);
 
-                  //$location.path('/' + $scope.question.category.slug);
+                  //$location.path('/' + $scope.topic.category.slug);
                 }
             );
           }

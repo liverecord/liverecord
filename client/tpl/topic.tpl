@@ -1,17 +1,18 @@
-<div class="topic-view" ng-class="{advancedcompose: advancedCompose}">
+<div class="topic-view" ng-class="{advancedcompose: advancedCompose, private: topic.private}">
   <div class="topic" id="topic">
     <div class="details">
 
 
       <div style="display: flex;align-items: center">
 
-        <div style="flex-grow: 1;"><h1>{{::topic.title}}</h1></div>
+        <div style="flex-grow: 1;"><h1>{{topic.title}}</h1></div>
+
         <div>
           <bookmark topic="topic"></bookmark>
         </div>
       </div>
 
-      <div class="topic-body" ng-bind-html="::topic.body">
+      <div class="topic-body" ng-bind-html="topic.body">
       </div>
 
       <div class="flex-row topic-authoring">
@@ -21,16 +22,21 @@
         <div class="col" style="flex-grow: 1">
           <a href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>  <span class="online" ng-show="topic.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
         </div>
-        <div class="col" ng-show="topic.private">
-          <i class="fa fa-fw fa-lock" title="Доступ к теме ограничен для пользователей"></i>
-
+        <div class="col private" ng-show="topic.private">
+          <div class="padlock"><i class="fa fa-fw fa-lock" title="Доступ к теме ограничен для пользователей"></i></div>
           <a href="/users/{{::aclu.slug}}" ng-repeat="aclu in topic.acl track by aclu._id"  title="{{::aclu.name}}">
             <img ng-src="{{::aclu.picture}}" class="img-responsive" alt="{{::aclu.name}}">
             </a>
-
         </div>
         <div class="col">
-          <span class="date" title="{{::topic.created | date: 'medium'}}">{{::topic.created | date:'short'}}</span>
+          <span class="date" ng-show="topic.created == topic.updated" title="{{::topic.created | date: 'medium'}}">{{::topic.created | date:'short'}}</span>
+          <span class="date" ng-hide="topic.created == topic.updated" title="Создан {{::topic.created | date: 'medium'}}, обновлен {{::topic.updated | date: 'medium'}}">
+            <i class="fa fa-pencil"></i>
+            {{::topic.updated | date:'short'}}
+          </span>
+        </div>
+        <div class="col" ng-show="experimental && topic.user._id == user._id">
+          <a href="/edit/{{::topic.slug}}"><i class="fa fa-edit"></i></a>
         </div>
         <div class="col">
           <a href="#" ng-show="experimental" target="_blank"><i class="fa fa-share"></i></a>

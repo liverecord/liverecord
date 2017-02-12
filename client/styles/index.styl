@@ -491,7 +491,7 @@ input[type="reset"]
         padding-bottom 1px
         background-color lighten($blueDark, 70)
         .topic-body
-          line-height 160%
+          line-height 1.618
           white-space: pre-line
           text-rendering optimizeLegibility
           -webkit-font-smoothing antialiased
@@ -519,12 +519,39 @@ input[type="reset"]
             a
               text-decoration none
               font-weight 600
+            .date
+              i.fa-pencil
+                color $lightGrey
+
           .col.author
             margin-right 0
             width 4vh
 
             img
                 float left
+          .col.private
+            height 2.5vh
+            color $greenLight
+            padding 0.2vh 0.5vh
+            border-radius 2vh
+            line-height 2vh
+            font-size 1vh
+            img
+              height 2vh
+              width 2vh
+              border-radius 1vh
+              margin-left -1vh
+              border solid 0.1vh $lightColor
+            .padlock + a > img
+              margin-left -0.5vh
+            div.padlock
+              text-align center
+              height 2vh
+              width 2vh
+              border-radius 1vh
+              border solid 0.1vh  $lightColor
+              display inline-block
+
         pre
           overflow auto
     > .compose
@@ -681,6 +708,7 @@ input[type="reset"]
           .text
             white-space pre-wrap
             color $blueDark
+            line-height 1.618
             text-rendering optimizeLegibility
             -webkit-font-smoothing antialiased
             img, video
@@ -756,7 +784,7 @@ input[type="reset"]
   .ask-form
     h1
       margin 1vmin
-    label
+    .label
       display block
       width 10vw
       margin 1vmin
@@ -787,17 +815,33 @@ input[type="reset"]
 
     .private
       background rgba(0,0,0,0.1)
+      padding 1vh 1vw
       input[type="email"], button, .button
         padding 0.1vh 0.1vw
         margin 0
 
     form
-      i.fa
+      input + i.fa,
+      input + i + i.fa,
+      select + i.fa,
+      select + i + i.fa,
+      textarea + i.fa,
+      textarea + i + i.fa
         line-height: calc(1.5em + 2vh);
+        position absolute
+        margin-left -25px
+        opacity 0.25
+
+      .ng-touched + .fa
+        opacity 1
+
       i.fa-times
         color red
       i.fa-check
         color $greenDark
+.topic-view.private > .topic
+  .details
+    background-color alpha($greenLight, 5%)
 
 
 .preview
