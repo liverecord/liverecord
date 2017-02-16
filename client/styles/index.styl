@@ -421,6 +421,21 @@ input[type="reset"]
     height 0
     opacity 0
 
+@keyframes flyTopRightAndDisappear
+  0%
+    opacity 1
+    transform translate(0, 0)
+  59%
+    opacity 0
+    transform translate(2em, -2em)
+  60%
+    opacity 0
+    transform translate(-2em, 2em) scale(0)
+  100%
+    opacity 1
+    transform translate(0, 0) scale(1)
+
+
 .topic-info
 
   p
@@ -596,7 +611,18 @@ input[type="reset"]
           color $blueRegular
           font-size 1em
           text-align center
-        button[disabled]
+          transition:all
+          animation-iteration-count 1
+          animation-duration 200ms
+          transform translate(0, 0) scale(1)
+
+        button.sending
+          animation-name flyTopRightAndDisappear
+          animation-timing-function ease-out
+
+
+
+      button[disabled]
           color $lightGrey
       .text
         width calc(100% - 5vh - 5vw)
@@ -790,7 +816,7 @@ input[type="reset"]
       margin 1vmin
       padding 2px 3px
 
-    select,input,textarea,button
+    select,textarea,button
 
       -webkit-appearance none
       -moz-appearance none

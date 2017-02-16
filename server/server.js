@@ -117,6 +117,16 @@ mongooseConnection.once('open', function() {
       app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
       app.get('/sitemap.xml', siteMap.router);
 
+      var sendOnlineCount = function() {
+        models
+            .User
+            .count({online: true})
+            .then(function(count) {
+              io.volatile.emit('connections', count || 0);
+            })
+            .catch(errorHandler);
+      };
+
       // declare io handling
       io
           .on('connection', function(socket) {
@@ -145,20 +155,18 @@ mongooseConnection.once('open', function() {
             socket.on('disconnect', function() {
               threadConnections--;
               console.log('Number of connections', threadConnections);
-              io.volatile.emit('connections', threadConnections);
-
+              sendOnlineCount();
             });
-            io.volatile.emit('connections', threadConnections);
 
             return socketioJwt.authorize({
               secret: process.env.npm_package_config_jwt_secret,
               required: false, // authorization is always not required
               timeout: 5000 // 5 seconds to send the authentication message
             })(socket);
-          }
-          )
+          })
           .on('authenticated', function(socket) {
                 //console.log('authenticated', socket.decoded_token._id);
+                sendOnlineCount();
                 try {
                   if (!socket.decoded_token) return;
                   models.User.findById(socket.decoded_token._id,

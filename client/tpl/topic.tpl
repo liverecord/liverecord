@@ -3,20 +3,20 @@
     <div class="details">
 
 
-      <div style="display: flex;align-items: center">
+      <div style="display: flex;align-items: center" itemscope itemtype="http://schema.org/Question">
 
-        <div style="flex-grow: 1;"><h1>{{topic.title}}</h1></div>
+        <div style="flex-grow: 1;"><h1 itemprop="name">{{topic.title}}</h1></div>
 
         <div>
           <bookmark topic="topic"></bookmark>
         </div>
       </div>
 
-      <div class="topic-body" ng-bind-html="topic.body">
+      <div class="topic-body" ng-bind-html="topic.body" itemprop="text">
       </div>
 
       <div class="flex-row topic-authoring">
-        <div class="col author">
+        <div class="col author" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <a href="/users/{{::topic.user.slug}}"><img ng-src="{{::topic.user.picture}}" class="img-responsive"></a>
         </div>
         <div class="col" style="flex-grow: 1">
@@ -133,7 +133,7 @@
     </div>
     <div class="send">
       <button ng-click="sendComment()" ng-disabled="!sendButtonActive"
-              title="Нажмите {{$localStorage.sendCommentsCtrl}} для отправки">
+              title="Нажмите {{$localStorage.sendCommentsCtrl}} для отправки" ng-class="{sending: sending}">
         <i class="fa fa-paper-plane"></i>
       </button>
     </div>

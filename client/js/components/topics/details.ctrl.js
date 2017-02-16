@@ -77,6 +77,13 @@ app.controller(
           return items;
         }
 
+        function restoreFocus() {
+          setTimeout(
+              'document.getElementById(\'comment\').focus();',
+              1
+          );
+        }
+
         var typingTimeouts = {};
 
         socket.on('topic:' + $routeParams.topic, function(envelope) {
@@ -122,10 +129,7 @@ app.controller(
                     if (envelope.data._id) {
                       $location.hash('comment_' + envelope.data._id, false);
                     }
-                    setTimeout(
-                        'document.getElementById(\'comment\').focus();',
-                        1
-                    );
+                    restoreFocus();
                     var topicCont = document.getElementById('topic');
                     if (topicCont && Ps) {
                       if (topicCont.hasOwnProperty('scrollTopMax')) {
@@ -428,7 +432,10 @@ app.controller(
                   topic: $scope.topic,
                   body: $scope.commentText
                 }, function(confirmation) {
-                  $scope.sending = false;
+                  $timeout(function() {
+                    $scope.sending = false;
+                    restoreFocus();
+                  }, 300);
 
                   $scope.commentText = '';
                   console.log(confirmation);

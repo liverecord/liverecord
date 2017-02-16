@@ -41,6 +41,17 @@
     <script src="/ga.js" type="application/javascript" charset="UTF-8" defer></script>
 </head>
 <body data-ng-controller="MainCtrl">
+    <div class="connecting " ng-hide="websocketAlive">
+        <div class="flex-column center">
+            <div ng-cloak="">живая конференция</div>
+            <h1>LinuxQuestions.ru</h1>
+            <div>Только вместе мы сделаем этот мир лучше.</div>
+            <div class="text-right" ng-cloak=""><small>подключаемся...</small></div>
+            <noscript>
+                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">Для этого сайта необходима поддержка JavaScript!</p>
+            </noscript>
+        </div>
+    </div>
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
             <div class="logo"><a href="/"><span class="hidden-xs">LinuxQuestions.ru<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
@@ -104,17 +115,6 @@
             <div class="view-panel flex-row" ng-view="">
                 <p>Привет!</p>
             </div>
-        </div>
-    </div>
-    <div class="connecting " ng-hide="websocketAlive">
-        <div class="flex-column center">
-            <div ng-cloak="">живая конференция</div>
-            <h1>LinuxQuestions.ru</h1>
-            <div>Только вместе мы сделаем этот мир лучше.</div>
-            <div class="text-right" ng-cloak=""><small>подключаемся...</small></div>
-            <noscript>
-                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">Для этого сайта необходима поддержка JavaScript!</p>
-            </noscript>
         </div>
     </div>
     <noscript id="deferred-styles">
