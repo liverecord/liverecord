@@ -649,6 +649,20 @@ input[type="reset"]
             height 0.25vh
             transition width ease $slowAnimationDuration
 
+        .toolbar
+          margin 0
+          padding 0
+          line-height: calc(3em - 0.5vh);
+          .button
+            padding 0.1vh 0.25vw
+            margin 0 0
+            color $normalGrey
+            background-color transparent
+            i.fa:hover
+              color $darkGrey
+          :first-child
+            margin-left 0
+
     .details,.comments
       padding-left 1vw
       padding-right 1vw

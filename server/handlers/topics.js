@@ -420,7 +420,7 @@ function expressRouter(req, res, next) {
                                     req.app.get('frontLiveRecordConfig')
                               });
                           var topicData = fs.readFileSync(
-                              __dirname + '/../public/dist/t/topic.tpl',
+                              __dirname + '/../public/dist/t/topic.view.tpl',
                               'utf8'
                           );
                           topicData = topicData.replace(

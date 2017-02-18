@@ -454,7 +454,9 @@ app.controller(
           var uploader = new SocketIOFileUpload(socketUploader);
           // uploader.maxFileSize = 1024 * 1024 * 10;
           uploader.listenOnInput(document.getElementById('siofu_input'));
-          //uploader.listenOnDrop(document.getElementById("topic"));
+          document
+              .getElementById('uploadEditorButton')
+              .addEventListener('click', uploader.prompt, false);
 
           var commentElement = document.getElementById('comment');
           uploader.listenOnDrop(commentElement);
@@ -582,6 +584,63 @@ app.controller(
         window.addEventListener('resize', function() {
           PerfectScrollBar.setup('topic');
         });
+
+        function wrapSelection(prefix, suffix) {
+          suffix = suffix || prefix;
+          var textArea = document.getElementById('comment');
+          var textLength = textArea.value.length;
+          var selectionStart = textArea.selectionStart;
+          var selectionEnd = textArea.selectionEnd;
+          var sel = textArea.value.substring(selectionStart, selectionEnd);
+          var replace = '' + prefix + '' + sel.trim() + '' + suffix + '';
+          $scope.commentText = textArea.value.substring(0, selectionStart) +
+              replace +
+              textArea.value.substring(selectionEnd, textLength);
+        }
+
+        function editAction(action) {
+          switch (action) {
+            case 'link':
+              var url = prompt('Введите адрес ссылки');
+              if (url) {
+                wrapSelection('<a href=" + url + ">', '</a>');
+              }
+
+              break;
+            case 'picture':
+              var url = prompt('Введите адрес картинки');
+              if (url) {
+                wrapSelection('<img src=" + url + ">', '');
+              }
+              break;
+            case 'list-ul':
+              wrapSelection('<ul>\n<li>', '</li>\n</ul>');
+              break;
+            case 'list-ol':
+              wrapSelection('<ol>\n<li>', '</li>\n</ol>');
+              break;
+            case 'code':
+              wrapSelection('<code>\n', '\n</code>');
+              break;
+            case 'keyboard':
+              wrapSelection('<kbd>', '</kbd>');
+              break;
+            case 'blockquote':
+              wrapSelection('\n<blockquote>', '</blockquote>\n');
+              break;
+            case 'b':
+            case 'i':
+            case 'q':
+            case 'sub':
+            case 'sup':
+              wrapSelection('<' + action + '>', '</' + action + '>');
+              break;
+          }
+        }
+
+        $scope.editor = function(action) {
+          $scope.$applyAsync(editAction(action));
+        };
 
       }
     ]

@@ -79,7 +79,7 @@ app.config([
         .when('/:category/:topic', {
           controller: 'TopicDetailsCtrl',
           controllerAs: 'topic',
-          templateUrl: '/dist/t/topic.tpl'
+          templateUrl: '/dist/t/topic.view.tpl'
         })
         .when('/:category', {
           controller: 'TopicStubCtrl',
