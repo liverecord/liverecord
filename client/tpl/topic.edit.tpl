@@ -13,7 +13,7 @@
     </div>
     <div class="flex-row">
       <label class="label" for="questionTitle">Заголовок</label>
-      <input id="questionTitle" name="title" type="text" data-ng-model="topic.title" placeholder="Заголовок вопроса" required autofocus style="margin-left: 0px;">
+      <input id="questionTitle" name="title" type="text" data-ng-model="topic.title" placeholder="Заголовок вопроса" required>
       <i class="fa fa-fw fa-times" ng-show="addNewTopicForm.title.$invalid"></i>
       <i class="fa fa-fw fa-check" ng-show="addNewTopicForm.title.$valid"></i>
     </div>
@@ -43,14 +43,14 @@
       <label class="label" for="questionAcl1"></label>
       <div class="flex-row private">
         <label for="questionAcl">Доступ будет дан:</label>
-        <div class="flex-column">
-          <div class="flex-row" ng-repeat="friend in topic.acl track by friend._id">
+        <div class="flex-column acl-list">
+          <div class="flex-row item" ng-repeat="friend in topic.acl track by friend._id">
             <img ng-src="{{friend.picture}}" alt="" height="25" width="25">
             {{friend.name}} <i class="fa fa-times" ng-click="removeFromAcl(friend)"></i>
           </div>
-          <div ng-show="topic.acl.length === 0">Добавьте людей через email</div>
+          <div ng-show="topic.acl.length === 0"><i>Добавьте людей через email</i></div>
         </div>
-        <div class="flex-column" >
+        <div class="flex-column search" >
           <input id="lookupEmail" name="lookupEmail" type="email" data-ng-model="lookupEmail" placeholder="E-mail или @nickname" title="Введите email или nickname пользователя, чтобы дать ему доступ">
           <a class="button" data-ng-click="lookupAndAddToAcl()" ng-disabled="!sendButtonActive || addNewTopicForm.lookupEmail.$invalid">Добавить</a>
         </div>

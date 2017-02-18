@@ -18,7 +18,6 @@ body
   background-color $lightColor
   color $blueDark
   font-family -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
-  margin 0
   box-sizing border-box
 
 
@@ -28,6 +27,8 @@ a
 button,input
   font-family inherit
   font-size inherit
+  box-sizing border-box
+  margin-right 0
 
 button,input[type=submit],input[type=reset]
   background-color $blueRegular
@@ -808,6 +809,7 @@ input[type="reset"]
             height: calc(2em + 40vh);
 
   .ask-form
+    width 100%
     h1
       margin 1vmin
     .label
@@ -816,8 +818,8 @@ input[type="reset"]
       margin 1vmin
       padding 2px 3px
 
-    select,textarea,button
-
+    select,textarea,input[type="text"],button
+      box-sizing border-box
       -webkit-appearance none
       -moz-appearance none
       font-size 1em
@@ -826,10 +828,12 @@ input[type="reset"]
       font-family inherit
       border-radius 3px
     select,input[type="text"],textarea
-      width 40vw
+      width 99%
       border solid 1px $normalGrey
       color $blueDark
       background-color ligten($lightColor, 10)
+      padding 1vh 1vw
+      margin 0.5vh 0.5vw
 
     button
       background-color $blueRegular
@@ -842,6 +846,10 @@ input[type="reset"]
     .private
       background rgba(0,0,0,0.1)
       padding 1vh 1vw
+      width 90%
+      margin 0
+      .acl-list
+        flex-grow 1
       input[type="email"], button, .button
         padding 0.1vh 0.1vw
         margin 0
@@ -853,10 +861,11 @@ input[type="reset"]
       select + i + i.fa,
       textarea + i.fa,
       textarea + i + i.fa
-        line-height: calc(1.5em + 2vh);
+        line-height: calc(1.5em + 2.5vh);
         position absolute
-        margin-left -25px
+        margin-left 0
         opacity 0.25
+        right 1vw
 
       .ng-touched + .fa
         opacity 1
