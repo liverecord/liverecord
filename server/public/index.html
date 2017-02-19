@@ -106,7 +106,7 @@
                         <p class="text-center">Выберите категорию</p>
                     </div>
                 </div>
-                <div class="topics-switch" ng-show="user">
+                <div class="topics-switch" ng-show="user" ng-cloak="">
                     <a href="" ng-click="newTopics()" ng-class="{active: topicSwitch == 'newTopics'}"><i class="fa fa-newspaper-o" aria-hidden="true" title="Новые вопросы"></i></a>
                     <a href="" ng-click="recentlyViewed()" ng-class="{active: topicSwitch == 'recentlyViewed'}"><i class="fa fa-history" aria-hidden="true" title="Недавно просмотренные"></i></a>
                     <a href="" ng-show="experimental" ng-click="participated()" ng-class="{active: topicSwitch == 'participated'}"><i class="fa fa-comments" aria-hidden="true" title="Поучаствованные"></i></a>

@@ -16,7 +16,16 @@ function lrLogin(socket, handleError) {
         console.log(loginData);
         function respondAuthUser(user) {
           var webUser = pick(user,
-              ['_id', 'name', 'email', 'picture', 'slug', 'online', 'rank', 'roles']
+              [
+                '_id',
+                'name',
+                'email',
+                'picture',
+                'slug',
+                'online',
+                'rank',
+                'about',
+                'roles']
           );
           var jwtUser = pick(user, ['_id', 'email']);
           jwtUser['nt'] = md5(

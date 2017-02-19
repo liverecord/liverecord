@@ -22,6 +22,7 @@ const UserSchema = new mongoose.Schema({
     unique: true
   },
   picture: String,
+  about: String,
   pw: {
     hash: String,
     salt: String,

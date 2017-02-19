@@ -122,25 +122,26 @@
       </div>
       <div class="toolbar" ng-show="advancedCompose">
         <a href="" ng-click="editor('b')" class="button"><i class="fa fa-fw fa-bold"></i></a>
-        <a href="" ng-click="editor('i')"  class="button"><i class="fa fa-fw fa-italic"></i></a>
+        <a href="" ng-click="editor('i')"  class="button hidden-xs"><i class="fa fa-fw fa-italic"></i></a>
         <a href="" ng-click="editor('link')" class="button"><i class="fa fa-fw fa-link"></i></a>
         <a href="" ng-click="editor('picture')" class="button"><i class="fa fa-fw fa-picture-o"></i></a>
-        <a href="" ng-click="editor('list-ul')" class="button"><i class="fa fa-fw fa-list-ul"></i></a>
-        <a href="" ng-click="editor('list-ol')" class="button"><i class="fa fa-fw fa-list-ol"></i></a>
-        <a href="" ng-click="editor('code')" class="button"><i class="fa fa-fw fa-code"></i></a>
+        <a href="" ng-click="editor('list-ul')" class="button hidden-xs"><i class="fa fa-fw fa-list-ul"></i></a>
+        <a href="" ng-click="editor('list-ol')" class="button hidden-xs"><i class="fa fa-fw fa-list-ol"></i></a>
+        <a href="" ng-click="editor('code')" class="button hidden-xs"><i class="fa fa-fw fa-code"></i></a>
         <a href="" ng-click="editor('keyboard')" class="button"><i class="fa fa-fw fa-keyboard-o"></i></a>
         <a href="" ng-click="editor('blockquote')" class="button"><i class="fa fa-fw fa-quote-left"></i></a>
-        <a href="" ng-click="editor('sub')" class="button"><i class="fa fa-fw fa-subscript"></i></a>
-        <a href="" ng-click="editor('sup')" class="button"><i class="fa fa-fw fa-superscript"></i></a>
-        <a id="uploadEditorButton" class="button"><i class="fa fa-fw fa-paperclip"></i></a>
+        <a href="" ng-click="editor('sub')" class="button hidden-xs"><i class="fa fa-fw fa-subscript"></i></a>
+        <a href="" ng-click="editor('sup')" class="button hidden-xs"><i class="fa fa-fw fa-superscript"></i></a>
+        <span id="uploadEditorButton" class="button" style="position: relative"><i class="fa fa-fw fa-paperclip"></i>
+          <input type="file" id="upload_input" style="position: absolute;left: 0;top: 0;opacity: 0.001;width: 2em;"></span>
       </div>
       <textarea
               name="comment" id="comment" class="mono"
               ng-model="commentText" ng-disabled="sending" ng-keydown="commentKeyDown($event)"
-              cols="20" rows="1" autofocus
+              cols="20" rows="1"
               placeholder="Новое сообщение"></textarea>
       <div class="b-toolbar small" ng-show="advancedCompose">
-        <small><input type="file" id="siofu_input" /> {{uploadStatus}}
+        <small> {{uploadStatus}}
           Поддерживаются теги:
           <kbd>b</kbd>, <kbd>i</kbd>, <kbd>a</kbd>, <kbd>img</kbd>, <kbd>code</kbd>, <kbd>pre</kbd>.</small>
       </div>

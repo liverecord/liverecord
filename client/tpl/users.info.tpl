@@ -16,7 +16,7 @@
           <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 4}"></i></span>
         </div>
       </div>
-      <div><p></p></div>
+      <div><p>{{::userInfo.about}}</p></div>
       <div><p>Всего тем: {{::userInfo.totals.topics}}</p></div>
       <div><p>Всего комментариев: {{::userInfo.totals.comments}}</p></div>
 

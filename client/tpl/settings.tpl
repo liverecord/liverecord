@@ -8,7 +8,7 @@
       <div class="signinform">
         <h3>Профиль</h3>
         <div class="message" ng-show="message">{{message}}</div>
-        <form name="userForm" ng-submit="update()" novalidate>
+        <form name="userForm" ng-submit="update()" novalidate ng-cloak="">
           <div><label for="profileName">Имя</label><input type="text" placeholder="Имя" name="profileName"
                                                           id="profileName" ng-model="profile.name"
                                                           required ng-minlength="2" ng-maxlength="32"
@@ -43,6 +43,10 @@
 
             <p ng-show="userForm.email.$invalid && !userForm.email.$pristine" class="help-block">Этот email неверен, попробуйте ввести другой.</p>
 
+          </div>
+          <div><label for="profileAbout">О себе</label><textarea placeholder="О себе" name="profileAbout"
+                                                          id="profileAbout" ng-model="profile.about"
+                                                          ng-disabled="sending"></textarea>
           </div>
           <div><label for="sendEmailNotifications">Отправлять уведомления на почту</label><input type="checkbox" id="sendEmailNotifications" ng-model="profile.settings.notifications.email"  ng-disabled="sending"></div>
           <div><label for="profileAvatar">Аватар</label>

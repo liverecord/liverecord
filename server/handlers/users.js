@@ -32,6 +32,7 @@ function userHandler(socket, io, errorHandler) {
           'name' : 1,
           'email' : 1,
           'picture': 1,
+          'about': 1,
           'slug': 1,
           'online': 1,
           'rank': 1,
@@ -135,6 +136,7 @@ function userHandler(socket, io, errorHandler) {
 
         userRequest = xtend({
           'name': '',
+          'about': '',
           'email': '',
           settings: {
             notifications: {
@@ -143,12 +145,14 @@ function userHandler(socket, io, errorHandler) {
           }
         }, userRequest
         );
+        userRequest.about = purify(userRequest.about, true);
         userRequest.name = purify(userRequest.name, true);
         userRequest.email = purify(userRequest.email, true);
         userRequest.picture = purify(userRequest.picture, true);
 
         var updateData = {
-          name: userRequest.name
+          name: userRequest.name,
+          about: userRequest.about
         };
         if (validator.isEmail(userRequest.email)) {
           updateData['email'] = userRequest.email;
@@ -183,8 +187,8 @@ function userHandler(socket, io, errorHandler) {
                       .then(function() {
                             socketCallback({success: true});
                             socket.webUser.name = updateData.name;
-                            socket.webUser.picture = updateData.picture;
                             socket.webUser.slug = updateData.slug;
+                            socket.webUser.picture = updateData.picture;
                           }
                       );
                 } else {
@@ -195,9 +199,9 @@ function userHandler(socket, io, errorHandler) {
                               User.update({_id: socket.webUser._id}, updateData)
                                   .then(function() {
                                     socketCallback({success: true});
-                                    socket.webUser.picture = updateData.picture;
                                     socket.webUser.name = updateData.name;
                                     socket.webUser.slug = updateData.slug;
+                                    socket.webUser.picture = updateData.picture;
                                   });
                             } else {
                               socketCallback({

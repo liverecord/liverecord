@@ -453,10 +453,14 @@ app.controller(
           socketUploader = io.connect();
           var uploader = new SocketIOFileUpload(socketUploader);
           // uploader.maxFileSize = 1024 * 1024 * 10;
-          uploader.listenOnInput(document.getElementById('siofu_input'));
-          document
+          uploader.listenOnInput(document.getElementById('upload_input'));
+          /*document
               .getElementById('uploadEditorButton')
               .addEventListener('click', uploader.prompt, false);
+
+          document
+              .getElementById('uploadEditorButton')
+              .addEventListener('touchend', uploader.prompt, false);*/
 
           var commentElement = document.getElementById('comment');
           uploader.listenOnDrop(commentElement);

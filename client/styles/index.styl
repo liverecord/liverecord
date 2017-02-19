@@ -658,10 +658,11 @@ input[type="reset"]
             margin 0 0
             color $normalGrey
             background-color transparent
-            i.fa:hover
+            &:hover
               color $darkGrey
           :first-child
             margin-left 0
+            padding-left 0
 
     .details,.comments
       padding-left 1vw
@@ -819,12 +820,13 @@ input[type="reset"]
 
     &.advancedcompose
       > .topic
-        height: calc(70vh - 6em);
+        height calc(70vh - 6em)
       > .compose
-        height: calc(3em + 29vh);
+        height calc(3em + 29vh)
         .text
           textarea
-            height: calc(2em + 40vh);
+            height calc(-0.5em + 29vh)
+            margin-top 0
 
   .ask-form
     width 100%

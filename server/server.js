@@ -183,6 +183,7 @@ mongooseConnection.once('open', function() {
                                 'picture',
                                 'slug',
                                 'roles',
+                                'about',
                                 'rank',
                                 'devices',
                                 'settings'

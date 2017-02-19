@@ -1,4 +1,4 @@
-<div class="signinform">
+<div class="signinform" ng-cloak="">
   <h3>Присоединяйтесь</h3>
   <p>Войдите или зарегистрируйтесь, используя эту форму</p>
   <div class="message" ng-show="message">{{message}}</div>
