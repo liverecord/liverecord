@@ -41,6 +41,7 @@ app.controller(
         $scope.commentText = '';
         $scope.advancedCompose = false;
         $scope.sendButtonActive = false;
+        $scope.initialCommentsLoad = true;
         $scope.pagination = {page: 0, total: 0, pages: 0, limit: 10};
 
         $scope.$localStorage = $localStorage;
@@ -86,6 +87,36 @@ app.controller(
 
         var typingTimeouts = {};
 
+
+
+        function scrollToLatestComment() {
+          if ($scope.initialCommentsLoad) {
+            if ($scope.topic &&
+                $scope.topic.fanOut &&
+                $scope.topic.fanOut.viewed && $scope.comments.length > 0) {
+              var commentId = '';
+              for (var i = 0, cl = $scope.comments.length; i < cl; i++) {
+                //console.log('fanOut', $scope.topic.fanOut.viewed, 'created', $scope.comments[i].created)
+                if (
+                    $scope.topic.fanOut.viewed < $scope.comments[i].created ||
+                    i === cl - 1
+                ) {
+                  commentId = $scope.comments[i]._id;
+                  $timeout(function() {
+                    document
+                        .getElementById('comment_' + $scope.comments[i]._id)
+                        .scrollIntoView();
+                    //console.log('aaa')
+                  }, 50);
+
+                  $scope.initialCommentsLoad = true;
+                  break;
+                }
+              }
+            }
+          }
+        };
+
         socket.on('topic:' + $routeParams.topic, function(envelope) {
               console.log('topic:envelope', envelope);
 
@@ -102,8 +133,11 @@ app.controller(
                     $scope.pagination.pages = envelope.data.pages || 0;
                     $scope.pagination.page = envelope.data.page || 1;
                   }
-                  $timeout($anchorScroll, 100);
+                  if ($location.hash()) {
+                    $timeout($anchorScroll, 100);
+                  }
                   PerfectScrollBar.setup('topic');
+                  scrollToLatestComment();
                   break;
                 case 'typing':
                   $scope.typists = array_id_merge(
@@ -179,6 +213,7 @@ app.controller(
                   $document[0].title = $scope.topic.title;
                   $scope.commentText = $localStorage['topic_ct_' + $scope.topic._id] || '';
                   $rootScope.$applyAsync();
+                  scrollToLatestComment();
 
                   break;
               }

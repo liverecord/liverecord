@@ -13,6 +13,7 @@ const TopicFanOutSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  viewed: {type: Date, default: Date.now},
   updated: {type: Date, default: Date.now},
   commented: {type: Boolean, default: false},
   updates: {

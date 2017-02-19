@@ -276,7 +276,7 @@ function topics(socket, handleError) {
                                     {moderated: false}
                                   ]
                                 },{
-                                  sort: {created: -1},
+                                  sort: {created: 1},
                                   populate: [
                                     {
                                       path: 'user',
@@ -309,7 +309,8 @@ function topics(socket, handleError) {
                               {
                                 $set: {
                                   updates: 0,
-                                  updated: Date.now()
+                                  updated: Date.now(),
+                                  viewed: Date.now()
                                 }
                               },
                               {upsert: true}
