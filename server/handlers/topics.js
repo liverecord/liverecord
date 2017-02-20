@@ -276,7 +276,7 @@ function topics(socket, handleError) {
                                     {moderated: false}
                                   ]
                                 },{
-                                  sort: {created: 1},
+                                  sort: {created: -1},
                                   populate: [
                                     {
                                       path: 'user',
