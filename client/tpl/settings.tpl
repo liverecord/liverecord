@@ -102,7 +102,7 @@
             <tr><th>Push</th><th>Браузер</th><th>Ip</th></tr>
             </thead>
             <tr ng-repeat="dev in user.devices">
-              <td><input type="checkbox" ng-model="dev.pushEnabled"></td>
+              <td><input type="checkbox" ng-model="dev.pushEnabled" ng-change="updateDevice(dev)"></td>
               <td>{{dev.ua}}</td>
               <td>{{dev.lastIp}}</td>
             </tr>

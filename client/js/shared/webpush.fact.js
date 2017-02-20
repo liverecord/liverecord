@@ -6,7 +6,7 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
       var isPushEnabled = false;
       var useNotifications = false;
 
-      Notification.requestPermission();
+//      Notification.requestPermission();
 
       function convertSubscription(subscription) {
         return {

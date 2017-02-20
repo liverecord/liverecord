@@ -41,6 +41,10 @@ app.controller('SettingsController',
 
         $rootScope.experimental = $localStorage.experimental;
 
+        $scope.updateDevice = function(device) {
+          'use strict';
+          socket.emit('device.update', device);
+        };
 
         console.log('init SettingsCtrl')
 

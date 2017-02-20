@@ -13,6 +13,7 @@ app.controller(
       '$routeParams',
       'CategoriesFactory',
       'socket',
+      'wpf',
       function(
           $document,
           $localStorage,
@@ -21,7 +22,8 @@ app.controller(
           $timeout,
           $routeParams,
           CategoriesFactory,
-          socket) {
+          socket,
+          wpf) {
 
         var socketUploader;
 
@@ -77,7 +79,7 @@ app.controller(
         $scope.$watch('topic.category', refreshTitle);
 
 
-          $scope.$watch('topic.title', function(newValue, oldValue) {
+        $scope.$watch('topic.title', function(newValue, oldValue) {
           if (newValue) {
             $scope.sendButtonActive = newValue.length >= 1;
             $localStorage[storageTitleKey()] = $scope.topic.title;
@@ -139,6 +141,7 @@ app.controller(
                 $scope.topic.title = '';
                 $scope.topic.body = '';
                 $scope.$applyAsync(); // reset local storage
+                wpf.subscribe();
                 $timeout(function() {
                   $location.path(
                       '/' + $scope.topic.category.slug + '/' +

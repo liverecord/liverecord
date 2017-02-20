@@ -18,7 +18,7 @@ app.controller('MainCtrl',
         $scope.currentCategorySlug = 'general';
         console.log('Main');
         $rootScope.websocketAlive = false;
-        $scope.totalConnections = 0;
+        $scope.totalConnections = 1;
 
         var notificationIndex = 0;
         $rootScope.notifications = {

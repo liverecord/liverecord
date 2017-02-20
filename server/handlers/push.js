@@ -24,7 +24,6 @@ module.exports = function(webpush, socket, errorHandler) {
         const device = {
           _id: pushObj.subscription.deviceId,
           ua: pushObj.subscription.ua,
-          pushEnabled: true,
           lastIp: remoteIp,
           pushSubscription: pushSubscription
         };
@@ -49,7 +48,9 @@ module.exports = function(webpush, socket, errorHandler) {
                 } else {
                   console.log('res', res);
                   if (res.nModified === 0) {
-                    models.User.update(
+                    device['pushEnabled'] = true;
+
+                        models.User.update(
                         {
                           _id: socket.decoded_token._id
                         },

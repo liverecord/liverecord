@@ -18,6 +18,7 @@ app.controller(
       '$document',
       '$sce',
       'Socialshare',
+      'wpf',
       function(socket,
           $anchorScroll,
           $scope,
@@ -31,7 +32,8 @@ app.controller(
           $route,
           $document,
           $sce,
-          SocialShare) {
+          SocialShare,
+          wpf) {
         //
         var socketUploader;
         $scope.sending = false;
@@ -471,6 +473,7 @@ app.controller(
                   $timeout(function() {
                     $scope.sending = false;
                     restoreFocus();
+                    wpf.subscribe();
                   }, 300);
 
                   $scope.commentText = '';

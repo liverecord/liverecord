@@ -131,6 +131,28 @@ function userHandler(socket, io, errorHandler) {
     });
 
   });
+  socket.on('device.update', function(deviceRequest, socketCallback) {
+    'use strict';
+    models.User.update(
+        {
+          _id: socket.decoded_token._id,
+          'devices._id': deviceRequest._id
+        },
+        {
+          $set: {
+            updated: Date.now(),
+            'devices.$.pushEnabled': deviceRequest.pushEnabled
+          }
+        },
+        function(err, res) {
+          if (err) {
+            return errorHandler(err);
+          } else {
+            //
+          }
+        }
+    );
+  });
 
   socket.on('user.update', function(userRequest, socketCallback) {
 
