@@ -43,17 +43,16 @@ app.controller(
         $scope.sendButtonActive = false;
         $scope.initialCommentsLoad = true;
         $scope.pagination = {page: 0, total: 0, pages: 0, limit: 10};
-
         $scope.$localStorage = $localStorage;
         $scope.socialshareAttrs = {
           provider: 'email'
         };
-
         $scope.share = {
           provider: 'email'
         };
-
+        var typingTimeouts = {};
         var original = $location.hash;
+
         $location.hash = function(hash, reload) {
           if (reload === false) {
             var lastRoute = $route.current;
@@ -85,37 +84,39 @@ app.controller(
           );
         }
 
-        var typingTimeouts = {};
-
-
-
         function scrollToLatestComment() {
-          if ($scope.initialCommentsLoad) {
-            if ($scope.topic &&
-                $scope.topic.fanOut &&
-                $scope.topic.fanOut.viewed && $scope.comments.length > 0) {
-              var commentId = '';
-              for (var i = 0, cl = $scope.comments.length; i < cl; i++) {
-                //console.log('fanOut', $scope.topic.fanOut.viewed, 'created', $scope.comments[i].created)
-                if (
-                    $scope.topic.fanOut.viewed < $scope.comments[i].created ||
-                    i === cl - 1
-                ) {
-                  commentId = $scope.comments[i]._id;
-                  $timeout(function() {
+          $timeout(function() {
+            if ($scope.initialCommentsLoad) {
+              if ($scope.topic &&
+                  $scope.topic.fanOut &&
+                  $scope.comments &&
+                  $scope.topic.fanOut.viewed && $scope.comments.length > 0) {
+                var commentId = '', cl = $scope.comments.length;
+                var i = cl - 1;
+                //
+                while (i >= 0) {
+                  // console.log(
+                  // 'i', i, 'fanOut', $scope.topic.fanOut.viewed,
+                  // 'created', $scope.comments[i].created)
+                  var fanOutViewed = new Date($scope.topic.fanOut.viewed);
+                  var commentCreated = new Date($scope.comments[i].created);
+                  if (
+                      fanOutViewed < commentCreated ||
+                      i === 0
+                  ) {
+                    commentId = $scope.comments[i]._id;
                     document
-                        .getElementById('comment_' + $scope.comments[i]._id)
+                        .getElementById('comment_' + commentId)
                         .scrollIntoView();
-                    //console.log('aaa')
-                  }, 50);
-
-                  $scope.initialCommentsLoad = true;
-                  break;
+                    $scope.initialCommentsLoad = true;
+                    break;
+                  }
+                  i--;
                 }
               }
             }
-          }
-        };
+          }, 50);
+        }
 
         socket.on('topic:' + $routeParams.topic, function(envelope) {
               console.log('topic:envelope', envelope);
