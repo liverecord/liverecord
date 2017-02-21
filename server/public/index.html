@@ -68,7 +68,7 @@
                             <div class="manage"> <a href="/" title="Выйти" ng-click="logout()"><i class="fa fa-sign-out"></i></a></div>
                         </div>
                     </div>
-                    <div ng-hide="user" class="user flex-row">
+                    <div ng-hide="user" class="user flex-row">s
                         <a href="/" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs">Присоединиться</span></a>
                     </div>
             </div>
@@ -81,7 +81,7 @@
                         <li ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}">{{::item.name}}</a></li>
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
-                    <p class="text-center">На форуме {{totalConnections}}</p>
+                    <p class="text-center">На форуме <a href="/users">{{totalConnections}}</a></p>
                 </div>
                 <div class="settings" ng-show="user">
                     <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs">Настройки</span></a>

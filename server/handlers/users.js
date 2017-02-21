@@ -334,6 +334,24 @@ function userHandler(socket, io, errorHandler) {
       }
   );
 
+  socket.on('user.online', function(userRequest, socketCallback) {
+    'use strict';
+    User
+        .find({
+          deleted: false
+        }, {name: 1, slug: 1, picture: 1, rank: 1, online: 1})
+        .sort({online: -1, rank: -1, updated: -1})
+        .limit(100)
+        .then(function(doc) {
+          socketCallback({
+            success: !!doc,
+            users: doc
+          });
+        })
+        .catch(function(reason) {
+          errorHandler(reason);
+        });
+  });
 }
 
 module.exports = userHandler;

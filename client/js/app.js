@@ -67,9 +67,14 @@ app.config([
               templateUrl: '/dist/t/settings.tpl'
         })
         .when('/users/:slug', {
-          controller: 'UsersCtrl',
+          controller: 'UsersInfoController',
           controllerAs: 'uctl',
           templateUrl: '/dist/t/users.info.tpl'
+        })
+        .when('/users', {
+          controller: 'UsersOnlineController',
+          controllerAs: 'uctl',
+          templateUrl: '/dist/t/users.tpl'
         })
         .when('/users/password/restore', {
           controller: 'UsersPasswordRestoreCtrl',

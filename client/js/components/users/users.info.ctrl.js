@@ -2,7 +2,7 @@
  * Created by zoonman on 11/27/16.
  */
 
-app.controller('UsersCtrl',
+app.controller('UsersInfoController',
     ['socket',
      '$scope',
      'PerfectScrollBar',
