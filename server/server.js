@@ -166,7 +166,9 @@ mongooseConnection.once('open', function() {
           })
           .on('authenticated', function(socket) {
                 //console.log('authenticated', socket.decoded_token._id);
-                sendOnlineCount();
+            setTimeout(function() {
+              sendOnlineCount();
+            }, 2000);
                 try {
                   if (!socket.decoded_token) return;
                   models.User.findById(socket.decoded_token._id,

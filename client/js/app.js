@@ -37,7 +37,7 @@ Array.prototype._idMerge = function(secondArray) {
 var app = angular.module(
     'app',
     [
-      'ngSanitize',
+      'ngSanitize', 'ngLocale',
       'ngAnimate', 'ngRoute', 'ngStorage', 'ngMessages',
       '720kb.socialshare'
     ]

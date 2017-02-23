@@ -26,6 +26,8 @@ var paths = {
   scripts: [
     'node_modules/angular/angular.js',
     'node_modules/angular-route/angular-route.js',
+    'node_modules/angular-i18n/angular-locale_en-us.js',
+    'node_modules/angular-i18n/angular-locale_ru-ru.js',
     'node_modules/angular-animate/angular-animate.js',
     //'node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js',
     'node_modules/socket.io-client/dist/socket.io.js',

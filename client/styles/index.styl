@@ -151,12 +151,24 @@ body > .container.websocketAlive .body
   overflow hidden
   text-overflow ellipsis
 
+  .total-online
+    position absolute
+    width $categoriesPanelWidth
+    left 0
+    bottom calc(4em + 1vh)
+    color alpha($greenDark, 50%)
+    a
+      color alpha($greenDark, 50%)
+      text-decoration-color alpha($greenDark, 10%)
+
 .categories > .menu
   height calc(98vh - 6em)
 
   .menu
     margin 0
     padding 0
+
+
 
 
 .categories > .settings
