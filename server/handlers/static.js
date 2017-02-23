@@ -77,7 +77,10 @@ function sendResponse(res, html, code) {
   code = code || 200;
   html = html || '';
   res.writeHead(code, {
-        'Content-Type': 'text/html;encoding: utf-8'
+        'Content-Type': 'text/html; charset=UTF-8',
+        'x-frame-options': 'SAMEORIGIN',
+        'x-xss-protection': '1; mode=block',
+        'x-powered-by': 'LiveRecord'
       }
   );
   res.write(html);

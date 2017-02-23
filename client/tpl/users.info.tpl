@@ -17,14 +17,14 @@
         </div>
       </div>
       <div><p>{{::userInfo.about}}</p></div>
-      <div><p>Всего тем: {{::userInfo.totals.topics}}</p></div>
-      <div><p>Всего комментариев: {{::userInfo.totals.comments}}</p></div>
+      <div ng-show="userInfo.totals.topics > 0"><p>Всего тем: {{::userInfo.totals.topics}}</p></div>
+      <div ng-show="userInfo.totals.comments > 0"><p>Всего комментариев: {{::userInfo.totals.comments}}</p></div>
 
       <div ng-show="userInfo._id === user._id">
         <a class="button" ng-href="/settings">Настройки</a>
       </div>
     </div>
-    <div class="user-topics">
+    <div class="user-topics" ng-show="userInfo.details.topicList.length > 0">
     <h3>Темы пользователя</h3>
       <div ng-repeat="topic in userInfo.details.topicList track by topic._id" class="topic">
         <p><a ng-href="/{{::topic.category.slug}}/{{::topic.slug}}">{{::topic.title}}</a></p>
