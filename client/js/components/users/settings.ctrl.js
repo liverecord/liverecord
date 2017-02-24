@@ -74,6 +74,7 @@ app.controller('SettingsController',
                   $rootScope.user.email = $scope.profile.email;
                   $rootScope.user.picture = $scope.profile.picture;
                   $rootScope.user.slug = $scope.profile.slug;
+                  $rootScope.user.gender = $scope.profile.gender;
                   $rootScope.$applyAsync();
                 } else {
                   $scope.message = l[response.error] || 'error';

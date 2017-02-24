@@ -110,7 +110,7 @@ app.controller(
                     document
                         .getElementById('comment_' + commentId)
                         .scrollIntoView();
-                    $scope.initialCommentsLoad = true;
+                    $scope.initialCommentsLoad = false;
                     break;
                   }
                   i--;

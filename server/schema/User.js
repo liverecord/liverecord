@@ -23,6 +23,7 @@ const UserSchema = new mongoose.Schema({
   },
   picture: String,
   about: String,
+  gender: String,
   pw: {
     hash: String,
     salt: String,

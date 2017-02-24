@@ -97,9 +97,6 @@ webpush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
 
 frontLiveRecordConfig['vapidPublicKey'] = vapidKeys.publicKey;
 
-
-
-
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
 var mongooseConnection = mongoose.connection;
@@ -168,7 +165,7 @@ mongooseConnection.once('open', function() {
                 //console.log('authenticated', socket.decoded_token._id);
             setTimeout(function() {
               sendOnlineCount();
-            }, 2000);
+            }, 1000);
                 try {
                   if (!socket.decoded_token) return;
                   models.User.findById(socket.decoded_token._id,
@@ -176,7 +173,6 @@ mongooseConnection.once('open', function() {
                         if (err) {
                           return errorHandler(err);
                         }
-
                         if (currentUser) {
                           var webUser = pick(currentUser,
                               ['_id',
@@ -217,7 +213,7 @@ mongooseConnection.once('open', function() {
 
                   socket.on('disconnect', function(s) {
                         if (socket.webUser && socket.webUser._id) {
-                          models.User.update({_id: socket.webUser._id},
+                          models.User.update({_id: socket.webUser._isd},
                               {'$set': {online: false, updated: Date.now()}}
                           ).exec(function(err, other) {
                             if (err) return errorHandler(err);
@@ -250,12 +246,10 @@ death(function(signal, err) {
       if (io) {
         io.close();
       }
-
       console.log(signal);
       if (err) {
         console.log(err);
       }
-
       process.exit();
       return 0;
     }

@@ -5,7 +5,7 @@
 
     <div>
       <h2>Глобальные</h2>
-      <div class="signinform">
+      <div class="signinform flex-center">
         <h3>Профиль</h3>
         <div class="message" ng-show="message">{{message}}</div>
         <form name="userForm" ng-submit="update()" novalidate ng-cloak="">
@@ -47,6 +47,26 @@
           <div><label for="profileAbout">О себе</label><textarea placeholder="О себе" name="profileAbout"
                                                           id="profileAbout" ng-model="profile.about"
                                                           ng-disabled="sending"></textarea>
+          </div>
+          <div class="flex-row"><label for="gender" title="Нужен для правильного склонения падежей, обращений и т.д.">Пол</label>
+
+            <div>
+              <div>
+                <input type="radio" name="gender" id="gendermale" ng-model="profile.gender" value="male" ng-disabled="sending">
+                <label for="gendermale">мужской</label>
+              </div>
+              <div>
+                <input type="radio" name="gender" id="genderfemale" ng-model="profile.gender" value="female" ng-disabled="sending">
+                <label for="genderfemale">женский</label>
+              </div>
+              <div>
+                <label for="gendertext">другой <span title="поведение интерфейса может быть странным">*</span></label>
+
+                <input type="text" name="gender" id="gendertext" ng-model="profile.gender" ng-disabled="sending">
+              </div>
+            </div>
+
+
           </div>
           <div><label for="sendEmailNotifications">Отправлять уведомления на почту</label><input type="checkbox" id="sendEmailNotifications" ng-model="profile.settings.notifications.email"  ng-disabled="sending"></div>
           <div><label for="profileAvatar">Аватар</label>

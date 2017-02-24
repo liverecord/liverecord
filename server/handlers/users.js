@@ -34,6 +34,7 @@ function userHandler(socket, io, errorHandler) {
           'picture': 1,
           'about': 1,
           'slug': 1,
+          'gender': 1,
           'online': 1,
           'rank': 1,
           'totals': 1
@@ -160,6 +161,7 @@ function userHandler(socket, io, errorHandler) {
           'name': '',
           'about': '',
           'email': '',
+          'gender': '',
           settings: {
             notifications: {
               email: true
@@ -171,9 +173,11 @@ function userHandler(socket, io, errorHandler) {
         userRequest.name = purify(userRequest.name, true);
         userRequest.email = purify(userRequest.email, true);
         userRequest.picture = purify(userRequest.picture, true);
+        userRequest.gender = purify(userRequest.gender, true);
 
         var updateData = {
           name: userRequest.name,
+          gender: userRequest.gender,
           about: userRequest.about
         };
         if (validator.isEmail(userRequest.email)) {
@@ -211,6 +215,7 @@ function userHandler(socket, io, errorHandler) {
                             socket.webUser.name = updateData.name;
                             socket.webUser.slug = updateData.slug;
                             socket.webUser.picture = updateData.picture;
+                            socket.webUser.gender = updateData.gender;
                           }
                       );
                 } else {
@@ -224,6 +229,7 @@ function userHandler(socket, io, errorHandler) {
                                     socket.webUser.name = updateData.name;
                                     socket.webUser.slug = updateData.slug;
                                     socket.webUser.picture = updateData.picture;
+                                    socket.webUser.gender = updateData.gender;
                                   });
                             } else {
                               socketCallback({
@@ -339,7 +345,7 @@ function userHandler(socket, io, errorHandler) {
     User
         .find({
           deleted: false
-        }, {name: 1, slug: 1, picture: 1, rank: 1, online: 1})
+        }, {name: 1, slug: 1, picture: 1, rank: 1, online: 1, gender: 1})
         .sort({online: -1, rank: -1, updated: -1})
         .limit(100)
         .then(function(doc) {
