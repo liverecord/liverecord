@@ -24,7 +24,7 @@ body
 a
   color $blueRegular
 
-button,input
+button,input,textarea
   font-family inherit
   font-size inherit
   box-sizing border-box
@@ -53,7 +53,8 @@ input[type=text],
 input[type=password],
 input[type=email],
 input[type=tel],
-input[type=number]
+input[type=number],
+textarea
   border solid 1px $blueRegular
   padding 0.3em 0.5em
   margin 0.1em
@@ -969,7 +970,7 @@ pre,code,.mono
     display inline-block
     min-width 5em
     width 5vw
-  input
+  input, textarea
     font-family inherit
     font-size inherit
   .message

@@ -15,17 +15,12 @@ function usersLoginController(socket,
     $rootScope,
     $scope,
     $window,
+    $translate,
     $localStorage,
     $sessionStorage) {
 
   var l = {
-    jwt_cannot_be_created: 'Проход в рай запрещен',
-    password_verification_failed: 'Что-то не то с паролем, давай еще разок.',
-    password_mismatch: 'Коль не помнишь свой пароль, попробуй восстанови',
-    users_hash_cannot_be_created: 'Кошмар какой-то, нельзя создать хэш ' +
-        'пароля! Скажи разрабу, что он ленивая скотина, накосячила в коде.',
-    user_cannot_be_saved: 'Кишильбе-Мишельбе Насяльника, низя юзерва ' +
-        'создавать никак! База упаля...'
+
   };
 
   if ($rootScope.user) {
@@ -51,9 +46,7 @@ function usersLoginController(socket,
     $localStorage.rememberMe = $scope.authData.rememberMe;
     $scope.message = '';
     socket.emit('login', $scope.authData, function(response) {
-          console.log('l', response);
           $scope.sending = false;
-
           if (response.success) {
 
             if ($localStorage.rememberMe) {
@@ -65,7 +58,10 @@ function usersLoginController(socket,
             $rootScope.user = angular.copy(response.user);
             socket.emit('authenticate', {token: response.token});
           } else {
-            $scope.message = l[response.error] || 'error';
+
+            $translate(response.error).then(function(translation) {
+              $scope.message = translation || 'error';
+            });
           }
         }
     );
