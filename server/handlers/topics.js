@@ -400,9 +400,10 @@ function expressRouter(req, res, next) {
                   {path: 'user', select: 'name picture slug rank'}
                 ])
                 .then(function(populatedTopic) {
+                      var bodyModifier;
                       if (populatedTopic) {
                         // dirty business for SEO
-                        var bodyModifier = function(inputHtml) {
+                        bodyModifier = function(inputHtml) {
                           //
                           inputHtml = staticHandlers.modifyBody(
                               inputHtml,
@@ -456,7 +457,7 @@ function expressRouter(req, res, next) {
                         };
                         staticHandlers.serveIndex(res, bodyModifier);
                       } else {
-                        var bodyModifier = function(inputHtml) {
+                        bodyModifier = function(inputHtml) {
                           //
                           return staticHandlers.modifyBody(
                               inputHtml,

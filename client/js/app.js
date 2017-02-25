@@ -39,15 +39,26 @@ var app = angular.module(
     [
       'ngSanitize', 'ngLocale',
       'ngAnimate', 'ngRoute', 'ngStorage', 'ngMessages',
+      'pascalprecht.translate', 'tmh.dynamicLocale',
       '720kb.socialshare'
     ]
     );
 
+app.constant('LOCALES', {
+  'locales': {
+    'en_US': 'English',
+    'ru_RU': 'Русский'
+  },
+  'preferredLocale': 'en_US'
+});
+
 app.config([
   '$locationProvider', '$routeProvider',
   '$localStorageProvider', '$sessionStorageProvider',
+  '$translateProvider', 'tmhDynamicLocaleProvider',
   function($locationProvider, $routeProvider,
-      $localStorageProvider, $sessionStorageProvider) {
+      $localStorageProvider, $sessionStorageProvider, $translateProvider,
+      tmhDynamicLocaleProvider) {
     //
     $routeProvider
         .when('/ask', {
@@ -115,6 +126,18 @@ app.config([
       alert('Enable Local storage!');
     }
 
+    $translateProvider.useMissingTranslationHandlerLog();
+    $translateProvider.useMessageFormatInterpolation();
+    $translateProvider.useStaticFilesLoader({
+      prefix: '/dist/l/lr-',
+      suffix: '.json'
+    });
+    tmhDynamicLocaleProvider.localeLocationPattern(
+        '/dist/l/angular-locale_{{locale}}.js'
+    );
+    $translateProvider.preferredLanguage('en_US');
+    $translateProvider.useSanitizeValueStrategy('escape');
+    $translateProvider.fallbackLanguage(['en_US', 'ru_RU']);
   }
 ]);
 

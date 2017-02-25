@@ -11,6 +11,7 @@ app.controller(
       '$scope',
       '$timeout',
       '$routeParams',
+      '$translate',
       'CategoriesFactory',
       'socket',
       'wpf',
@@ -21,6 +22,7 @@ app.controller(
           $scope,
           $timeout,
           $routeParams,
+          $translate,
           CategoriesFactory,
           socket,
           wpf) {
@@ -43,11 +45,22 @@ app.controller(
         $scope.sendButtonActive = false;
 
         var refreshTitle = function() {
-          $document[0].title = 'Создать тему ' +
-              ($scope.topic.title || '') +
-              ' в разделе ' +
-              ($scope.topic.category.name || '') +
-              ' на форуме СПО';
+
+
+          $translate([
+            'Create topic',
+            'inside section',
+            'on forum'
+          ])
+              .then(function(translations) {
+                'use strict';
+                $document[0].title = translations['Create topic'] + ' "' +
+                    ($scope.topic.title || '') +
+                    '"  ' +
+                    translations['inside section'] + ' ' +
+                    ($scope.topic.category.name || '') + ' ' +
+                    translations['on forum'];
+              });
         };
 
         refreshTitle();
@@ -119,8 +132,13 @@ app.controller(
               $scope.topic.acl = array_id_merge($scope.topic.acl, [result.user]);
               $scope.lookupEmail = '';
             } else {
-              alert('Email "' + $scope.lookupEmail + '" не найден! ' +
-                  'Пользователь должен быть зарегистрирован на форуме.');
+              $translate(
+                  'Email {{email}} not found.',
+                  {email: $scope.lookupEmail}
+              )
+                  .then(function(translation) {
+                    alert(translation);
+                  });
             }
           });
         };
@@ -151,7 +169,10 @@ app.controller(
               }
             });
           } else {
-            alert('Проверьте правильность заполнения полей!');
+            translate('Check your form data').then(function(translation) {
+              alert(translation);
+            });
+
           }
         };
 
@@ -240,7 +261,13 @@ app.controller(
           );
           uploader.addEventListener('error', function(data) {
                 if (data.code === 1) {
-                  alert('Используйте файлы не более 10 MB');
+                  translate(
+                      'Use files below {{size}} bytes',
+                      {size: uploader.maxFileSize}
+                  )
+                      .then(function(translation) {
+                        alert(translation);
+                      });
                 }
                 console.log('upload error', data);
               }

@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="msapplication-tap-highlight" content="no" />
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     <style>
         [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak],
             .ng-cloak, .x-ng-cloak,
@@ -49,7 +49,7 @@
             <div class="text-right" ng-cloak=""><small>подключаемся...</small></div>
             <div style="text-align: center"><img src="/dist/i/best_loader_ever.gif" alt="Самый лучший индикатор загрузки!" width="120" height="90"></div>
             <noscript>
-                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">Для этого сайта необходима поддержка JavaScript!</p>
+                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">{{'Javascript required'|translate}}!</p>
             </noscript>
         </div>
     </div>
@@ -62,21 +62,21 @@
                         <div class="avatar"><img ng-src="{{user.picture}}" alt="" class="responsive avatar"></div>
                         <div class="profile">
                             <div class="name">{{user.name}}</div>
-                            <div class="manage"><small><a ng-href="/users/{{user.slug}}">Профиль</a> </small></div>
+                            <div class="manage"><small><a ng-href="/users/{{user.slug}}">{{'Profile'|translate}}</a> </small></div>
                         </div>
                         <div class="logout">
-                            <div class="manage"> <a href="/" title="Выйти" ng-click="logout()"><i class="fa fa-sign-out"></i></a></div>
+                            <div class="manage"> <a href="/" title="{{'Logout'|translate}}" ng-click="logout()"><i class="fa fa-sign-out"></i></a></div>
                         </div>
                     </div>
                     <div ng-hide="user" class="user flex-row">
-                        <a href="/" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs">Присоединиться</span></a>
+                        <a href="/" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs">{{'Join'|translate}}</span></a>
                     </div>
             </div>
         </div>
         <div class="body flex-row">
             <div class="categories" data-ng-controller="CategoriesCtrl">
                 <div class="menu">
-                    <div><a ng-href="/ask?category={{category}}" class="button" ng-show="user"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span class="hidden-xs">Создать тему</span></a></div>
+                    <div><a ng-href="/ask?category={{category}}" class="button" ng-show="user"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span class="hidden-xs">{{'New topic'|translate}}</span></a></div>
                     <ul class="menu">
                         <li ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}">{{::item.name}}</a></li>
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
@@ -94,13 +94,13 @@
                     </a></div>
                 </div>
                 <div class="settings" ng-show="user">
-                    <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs">Настройки</span></a>
+                    <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs">{{'Settings'|translate}}</span></a>
                 </div>
             </div>
             <div class="topics-panel" data-ng-controller="TopicListCtrl">
                 <div class="search-box">
                     <a ng-click="search()"><i class="fa fa-search"></i></a>
-                    <input type="search" name="q" class="search" placeholder="Найти тему" ng-model="searchTerm">
+                    <input type="search" name="q" class="search" placeholder="{{'Search'|translate}}" ng-model="searchTerm">
                 </div>
                 <div class="topics" id="topics">
                     <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages | orderBy:'-updated' | unique:'_id'  track by message._id">
@@ -113,18 +113,18 @@
                     </div>
                     <div class="pick-category" ng-hide="messages.length">
                         <p class="text-center"><i class="fa fa-3x fa-hand-o-left" aria-hidden="true"></i></p>
-                        <p class="text-center">Выберите категорию</p>
+                        <p class="text-center">{{'Pick category'|translate}}</p>
                     </div>
                 </div>
                 <div class="topics-switch" ng-show="user" ng-cloak="">
-                    <a href="" ng-click="newTopics()" ng-class="{active: topicSwitch == 'newTopics'}"><i class="fa fa-newspaper-o" aria-hidden="true" title="Новые вопросы"></i></a>
-                    <a href="" ng-click="recentlyViewed()" ng-class="{active: topicSwitch == 'recentlyViewed'}"><i class="fa fa-history" aria-hidden="true" title="Недавно просмотренные"></i></a>
-                    <a href="" ng-show="experimental" ng-click="participated()" ng-class="{active: topicSwitch == 'participated'}"><i class="fa fa-comments" aria-hidden="true" title="Поучаствованные"></i></a>
-                    <a href="" ng-click="bookmarks()" ng-class="{active: topicSwitch == 'bookmarks'}"><i class="fa fa-bookmark" aria-hidden="true" title="Избранное"></i></a>
+                    <a href="" ng-click="newTopics()" ng-class="{active: topicSwitch == 'newTopics'}"><i class="fa fa-newspaper-o" aria-hidden="true" title="{{'New questions'|translate}}"></i></a>
+                    <a href="" ng-click="recentlyViewed()" ng-class="{active: topicSwitch == 'recentlyViewed'}"><i class="fa fa-history" aria-hidden="true" title="{{'Recently viewed'|translate}}"></i></a>
+                    <a href="" ng-show="experimental" ng-click="participated()" ng-class="{active: topicSwitch == 'participated'}"><i class="fa fa-comments" aria-hidden="true" title="{{'Participated topics'|translate}}"></i></a>
+                    <a href="" ng-click="bookmarks()" ng-class="{active: topicSwitch == 'bookmarks'}"><i class="fa fa-bookmark" aria-hidden="true" title="{{'Bookmarks'|translate}}"></i></a>
                 </div>
             </div>
             <div class="view-panel flex-row" ng-view="">
-                <p>Привет!</p>
+                <p>{{'Hello'|translate}}!</p>
             </div>
         </div>
     </div>

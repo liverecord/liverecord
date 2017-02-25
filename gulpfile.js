@@ -26,8 +26,6 @@ var paths = {
   scripts: [
     'node_modules/angular/angular.js',
     'node_modules/angular-route/angular-route.js',
-    'node_modules/angular-i18n/angular-locale_en-us.js',
-    'node_modules/angular-i18n/angular-locale_ru-ru.js',
     'node_modules/angular-animate/angular-animate.js',
     //'node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js',
     'node_modules/socket.io-client/dist/socket.io.js',
@@ -40,6 +38,13 @@ var paths = {
     'node_modules/angular-growl-notifications/dist/angular-growl-notifications.js',
     'node_modules/angular-tooltips/dist/angular-tooltips.js',
     'node_modules/angular-messages/angular-messages.js',
+    'node_modules/messageformat/messageformat.js',
+    'node_modules/angular-translate/dist/angular-translate.js',
+    'node_modules/angular-translate/dist/angular-translate-interpolation-messageformat/angular-translate-interpolation-messageformat.js',
+    'node_modules/angular-translate/dist/angular-translate-handler-log/angular-translate-handler-log.js',
+    'node_modules/angular-translate/dist/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
+    'node_modules/angular-translate/dist/angular-translate-loader-url/angular-translate-loader-url.js',
+    'node_modules/angular-dynamic-locale/dist/tmhDynamicLocale.js',
     'client/js/**/*.js'
   ],
   bootstrap: [],
@@ -59,6 +64,10 @@ var paths = {
   ],
   sounds: [
     'client/sounds/**/*'
+  ],
+  locales: [
+    'node_modules/angular-i18n/**/*',
+    'client/locales/**/*'
   ]
 };
 
@@ -93,6 +102,11 @@ gulp.task('clean-tpl', function(cb) {
 
 gulp.task('clean-sounds', function(cb) {
       del(['server/public/dist/s/*.*'], cb);
+    }
+);
+
+gulp.task('clean-locales', function(cb) {
+      del(['server/public/dist/l/*.*'], cb);
     }
 );
 
@@ -183,6 +197,12 @@ gulp.task('sounds', function() {
           .pipe(gulp.dest('server/public/dist/s'));
     }
 );
+gulp.task('locales', function() {
+      return gulp.src(paths.locales)
+          .pipe(gulp.dest('server/public/dist/l'));
+    }
+);
+
 
 // Rerun the task when a file changes
 gulp.task('watch', function() {
@@ -192,6 +212,7 @@ gulp.task('watch', function() {
       gulp.watch(paths.tpl, ['clean-tpl', 'tpl']);
       gulp.watch(paths.fonts, ['clean-fonts', 'fonts']);
       gulp.watch(paths.sounds, ['clean-sounds', 'sounds']);
+      gulp.watch(paths.locales, ['clean-locales', 'locales']);
     }
 );
 
@@ -201,8 +222,9 @@ gulp.task('default',
       'currentDeployInit',
       'scripts',
       'tpl',
-      'images',
+      'locales',
       'css',
+      'images',
       'fonts',
       'sounds',
       'currentDeployWrite',
@@ -212,7 +234,7 @@ gulp.task('default',
 
 gulp.task('build', function(callback) {
       runSequence('currentDeployInit',
-          ['scripts', 'tpl', 'css', 'images', 'fonts', 'sounds'],
+          ['scripts', 'locales', 'tpl', 'css', 'images', 'fonts', 'sounds'],
           'currentDeployWrite',
           callback
       );
