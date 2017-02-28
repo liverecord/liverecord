@@ -81,16 +81,8 @@
                         <li ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}">{{::item.name}}</a></li>
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
-                    <div class="text-center total-online"><a href="/users">Онлайн
-                        <ng-pluralize count="totalConnections"
-                                      when="{'0': ' никого нет',
-                     '2': '{} человека',
-                     '3': '{} человека',
-                     '4': '{} человека',
-                     'one': 'только вы',
-                     'many': '{} человек',
-                     'other': '{} человек'}">
-                        </ng-pluralize>
+                    <div class="text-center total-online"><a href="/users">
+                        <span translate="online_plural" translate-values="{x: totalConnections}" translate-interpolation="messageformat">1</span>
                     </a></div>
                 </div>
                 <div class="settings" ng-show="user">

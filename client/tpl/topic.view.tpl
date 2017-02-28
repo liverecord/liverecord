@@ -1,8 +1,8 @@
 <div class="topic-view" ng-class="{advancedcompose: advancedCompose, private: topic.private}">
-  <div class="topic" id="topic">
+  <div class="topic" itemscope itemtype="http://schema.org/Question" id="topic">
     <div class="details">
 
-      <div style="display: flex;align-items: center" itemscope itemtype="http://schema.org/Question">
+      <div style="display: flex;align-items: center">
 
         <div style="flex-grow: 1;"><h1 itemprop="name">{{topic.title}}</h1></div>
 
@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <div class="topic-body" ng-bind-html="topic.body" itemprop="text">
+      <div itemprop="text" class="topic-body" ng-bind-html="topic.body">
       </div>
 
       <div class="flex-row topic-authoring">
@@ -58,7 +58,10 @@
         <div class="comment flex-row"
              ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))  track by comment._id"
              id="comment_{{::comment._id}}"
-             ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id, spam: comment.spam, moderated: comment.moderated }">
+             ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id, spam: comment.spam, moderated: comment.moderated }"
+             itemscope
+             itemtype="http://schema.org/Comment"
+        >
           <div class="avatar">
             <div ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}">
               <a ng-href="/users/{{::comment.user.slug}}"><img ng-src="{{::comment.user.picture}}" class="img-responsive"
@@ -74,11 +77,11 @@
 
           </div>
           <div class="flex-column comment-details">
-            <div class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
-              <a ng-href="/users/{{::comment.user.slug}}">{{::comment.user.name}}</a>
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
+              <a itemprop="name" ng-href="/users/{{::comment.user.slug}}">{{::comment.user.name}}</a>
               <span class="online" ng-show="::comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
             </div>
-            <div class="text" ng-bind-html="::comment.body"></div>
+            <div class="text" itemprop="text" ng-bind-html="::comment.body"></div>
             <div class="text-feedback">
               <a ng-click="vote(comment, 'up')"><i class="fa fa-fw fa-caret-up"></i></a>
               <span>{{comment.rating}}</span>
@@ -86,14 +89,16 @@
               <a ng-click="report(comment)"><i class="fa fa-fw fa-flag"></i></a>
             </div>
             <div ng-hide="comment.moderated" class="text-moderation" ng-show="::user.roles.indexOf('moderator') > -1">
-
-              <a ng-click="moderateComment(comment, btn.label)" ng-repeat="btn in comment.classification track by btn._id"
-                 class="moderator button {{::btn.label}} " title="{{::btn.value}}">{{::btn.label}}</a>
+              <a ng-click="moderateComment(comment, btn.label)"
+                 ng-repeat="btn in comment.classification track by btn._id"
+                 class="moderator button {{::btn.label}}" title="{{::btn.value}}">{{::btn.label}}</a>
 
             </div>
           </div>
           <div class="date">
-            <a class="time hidden-xs" name="comment_{{::comment._id}}" href="#comment_{{::comment._id}}" target="_self"
+            <a class="time hidden-xs"
+               name="comment_{{::comment._id}}"
+               ng-href="#comment_{{::comment._id}}" target="_self"
                   title="{{::comment.created | date: 'medium'}}">{{::comment.created | date:'shortTime'}}</a>
           </div>
         </div>

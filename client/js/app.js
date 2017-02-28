@@ -56,9 +56,10 @@ app.config([
   '$locationProvider', '$routeProvider',
   '$localStorageProvider', '$sessionStorageProvider',
   '$translateProvider', 'tmhDynamicLocaleProvider',
+  'LOCALES',
   function($locationProvider, $routeProvider,
       $localStorageProvider, $sessionStorageProvider, $translateProvider,
-      tmhDynamicLocaleProvider) {
+      tmhDynamicLocaleProvider, LOCALES) {
     //
     $routeProvider
         .when('/ask', {
@@ -76,6 +77,10 @@ app.config([
         .when('/settings', {
               controller: 'SettingsController',
               templateUrl: '/dist/t/settings.tpl'
+        })
+        .when('/admin', {
+          controller: 'AdminController',
+          templateUrl: '/dist/t/admin.tpl'
         })
         .when('/users/:slug', {
           controller: 'UsersInfoController',
@@ -135,7 +140,19 @@ app.config([
     tmhDynamicLocaleProvider.localeLocationPattern(
         '/dist/l/angular-locale_{{locale}}.js'
     );
-    $translateProvider.preferredLanguage('en_US');
+    var language = window.navigator.userLanguage || window.navigator.language;
+    var langLength = language.length, localeFound = false;
+    for (var probingLocale in LOCALES.locales) {
+      if (language == probingLocale.substr(0, langLength) &&
+          LOCALES.locales.hasOwnProperty(probingLocale)) {
+        $translateProvider.preferredLanguage(probingLocale);
+        localeFound = true;
+        break;
+      }
+    }
+    if (!localeFound) {
+      $translateProvider.preferredLanguage('en_US');
+    }
     $translateProvider.useSanitizeValueStrategy('escape');
     $translateProvider.fallbackLanguage(['en_US', 'ru_RU']);
   }

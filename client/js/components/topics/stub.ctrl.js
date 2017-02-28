@@ -25,7 +25,10 @@ app.controller(
          if ($routeParams.category) {
            CategoriesFactory.active($routeParams.category);
            $scope.activeCategory = CategoriesFactory.active();
-           $document[0].title = $scope.activeCategory.name;
+           if ($scope.activeCategory) {
+              $document[0].title = $scope.activeCategory.name;
+           }
+
          } else {
            $scope.activeCategory = CategoriesFactory.active();
          }

@@ -7,7 +7,7 @@ const purify = require('./purify');
 const mailer = require('./mailer');
 
 const Topic = require('../schema').Topic;
-const TOPICS_PER_PAGE = 100;
+const TOPICS_PER_PAGE = 1000;
 
 function tag(tag, content) {
   return '<' + tag + '>' + content + '</' + tag + '>';
@@ -17,7 +17,7 @@ module.exports.router = function(req, res, next) {
   "use strict";
 
   var d = new Date(); // Today!
-  d.setMonth(d.getMonth() - 1);
+  d.setMonth(d.getYear() - 1);
 
   Topic.find({updated: {$gte: d}, spam: false, private: false, deleted: false})
       .sort({updated: -1})

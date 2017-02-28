@@ -94,6 +94,9 @@
   "Push":"Notifications",
   "Browser":"Notifications",
   "Ip":"IP",
+  "online_x_mans":"{'0': ' никого нет',  '2': '{} человека',  '3': '{} человека',  '4': '{} человека',  'one': 'только вы',  'many': '{} человек',  'other': '{} человек'}",
+  "online": "{x} online",
+  "online_plural": "{x, select, one{1} two{2} others} online",
   "":"",
   "_":""
 }

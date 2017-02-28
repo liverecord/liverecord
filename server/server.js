@@ -30,9 +30,11 @@ var frontLiveRecordConfig = {
   version: '1'
 };
 
-frontLiveRecordConfig.version = fs.readFileSync(
+frontLiveRecordConfig.version = fs
+    .readFileSync(
     __dirname + '/public/version.txt', 'utf8'
-).trim();
+    )
+    .trim();
 
 //
 const app = express();
@@ -207,6 +209,15 @@ mongooseConnection.once('open', function() {
                                 }
                               }
                           );
+
+                          socket.on('command', function(req) {
+                            console.log(req);
+                            if (socket.webUser &&
+                                socket.webUser.roles.indexOf('admin') > -1) {
+                              io.emit('command', req);
+                            }
+                          });
+
                         }
                       }
                   );
