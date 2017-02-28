@@ -43,7 +43,9 @@
   "scripts": {
     "start": "node server/server.js",
     "stress_test": "node tests/stress/db_flooding.js",
-    "postinstall": "gulp build"
+    "postinstall": "gulp build",
+    "dev": "NODE_ENV=development npm start & npm run watch",
+    "watch": "gulp"
   },
   "dependencies": {
     "angular": "^1.6.2",
