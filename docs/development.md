@@ -28,23 +28,12 @@ nvm install
 nvm use
 npm install
 
-
-gulp build
-
-export NODE_ENV=development
-
-npm start
+# this will start the project and watch for source file changes
+npm run dev
 ```
  
 ## Development process
 
 I recommend to use modern IDE (WebStorm/PHPStrorm) with enabled Google Closure Linter.
-
-Next you will need to start gulp watchers like this.
-
-```bash
-nvm use
-gulp
-```
 
 It will create newer version and store it to `server/public/version.txt`.
