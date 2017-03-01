@@ -1,14 +1,14 @@
 <div class="flex-column " style="width: 100%;">
   <div id="topic" style="position: relative">
-    <div class="user-info flex-center">
+    <div itemscope itemtype="http://schema.org/Person" class="user-info flex-center">
       <h1>
         <span class="online" ng-show="userInfo.online" title="{{'Online' | translate}}"><i class="fa fa-circle"></i></span>
-        {{::userInfo.name}}
+        <span itemprop="name">{{::userInfo.name}}</span>
       </h1>
       <div>
-        <img ng-src="{{::userInfo.picture}}" alt="{{::userInfo.slug}}" class="img-responsive">
+        <img ng-src="{{::userInfo.picture}}" itemprop="image" alt="{{::userInfo.slug}}" class="img-responsive">
       </div>
-      <div><small>@{{::userInfo.slug}}</small></div>
+      <div><small itemprop="alternateName">@{{::userInfo.slug}}</small></div>
       <div>
 
         <div >
@@ -21,7 +21,7 @@
           <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 4}"></i></span>
         </div>
       </div>
-      <div><p>{{::userInfo.about}}</p></div>
+      <div><p itemprop="description">{{::userInfo.about}}</p></div>
       <div ng-show="userInfo.totals.topics > 0"><p>{{'Total topics' | translate}}: {{::userInfo.totals.topics}}</p></div>
       <div ng-show="userInfo.totals.comments > 0"><p>{{'Total comments' | translate}}: {{::userInfo.totals.comments}}</p></div>
 
