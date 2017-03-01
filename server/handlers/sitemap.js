@@ -17,7 +17,7 @@ module.exports.router = function(req, res, next) {
   "use strict";
 
   var d = new Date(); // Today!
-  d.setMonth(d.getYear() - 1);
+  d.setYear(d.getYear() - 1);
 
   Topic.find({updated: {$gte: d}, spam: false, private: false, deleted: false})
       .sort({updated: -1})
