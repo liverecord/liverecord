@@ -217,14 +217,13 @@ mongooseConnection.once('open', function() {
                               io.emit('command', req);
                             }
                           });
-
                         }
                       }
                   );
 
                   socket.on('disconnect', function(s) {
                         if (socket.webUser && socket.webUser._id) {
-                          models.User.update({_id: socket.webUser._isd},
+                          models.User.update({_id: socket.webUser._id},
                               {'$set': {online: false, updated: Date.now()}}
                           ).exec(function(err, other) {
                             if (err) return errorHandler(err);
