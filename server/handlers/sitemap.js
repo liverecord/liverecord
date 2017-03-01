@@ -20,7 +20,7 @@ module.exports.router = function(req, res, next) {
   d.setYear(d.getYear() - 1);
 
   Topic.find({updated: {$gte: d}, spam: false, private: false, deleted: false})
-      .sort({updated: -1})
+      .sort({updated: -1, created: -1})
       .limit(TOPICS_PER_PAGE)
       .select('slug category created updated')
       .populate('category')
