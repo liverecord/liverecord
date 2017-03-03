@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  web:
+    build: .
+    command: npm start
+    ports:
+     - "8914:8914"
+    links:
+      - db
+      - redis
+    depends_on:
+     - db
+     - redis
+    volumes:
+     - .:/usr/src/app
+  db:
+    image: mongo:latest
+    volumes:
+     - db_data:/var/lib/mongodb
+  redis:
+    image: redis
+
+volumes:
+    db_data:

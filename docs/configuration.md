@@ -5,39 +5,6 @@
 
 Configure parameters in environment variables, for details look into config section of [`package.json`](../package.json).
 
-```json
-
-{
-  "config": { 
-    "mongodb": {
-      "uri": "mongodb://127.0.0.1:27017/liveRecord"
-    },
-    "server": {
-      "name": "forum.example.com",
-      "host": "0.0.0.0",
-      "port": 8914
-    },
-    "security": {
-      "restored_password_length": 12
-    },
-    "jwt": {
-      "secret": "yourSuperStrongSecretKeyToProtectYourUsersPrivacy"
-    },
-    "email": {
-      "sender": "Sender Name <name@example.com>",
-      "transport": "smtps://user%40gmail.com:pass@smtp.gmail.com"
-    },
-    "files": {
-      "dir": "files",
-      "extensions": {
-        "blacklist": "exe",
-        "whitelist": ""
-      }
-    }
-  }
-}
-```
-
 When you will start your server, you can always override your configuration using environment variables like this
 
 ```bash
