@@ -49,13 +49,20 @@ npm config set liverecord:server.name 'www.example.com'
 
 Name | Default Value | Description
 ---- | ------------- | -----------
-mongodb.uri | mongodb://127.0.0.1:27017/liveRecord | Standard MongoDb Driver connection string
+mongodb.uri | `mongodb://127.0.0.1:27017/liveRecord` | Standard MongoDb Driver connection string
 server.name | 0.0.0.0:8914 | Server hostname or domain name
 server.host | 0.0.0.0 | Default server host
 server.port | 8914 | Default server port
 security.restored_password_length | 12 | Length of future restored password
-
-
+jwt.restored_password_length | yourKey | Secret key for [JWT](https://jwt.io/)
+email.sender | `Sender Name <name@example.com>` | 
+email.transport | `smtps://user%40gmail.com:pass@smtp.gmail.com` | [SMTP Transport configuration string](https://nodemailer.com/smtp/) for Nodemailer
+sentry.dsn | `` | DSN for [Sentry](https://sentry.io/)
+webpush.gcm_api_key | `` |  GCM API Key from the Google Developer Console or the Cloud Messaging tab under a Firebase Project.
+analytics.ga_id | `none` | Google Analytics property ID
+files.dir | files | Folder for files
+files.extensions.blacklist | `` | Comma-separated list of blacklisted extensions
+files.extensions.whitelist | `jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg` | Comma-separated list of whitelisted extensions (we recommend to use it)
 
 ## Start
     
