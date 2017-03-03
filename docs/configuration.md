@@ -1,6 +1,9 @@
 # Configuration
 
-Configure parameters in environment variables, for details look into config section of `package.json`
+
+## Parameters
+
+Configure parameters in environment variables, for details look into config section of [`package.json`](../package.json).
 
 ```json
 
@@ -33,8 +36,28 @@ Configure parameters in environment variables, for details look into config sect
     }
   }
 }
-
 ```
+
+When you will start your server, you can always override your configuration using environment variables like this
+
+```bash
+npm config set liverecord:server.name 'www.example.com'
+```
+
+#### List of available parameters
+
+
+Name | Default Value | Description
+---- | ------------- | -----------
+mongodb.uri | mongodb://127.0.0.1:27017/liveRecord | Standard MongoDb Driver connection string
+server.name | 0.0.0.0:8914 | Server hostname or domain name
+server.host | 0.0.0.0 | Default server host
+server.port | 8914 | Default server port
+security.restored_password_length | 12 | Length of future restored password
+
+
+
+## Start
     
 You can run the server through you script overriding parameters from package.json like this:
 
