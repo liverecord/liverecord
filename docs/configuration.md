@@ -66,22 +66,43 @@ files.extensions.whitelist | `jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg` | Comma-sepa
 
 ## Start
     
-You can run the server through you script overriding parameters from package.json like this:
+You can run the server through this script overriding parameters from package.json like this:
 
 ```bash
 #!/usr/bin/env bash
 
+# load NVM
+export NVM_DIR="~/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+# install node from .nvmrc
+nvm install
+
+# install node packages
+npm install
+
+# compile assets
+gulp build 
+
+# configure your options
 npm config set liverecord:server.name 'www.your.domain'
 npm config set liverecord:email.sender 'Your Sender Name <yourEmail@your.domain>'
 
+# start application
 npm start
 ```
 
-If you are using Nginx, it would be better to use it for serving static content.
+
+## Configuring Nginx
+
+If you are using Nginx, it would be better to use it for serving static content. 
+Serving static files using nginx as reverse proxy for Node app is an preferred option. 
 
 Configure to serve static from the `server/public` directory.
 
-```
+
+```nginx
+
 #
 # Our application gets deployed via capistrano
 # to the /var/www/liverecord
@@ -89,6 +110,7 @@ Configure to serve static from the `server/public` directory.
 
 # configure connection to our application
 upstream app_liverecord {
+  ip_hash;
   server 127.0.0.1:8914;
 }
 
