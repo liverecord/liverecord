@@ -320,6 +320,9 @@ input[type="reset"]
   .topic-info
     width $topicsPanelWidth
     display: block
+    .fa-lock
+      color $greenLight
+      font-size 0.8em
   .topic-status
     width 2vw
     text-align center
@@ -810,6 +813,7 @@ input[type="reset"]
               float right
           .text-moderation
             border-bottom solid 0 $lightGrey
+            display none
             .button
               padding 2px
               font-size 0.8em
@@ -1017,5 +1021,9 @@ bookmark
 
 .avatar .rank
   font-size 0.5vh
+
+.color-secure
+  color $greenLight
+
 
 @import "settings.styl"

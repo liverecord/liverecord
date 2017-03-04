@@ -7,16 +7,17 @@ app.controller('UsersInfoController',
      '$scope',
      'PerfectScrollBar',
      '$routeParams',
-     function(socket, $scope, PerfectScrollBar, $routeParams) {
+     '$document',
+     function(socket, $scope, PerfectScrollBar, $routeParams, $document) {
        //
+       $document[0].title = '';
        $scope.userInfo = {};
        socket.emit('user', {slug: $routeParams.slug}, function(response) {
-             $scope.userInfo = response;
-
-             PerfectScrollBar.setup('topic');
-
-           }
-       );
+         $scope.userInfo = response;
+         $document[0].title = response.name;
+         PerfectScrollBar.setup('topic');
+       });
+       PerfectScrollBar.setup('topic');
      }
     ]
 );

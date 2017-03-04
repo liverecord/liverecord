@@ -78,8 +78,10 @@ mongoose.Promise = global.Promise;
 const vapidFilePath = __dirname + '/' +
     process.env.npm_package_config_webpush_vapid_keys_path;
 
+/***
+ * @todo move it into db
+ */
 var vapidKeys;
-
 if (fs.existsSync(vapidFilePath)) {
   var vapidRaw = fs.readFileSync(vapidFilePath);
   if (vapidRaw) {
@@ -89,13 +91,16 @@ if (fs.existsSync(vapidFilePath)) {
   vapidKeys = webpush.generateVAPIDKeys();
   fs.appendFileSync(vapidFilePath, JSON.stringify(vapidKeys));
 }
-
 webpush.setVapidDetails(
     'https://' + process.env.npm_package_config_server_name,
     vapidKeys.publicKey,
     vapidKeys.privateKey
 );
-webpush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
+
+if (process.env.npm_package_config_webpush_gcm_api_key) {
+  webpush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
+}
+
 
 frontLiveRecordConfig['vapidPublicKey'] = vapidKeys.publicKey;
 
@@ -168,58 +173,60 @@ mongooseConnection.once('open', function() {
             setTimeout(function() {
               sendOnlineCount();
             }, 1000);
-                try {
-                  if (!socket.decoded_token) return;
-                  models.User.findById(socket.decoded_token._id,
-                      function(err, currentUser) {
-                        if (err) {
-                          return errorHandler(err);
-                        }
-                        if (currentUser) {
-                          var webUser = pick(currentUser,
-                              ['_id',
-                                'name',
-                                'email',
-                                'picture',
-                                'slug',
-                                'roles',
-                                'about',
-                                'rank',
-                                'devices',
-                                'settings'
-                              ]
-                          );
-                          // inform user
-                          socket.emit('user', webUser);
-                          socket.webUser = webUser;
-                          // now have a user context and can work
-                          Raven.setContext({user: webUser});
-                          // handlers
-                          comments(socket, io, antiSpam, webpush, errorHandler);
-                          question(socket, io, errorHandler);
-                          bookmarks(socket, errorHandler);
-                          userPush(webpush, socket, errorHandler);
+            try {
+              if (!socket.decoded_token) return;
+              models.User
+                  .findById(socket.decoded_token._id)
+                  .then(function(currentUser) {
+                    if (currentUser) {
+                      var webUser = pick(currentUser,
+                          ['_id',
+                            'name',
+                            'email',
+                            'picture',
+                            'slug',
+                            'roles',
+                            'about',
+                            'gender',
+                            'rank',
+                            'devices',
+                            'settings'
+                          ]
+                      );
+                      // inform user
+                      socket.emit('user', webUser);
+                      socket.webUser = webUser;
+                      // now have a user context and can work
+                      Raven.setContext({user: webUser});
+                      // handlers
+                      comments(socket, io, antiSpam, webpush, errorHandler);
+                      question(socket, io, errorHandler);
+                      bookmarks(socket, errorHandler);
+                      userPush(webpush, socket, errorHandler);
 
-                          models.User.update(
-                              {_id: currentUser._id},
-                              {$set: {online: true, updated: Date.now()}},
-                              function(err, res) {
-                                if (err) {
-                                  return handleError(err);
-                                }
-                              }
-                          );
-
-                          socket.on('command', function(req) {
-                            console.log(req);
-                            if (socket.webUser &&
-                                socket.webUser.roles.indexOf('admin') > -1) {
-                              io.emit('command', req);
+                      models.User.update(
+                          {_id: currentUser._id},
+                          {$set: {online: true, updated: Date.now()}},
+                          function(err, res) {
+                            if (err) {
+                              return handleError(err);
                             }
-                          });
+                          }
+                      );
+                      socket.on('command', function(req) {
+                        console.log(req);
+                        if (socket.webUser &&
+                            socket.webUser.roles.indexOf('admin') > -1) {
+                          io.emit('command', req);
                         }
-                      }
-                  );
+                      });
+                    }
+                  }
+              ).catch(function(reason) {
+                if (reason) {
+                  return errorHandler(reason);
+                }
+              });
 
                   socket.on('disconnect', function(s) {
                         if (socket.webUser && socket.webUser._id) {

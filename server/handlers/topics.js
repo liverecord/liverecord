@@ -47,7 +47,7 @@ function topics(socket, handleError) {
             models.Topic.find(conditions, options)
                 .sort(sortOptions)
                 .limit(TOPICS_PER_PAGE)
-                .select('title slug category created updated')
+                .select('title slug category created updated private')
                 .populate('category')
                 .lean()
                 .exec(function(err, topics) {

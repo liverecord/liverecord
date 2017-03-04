@@ -8,25 +8,28 @@ app.controller('SettingsController',
      '$rootScope',
      '$localStorage',
      'PerfectScrollBar',
-
-      'wpf',
-      '$document',
+     'wpf',
+     '$document',
+     '$translate',
       function(socket,
           $scope,
           $rootScope,
           $localStorage,
           PerfectScrollBar,
           wpf,
-          $document) {
+          $document,
+          $translate) {
         //
         var l = {
           bad_slug: 'Используйте другой псевдоним',
           not_found: 'Ошибка сохранения данных, проверьте поля',
           picture_is_bad: 'Используйте другое изображение',
-          invalid_email: 'Используйте другой email',
+          invalid_email: 'Используйте другой email'
         };
 
-        $scope.l = l;
+        console.log('init SettingsCtrl');
+
+
         $scope.sending = false;
         $scope.message = '';
         $scope.profile = angular.copy($rootScope.user);
@@ -37,7 +40,9 @@ app.controller('SettingsController',
 
         $scope.$localStorage = $localStorage;
 
-        $document[0].title = 'Настройки';
+        $translate('Settings').then(function(translation) {
+          $document[0].title = translation;
+        });
 
         $rootScope.experimental = $localStorage.experimental;
 
@@ -46,7 +51,11 @@ app.controller('SettingsController',
           socket.emit('device.update', device);
         };
 
-        console.log('init SettingsCtrl')
+        $scope.forgetDevice = function(device) {
+          'use strict';
+          socket.emit('device.remove', device);
+        };
+
 
         $scope.$watch('profile', function(newv, oldv) {
           socket.emit('user.validate', $scope.profile, function(response) {
@@ -91,7 +100,6 @@ app.controller('SettingsController',
             uploader.addEventListener('start', function(event) {
                   event.file.meta.avatar = true;
                   console.log(event)
-
                 }
             );
             uploader.listenOnInput(document.getElementById('profileAvatar'));

@@ -82,7 +82,7 @@
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
                     <div class="text-center total-online"><a href="/users">
-                        <span translate="online_plural" translate-values="{x: totalConnections}" translate-interpolation="messageformat">1</span>
+                        {{'online'| translate : {x : totalConnections } }}
                     </a></div>
                 </div>
                 <div class="settings" ng-show="user">
@@ -100,6 +100,7 @@
                             <div class="counter" ng-show="::message.updates">{{::message.updates}}</div>
                         </div>
                         <a class="topic-info" ng-href="/{{ ::message.category.slug }}/{{ ::message.slug }}" title="{{message.title}}">
+                            <i class="fa fa-lock" ng-show="::message.private"></i>
                             <span>{{::message.title | limitTo:100}}</span><span ng-show="::message.title.length > 100">&hellip;</span>
                         </a>
                     </div>

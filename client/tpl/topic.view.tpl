@@ -19,7 +19,7 @@
           <a ng-href="/users/{{::topic.user.slug}}"><img ng-src="{{::topic.user.picture}}" class="img-responsive"></a>
         </div>
         <div class="col" style="flex-grow: 1">
-          <a ng-href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>
+          <a  itemprop="name" ng-href="/users/{{::topic.user.slug}}">{{::topic.user.name}}</a>
           <span class="online" ng-show="topic.user.online" title="{{'Online'|translate}}"><i class="fa fa-circle"></i></span>
         </div>
         <div class="col private" ng-show="topic.private">
@@ -88,7 +88,7 @@
               <a ng-click="vote(comment, 'down')"><i class="fa fa-fw fa-caret-down"></i></a>
               <a ng-click="report(comment)"><i class="fa fa-fw fa-flag"></i></a>
             </div>
-            <div ng-hide="comment.moderated" class="text-moderation" ng-show="::user.roles.indexOf('moderator') > -1">
+            <div class="text-moderation" >
               <a ng-click="moderateComment(comment, btn.label)"
                  ng-repeat="btn in comment.classification track by btn._id"
                  class="moderator button {{::btn.label}}" title="{{::btn.value}}">{{::btn.label}}</a>

@@ -49,8 +49,6 @@
 
             <p ng-show="userForm.email.$invalid && !userForm.email.$pristine" class="help-block">
               {{'Email advice' | translate}}
-
-
             </p>
 
           </div>
@@ -71,9 +69,8 @@
                 <label for="genderfemale">{{'Female'|translate}}</label>
               </div>
               <div>
-                <label for="gendertext">{{'Other'|translate}} <span title="{{'Interface maybe weird'|translate}}">*</span></label>
-
-                <input type="text" name="gender" id="gendertext" ng-model="profile.gender" ng-disabled="sending">
+                <input type="radio" name="gender" id="genderOther" ng-model="profile.gender" value="" ng-disabled="sending">
+                <label for="genderOther">{{'Other'|translate}}<span title="{{'Interface maybe weird'|translate}}">*</span></label>
               </div>
             </div>
 

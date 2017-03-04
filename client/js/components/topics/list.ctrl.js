@@ -113,6 +113,8 @@ app.controller(
                   $routeParams.topic
               );
               $rootScope.$applyAsync();
+              PerfectScrollBar.setup('topics');
+
               break;
             case 'topic':
               $rootScope.messages = array_id_merge($rootScope.messages,

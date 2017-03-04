@@ -17,8 +17,12 @@ var autoprefixer = require('autoprefixer');
 var postcss = require('gulp-postcss');
 
 var fs = require('fs');
+
+const changed = require('gulp-changed');
+
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace-task');
+var plumber = require('gulp-plumber');
 
 var currentDeployId = 0;
 
@@ -161,6 +165,7 @@ gulp.task('css', function() {
 
       return gulp.src(paths.css)
           .pipe(filter)
+          .pipe(plumber())
           .pipe(stylus())
           .pipe(filter.restore)
           .pipe(replace({
