@@ -1,6 +1,8 @@
 # LiveRecord
 
-[![Build Status](https://travis-ci.org/zoonman/ruliq.svg?branch=master)](https://travis-ci.org/zoonman/ruliq)
+[![GitHub release](https://img.shields.io/github/release/zoonman/liverecord.svg)](https://github.com/zoonman/liverecord)
+[![Build Status](https://travis-ci.org/zoonman/liverecord.svg?branch=master)](https://travis-ci.org/zoonman/ruliq)
+[![Github All Releases](https://img.shields.io/github/downloads/zoonman/liverecord/total.svg)](https://github.com/zoonman/liverecord)
 
 Spicy mix of chat and forum designed for intense communication.
 
