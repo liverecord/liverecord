@@ -2,8 +2,9 @@
  * Created by zoonman on 1/21/17.
  */
 const models = require('../schema');
+const errorHandler = require('./errors');
 
-module.exports = function(webpush, socket, errorHandler) {
+function userPush(webpush, socket) {
   'use strict';
 
   socket.on('push', function(pushObj, sc) {
@@ -80,5 +81,45 @@ module.exports = function(webpush, socket, errorHandler) {
         sc({success: true});
       }
   );
+}
 
-};
+function configure(webPush, frontConfig) {
+  var generateAndSaveVapidKeys = function() {
+    var vapidConf = {
+      name: 'vapidKeys',
+      value: webPush.generateVAPIDKeys()
+    };
+    var vapidDoc = new models.Parameters(vapidConf);
+    vapidDoc.save();
+    frontConfig['vapidPublicKey'] = vapidConf.value.publicKey;
+    return vapidConf.value;
+  };
+
+  models.Parameters
+      .findOne({name: 'vapidKeys'})
+      .then(function(vapidKeyDoc) {
+        var vapidKeys;
+        if (vapidKeyDoc) {
+          vapidKeys = vapidKeyDoc.value;
+          webPush.setVapidDetails(
+              'https://' + process.env.npm_package_config_server_name,
+              vapidKeys.publicKey,
+              vapidKeys.privateKey
+          );
+          frontConfig['vapidPublicKey'] = vapidKeys.publicKey;
+        } else {
+          generateAndSaveVapidKeys();
+        }
+      })
+      .catch(function(reason) {
+        errorHandler(reason);
+        generateAndSaveVapidKeys();
+      });
+
+  if (process.env.npm_package_config_webpush_gcm_api_key) {
+    webPush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
+  }
+}
+
+module.exports.socketHandler = userPush;
+module.exports.configure = configure;

@@ -15,7 +15,7 @@ const topics = require('./handlers/topics');
 const userHandler = require('./handlers/users');
 const uploadHandler = require('./handlers/upload');
 const errorHandler = require('./handlers/errors');
-const userPush = require('./handlers/push');
+const pushHandler = require('./handlers/push');
 const staticHandlers = require('./handlers/static');
 const sharp = require('sharp');
 const path = require('path');
@@ -32,7 +32,7 @@ var frontLiveRecordConfig = {
 
 frontLiveRecordConfig.version = fs
     .readFileSync(
-    __dirname + '/public/version.txt', 'utf8'
+        __dirname + '/public/version.txt', 'utf8'
     )
     .trim();
 
@@ -61,8 +61,6 @@ console.log(
     process.env.npm_package_config_server_port
 );
 
-
-
 const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
 const filesUploadDirectory = __dirname + '/public/' + filesPublicDirectory;
 
@@ -73,14 +71,12 @@ app.use(SocketIOFileUpload.router);
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
 
-
-
 const vapidFilePath = __dirname + '/' +
     process.env.npm_package_config_webpush_vapid_keys_path;
 
 /***
  * @todo move it into db
- */
+
 var vapidKeys;
 if (fs.existsSync(vapidFilePath)) {
   var vapidRaw = fs.readFileSync(vapidFilePath);
@@ -96,13 +92,8 @@ webpush.setVapidDetails(
     vapidKeys.publicKey,
     vapidKeys.privateKey
 );
+*/
 
-if (process.env.npm_package_config_webpush_gcm_api_key) {
-  webpush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
-}
-
-
-frontLiveRecordConfig['vapidPublicKey'] = vapidKeys.publicKey;
 
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
@@ -114,128 +105,146 @@ mongooseConnection.on('error',
 var threadConnections = 0;
 
 mongooseConnection.once('open', function() {
-      // we're connected!
-      var models = require('./schema');
-      const antiSpam = require('./handlers/antispam');
-      const siteMap = require('./handlers/sitemap');
-      app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
-      app.get('/sitemap.xml', siteMap.router);
+  // we're connected!
+  var models = require('./schema');
+  const antiSpam = require('./handlers/antispam');
+  const siteMap = require('./handlers/sitemap');
+  app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
+  app.get('/sitemap.xml', siteMap.router);
 
-      var sendOnlineCount = function() {
-        models
-            .User
-            .count({online: true})
-            .then(function(count) {
+  pushHandler.configure(webpush, frontLiveRecordConfig);
+
+  var sendOnlineCount = function() {
+    models
+        .User
+        .count({online: true})
+        .then(function(count) {
               io.volatile.emit('connections', count || 0);
-            })
-            .catch(errorHandler);
-      };
+            }
+        )
+        .catch(errorHandler);
+  };
 
       // declare io handling
       io
           .on('connection', function(socket) {
 
-            threadConnections++;
-            console.log('Number of connections', threadConnections);
-            // load categories
-            lrCategories(socket);
-            // todo: take it into module
-            loginHandler(socket, errorHandler);
-            topics.socketHandler(socket, errorHandler);
-            userHandler(socket, io, errorHandler);
+                threadConnections++;
+                console.log('Number of connections', threadConnections);
+                // load categories
+                lrCategories(socket);
+                // todo: take it into module
+                loginHandler(socket, errorHandler);
+                topics.socketHandler(socket, errorHandler);
+                userHandler(socket, io, errorHandler);
 
-            var uploader = new SocketIOFileUpload();
-            uploader.dir = filesUploadDirectory;
+                var uploader = new SocketIOFileUpload();
+                uploader.dir = filesUploadDirectory;
 
-            uploadHandler(socket,
-                uploader,
-                filesUploadDirectory,
-                filesPublicDirectory,
-                errorHandler
-            );
+                uploadHandler(socket,
+                    uploader,
+                    filesUploadDirectory,
+                    filesPublicDirectory,
+                    errorHandler
+                );
 
-            console.log('socketioJwt.authorize', socket.id);
+                console.log('socketioJwt.authorize', socket.id);
 
-            socket.on('disconnect', function() {
-              threadConnections--;
-              console.log('Number of connections', threadConnections);
-              sendOnlineCount();
-            });
+                socket.on('disconnect', function() {
+                      threadConnections--;
+                      console.log('Number of connections', threadConnections);
+                      sendOnlineCount();
+                    }
+                );
 
-            return socketioJwt.authorize({
-              secret: process.env.npm_package_config_jwt_secret,
-              required: false, // authorization is always not required
-              timeout: 5000 // 5 seconds to send the authentication message
-            })(socket);
-          })
+                return socketioJwt.authorize({
+                      secret: process.env.npm_package_config_jwt_secret,
+                      required: false, // authorization is always not required
+                      timeout: 5000 // 5 seconds to send the authentication
+                                    // message
+                    }
+                )(socket);
+              }
+          )
           .on('authenticated', function(socket) {
                 //console.log('authenticated', socket.decoded_token._id);
-            setTimeout(function() {
-              sendOnlineCount();
-            }, 1000);
-            try {
-              if (!socket.decoded_token) return;
-              models.User
-                  .findById(socket.decoded_token._id)
-                  .then(function(currentUser) {
-                    if (currentUser) {
-                      var webUser = pick(currentUser,
-                          ['_id',
-                            'name',
-                            'email',
-                            'picture',
-                            'slug',
-                            'roles',
-                            'about',
-                            'gender',
-                            'rank',
-                            'devices',
-                            'settings'
-                          ]
-                      );
-                      // inform user
-                      socket.emit('user', webUser);
-                      socket.webUser = webUser;
-                      // now have a user context and can work
-                      Raven.setContext({user: webUser});
-                      // handlers
-                      comments(socket, io, antiSpam, webpush, errorHandler);
-                      question(socket, io, errorHandler);
-                      bookmarks(socket, errorHandler);
-                      userPush(webpush, socket, errorHandler);
+                setTimeout(function() {
+                      sendOnlineCount();
+                    }, 1000
+                );
+                try {
+                  if (!socket.decoded_token) {
+                    return;
+                  }
+                  models.User
+                      .findById(socket.decoded_token._id)
+                      .then(function(currentUser) {
+                            if (currentUser) {
+                              var webUser = pick(currentUser,
+                                  ['_id',
+                                    'name',
+                                    'email',
+                                    'picture',
+                                    'slug',
+                                    'roles',
+                                    'about',
+                                    'gender',
+                                    'rank',
+                                    'devices',
+                                    'settings'
+                                  ]
+                              );
+                              // inform user
+                              socket.emit('user', webUser);
+                              socket.webUser = webUser;
+                              // now have a user context and can work
+                              Raven.setContext({user: webUser});
+                              // handlers
+                              comments(socket, io, antiSpam, webpush, errorHandler);
+                              question(socket, io, errorHandler);
+                              bookmarks(socket, errorHandler);
+                              pushHandler.socketHandler(
+                                  webpush,
+                                  socket
+                              );
 
-                      models.User.update(
-                          {_id: currentUser._id},
-                          {$set: {online: true, updated: Date.now()}},
-                          function(err, res) {
-                            if (err) {
-                              return handleError(err);
+                              models.User.update(
+                                  {_id: currentUser._id},
+                                  {$set: {online: true, updated: Date.now()}},
+                                  function(err, res) {
+                                    if (err) {
+                                      return errorHandler(err);
+                                    }
+                                  }
+                              );
+                              socket.on('command', function(req) {
+                                    console.log(req);
+                                    if (socket.webUser &&
+                                        socket.webUser.roles.indexOf('admin') > -1) {
+                                      io.emit('command', req);
+                                    }
+                                  }
+                              );
                             }
                           }
-                      );
-                      socket.on('command', function(req) {
-                        console.log(req);
-                        if (socket.webUser &&
-                            socket.webUser.roles.indexOf('admin') > -1) {
-                          io.emit('command', req);
+                      ).catch(function(reason) {
+                        if (reason) {
+                          return errorHandler(reason);
                         }
-                      });
-                    }
-                  }
-              ).catch(function(reason) {
-                if (reason) {
-                  return errorHandler(reason);
-                }
-              });
+                      }
+                  );
 
                   socket.on('disconnect', function(s) {
                         if (socket.webUser && socket.webUser._id) {
                           models.User.update({_id: socket.webUser._id},
                               {'$set': {online: false, updated: Date.now()}}
                           ).exec(function(err, other) {
-                            if (err) return errorHandler(err);
+                            if (err) {
+                              return errorHandler(err);
+                            }
                             //
-                          });
+                              }
+                          );
                         }
                         console.log('Disconnected', s);
                       }

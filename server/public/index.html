@@ -55,7 +55,7 @@
     </div>
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
-            <div class="logo"><a href="/"><span class="hidden-xs">LinuxQuestions.ru<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
+            <div class="logo"><a href="/"><span class="hidden-xs">LinuxQuestions.ru</span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
             <div class="top-bar flex-row">
                 <div class="slogan">Живой <i>ф</i>орум <span class="hidden-xs">о свободных программах и операционных системах</span></div>
                     <div ng-show="user" class="user flex">
@@ -83,7 +83,11 @@
                     </ul>
                     <div class="text-center total-online"><a href="/users">
                         {{'online'| translate : {x : totalConnections } }}
-                    </a></div>
+                    </a>
+                        <br>
+                        <br>
+                    <a href="https://zoonman.github.io/liverecord/" rel="nofollow">{{'powered by' | translate}} LiveRecord<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a>
+                    </div>
                 </div>
                 <div class="settings" ng-show="user">
                     <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs">{{'Settings'|translate}}</span></a>

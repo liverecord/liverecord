@@ -1,5 +1,7 @@
 # LiveRecord
 
+[![Build Status](https://travis-ci.org/zoonman/ruliq.svg?branch=master)](https://travis-ci.org/zoonman/ruliq)
+
 Spicy mix of chat and forum designed for intense communication.
 
 ## Setup

@@ -10,8 +10,9 @@ const TypingStruct = require('./envelope').typing;
 const TopicListStruct = require('./envelope').topicList;
 const purify = require('./purify');
 const mailer = require('./mailer');
+const handleError = require('./errors');
 
-function comments(socket, io, antiSpam, webpush, handleError) {
+function comments(socket, io, antiSpam, webpush) {
 
   socket.on('comment', function(comment, fn) {
 
@@ -249,7 +250,9 @@ function comments(socket, io, antiSpam, webpush, handleError) {
         typing = xtend({
           'slug': '_'
         }, typing);
-        socket.to('topic:' + typing.slug).emit('topic:' + typing.slug, TypingStruct(socket.webUser));
+        socket
+            .to('topic:' + typing.slug)
+            .emit('topic:' + typing.slug, TypingStruct(socket.webUser));
       }
   );
 
@@ -329,7 +332,7 @@ function comments(socket, io, antiSpam, webpush, handleError) {
         var commentText = purify(comment.body, true);
         antiSpam.classifier.addDocument(commentText, label);
         antiSpam.classifier.retrain();
-        comment.spam = label === 'spam';
+        comment.spam = (label === 'spam');
         comment.moderated = true;
         comment.save(function(err) {
               if (err) {
@@ -372,7 +375,6 @@ function comments(socket, io, antiSpam, webpush, handleError) {
     }
     socketCallback(r);
   });
-
 }
 
 module.exports = comments;
