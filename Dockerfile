@@ -3,7 +3,7 @@ FROM ubuntu:latest
 LABEL maintainer "zoonman@gmail.com"
 
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy build-essential libssl-dev git man curl bash python
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy build-essential libssl-dev git man curl bash python apt-utils
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 

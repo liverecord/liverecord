@@ -44,3 +44,5 @@ jspm_packages
 /.idea/
 
 server/public/dist
+
+data

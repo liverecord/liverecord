@@ -3,23 +3,30 @@ version: '2'
 services:
   web:
     build: .
-    command: npm start
+    command: npm start npm_package_config_mongodb_uri=mongodb://mongohost:29017/liveRecord
     ports:
      - "8914:8914"
     links:
-      - db
+      - "db:mongohost"
       - redis
     depends_on:
-     - db
      - redis
     volumes:
-     - .:/usr/src/app
+     - client:/usr/src/app/client
+     - server:/usr/src/app/server
   db:
     image: mongo:latest
     volumes:
-     - db_data:/var/lib/mongodb
+     - ./data/mongodb:/data/db
+    ports:
+     - "29017:27017"
+
   redis:
     image: redis
+    depends_on:
+     - db
 
 volumes:
     db_data:
+    client:
+    server:

@@ -3,3 +3,5 @@ npm-debug.log
 config
 docs/_config.yml
 Capfile
+.travis.yml
+.gitignore

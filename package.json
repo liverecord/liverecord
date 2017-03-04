@@ -5,7 +5,7 @@
   "author": "Philipp Tkachev <philipp@zoonman.com>",
   "config": {
     "mongodb": {
-      "uri": "mongodb://127.0.0.1:27017/liveRecord"
+      "uri": "mongodb://mongohost:27017/liveRecord"
     },
     "server": {
       "name": "10.0.0.5:8914",
@@ -46,6 +46,7 @@
     "test": "./node_modules/karma/bin/karma start  --log-level debug tests/client.conf.js",
     "postinstall": "gulp build",
     "dev": "NODE_ENV=development npm start & npm run watch",
+    "docker": "NODE_ENV=development npm start & npm run watch",
     "watch": "gulp"
   },
   "dependencies": {
