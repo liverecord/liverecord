@@ -13,28 +13,34 @@ There is 2 options of setup:
  - simple and quick start using Docker
  - advanced
 
-### Docker Compose
+### Quick start using Docker
 
-1. Install [Docker](https://docs.docker.com/engine/installation/) and [Docker Compose](https://docs.docker.com/compose/install/).
-3. Clone project, open terminal in project root directory and run `docker-compose up`. Now you can get some coffee. Depending from your network speed and computer performance it will take 5-10 minutes.
-3. Open [localhost:8914](http://localhost:8914/).
+1. Install [GIT](https://git-scm.com/), [Docker](https://docs.docker.com/engine/installation/) and [Docker Compose](https://docs.docker.com/compose/install/).
+2. Clone project by running `git clone https://github.com/zoonman/liverecord.git` in your terminal. 
+3. Open terminal in project root directory and run `docker-compose up`. Now you can get some coffee. 
+   Depending from your network speed and computer performance it will take 5-10 minutes.
 
-All set. First signed up user will become administrator automatically. 
+Congratulations! Now you can open [localhost:8914](http://localhost:8914/).
+First signed up user will become administrator automatically. 
 
-### Advanced install
+### Advanced installation
 
-This step will take more 
+This option will take more steps but will provide more flexibility. 
 
 #### Prerequisites
+
+- [GIT](https://git-scm.com/)
 - [NVM](https://github.com/creationix/nvm)
-- NodeJs 6.9 (will be installed by nvm)
-- [MongoDB](https://www.mongodb.com/) 3.2
+- NodeJs 7.x (will be installed by nvm)
+- [MongoDB](https://www.mongodb.com/) 3.x
 
 Install MongoDB and Node version manager. 
+Clone project repository. Now it is time to configure the project.
 
 #### Configuration
 
 See [Configuration](configuration.md) page for all options.
+You can skip this section, if you running whole project on your local machine.
 
 #### Building
 
