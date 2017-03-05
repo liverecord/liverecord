@@ -36,4 +36,5 @@ npm run dev
 
 I recommend to use modern IDE (WebStorm/PHPStrorm) with enabled Google Closure Linter.
 
-It will create newer version and store it to `server/public/version.txt`.
+When you start gulp, it will create newer project build version and store it to `server/public/version.txt`.
+Make sure that Node server will start after Gulp, otherwise you will stuck with older version of compiled code.
