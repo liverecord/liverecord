@@ -9,7 +9,7 @@ Realtime forum designed for intense communication.
 
 ## Getting Started
 
-There is 2 options of setup: 
+There are 2 options of setup: 
  - simple and quick start using Docker
  - advanced
 
