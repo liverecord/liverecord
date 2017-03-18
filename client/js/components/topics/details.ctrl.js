@@ -538,7 +538,6 @@ app.controller(
               commentElement.removeEventListener('dragend', restoreTarget);
               commentElement.removeEventListener('dragexit', restoreTarget);
               uploader.destroy();
-
             });
 
             socket.on('file.uploaded', function(payload) {
@@ -612,14 +611,14 @@ app.controller(
                   //delete $rootScope.notifications.list[event.file.fIndex];
                   console.log('$rootScope.notifications.list',
                       $rootScope.notifications.list
-                  )
+                  );
                   $rootScope.$applyAsync();
                 }
             );
 
           }
           catch (e) {
-            console.error(e)
+            console.error(e);
           }
         };
 
@@ -647,7 +646,7 @@ app.controller(
             case 'link':
               var linkUrl = prompt('Введите адрес ссылки');
               if (linkUrl) {
-                wrapSelection('<a href=" + linkUrl + ">', '</a>');
+                wrapSelection('<a href="' + linkUrl + '">', '</a>');
               }
 
               break;
@@ -660,7 +659,7 @@ app.controller(
                         alert(trans);
                       });
                 } else {
-                  wrapSelection('<img src=" + purl + ">', '');
+                  wrapSelection('<img src="' + purl + '">', '');
                 }
               }
               break;
