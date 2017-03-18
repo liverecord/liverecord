@@ -18,8 +18,6 @@ var postcss = require('gulp-postcss');
 
 var fs = require('fs');
 
-const changed = require('gulp-changed');
-
 var runSequence = require('run-sequence');
 var replace = require('gulp-replace-task');
 var plumber = require('gulp-plumber');

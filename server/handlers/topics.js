@@ -3,6 +3,7 @@
  */
 const fs = require('fs');
 const async = require('async');
+const xtend = require('xtend');
 const models = require('../schema');
 const lrEnvelopes = require('./envelope');
 const purify = require('./purify');
@@ -13,12 +14,199 @@ const TopicStruct = lrEnvelopes.topic;
 const CommentListStruct = lrEnvelopes.commentList;
 
 const TOPICS_PER_PAGE = 50;
-
+const SECTION_NEW_TOPICS = 'newTopics';
+const SECTION_RECENTLY_VIEWED = 'recentlyViewed';
+const SECTION_PARTICIPATED = 'participated';
+const SECTION_BOOKMARKS = 'bookmarks';
 
 function topics(socket, handleError) {
 
   var d = new Date(); // Today!
   d.setMonth(d.getMonth() - 3);
+
+  socket.on('topics', function(requestData) {
+    'use strict';
+    //
+    requestData = xtend({
+      tab: SECTION_NEW_TOPICS,
+      category: '',
+      term: '',
+      before: 0
+    }, requestData);
+
+    var getTopics = function(conditions, patches) {
+      var options = {}, sortOptions = {};
+      if (requestData.term) {
+        conditions['$text'] = { $search: requestData.term };
+        options = { score: { $meta: 'textScore' } };
+        sortOptions = {score: { $meta: 'textScore' }, updated: -1};
+      } else {
+        sortOptions = {updated: -1};
+      }
+      if (socket.webUser) {
+        //
+        conditions['$or'] = [
+          {private: false},
+          {user: socket.webUser._id},
+          {acl: socket.webUser._id}
+        ];
+      } else {
+        conditions['private'] = false;
+      }
+      if (requestData.before > 0) {
+        conditions.updated = {$lte: requestData.before};
+      }
+      console.log('conditions:', conditions);
+      models.Topic.find(conditions, options)
+          .sort(sortOptions)
+          .limit(TOPICS_PER_PAGE)
+          .select('title slug category created updated private')
+          .populate('category')
+          .lean()
+          .exec(function(err, topics) {
+                if (err) {
+                  handleError(err);
+                } else {
+                  if (topics) {
+                    //console.log('patches:', patches)
+                    if (patches) {
+                      for (var i = 0, l = topics.length; i < l; i++) {
+                        patches.forEach(function(patch) {
+                          //console.log('topics[i]._id',
+                          // topics[i]._id, patch._id);
+                          if (topics[i]._id.toString() ===
+                              patch._id.toString()) {
+
+                            //console.log('match');
+                            topics[i]['updates'] = patch.updates;
+
+                          }
+                        });
+                      }
+                      //console.log(topics)
+                    }
+                    socket.emit(
+                        'topics',
+                        TopicListStruct(topics)
+                    );
+                  }
+                }
+              }
+          );
+    };
+
+    var resolveCategory = function(callback) {
+      models
+          .Category
+          .findOne({slug: requestData.category})
+          .then(function(cat) {
+            callback(null, cat);
+            console.log('cat', cat)
+          })
+          .catch(callback);
+    };
+
+    var resolveSection = function(category, callback) {
+      var conditions = {};
+      if (category) {
+        conditions.category = category._id;
+      }
+      switch (requestData.tab) {
+        case SECTION_RECENTLY_VIEWED:
+          if (!socket.webUser) {
+            return;
+          }
+          models.TopicFanOut.aggregate(
+              {$match: {user: socket.webUser._id}},
+              {$sort: {updated: -1}},
+              {
+                $group: {
+                  _id: '$topic',
+                  updates: {$first: '$updates'},
+                  updated: {$first: '$updated'}
+                }
+              },
+              {$limit: TOPICS_PER_PAGE},
+              function(err, patch) {
+                if (err) {
+                  return handleError(err);
+                }
+                console.log(patch); // [ { maxBalance: 98000 } ]
+                conditions['_id'] = {
+                  '$in': patch.map(function(el) {
+                    return el._id;
+                  })
+                };
+                getTopics(conditions, patch);
+              }
+          );
+          break;
+        case SECTION_BOOKMARKS:
+          if (!socket.webUser) {
+            return;
+          }
+          models.Bookmark
+              .find({user: socket.webUser._id}, {topic: 1})
+              .sort({created: -1})
+              .limit(TOPICS_PER_PAGE)
+              .lean()
+              .then(function(bookmarks) {
+                    console.log(bookmarks); // [ { maxBalance: 98000
+                                            // } ]
+                    conditions['_id'] = {
+                      '$in': bookmarks.map(function(el) {
+                            return el.topic;
+                          }
+                      )
+                    };
+                    getTopics(conditions, []);
+                  }
+              );
+          break;
+        case SECTION_PARTICIPATED:
+          if (!socket.webUser) {
+            return;
+          }
+          models.TopicFanOut.aggregate(
+              {$match: {user: socket.webUser._id, updates: {$gt: 0}}},
+              {$sort: {updates: -1, updated: -1}},
+              {
+                $group: {
+                  _id: '$topic',
+                  updates: {$first: '$updates'},
+                  updated: {$first: '$updated'}
+                }
+              },
+              {$limit: TOPICS_PER_PAGE},
+              function(err, patch) {
+                if (err) {
+                  return handleError(err);
+                }
+                console.log(patch); // [ { maxBalance: 98000 } ]
+                conditions['_id'] = {
+                  '$in': patch.map(function(el) {
+                    return el._id;
+                  })
+                };
+                getTopics(conditions, patch);
+              }
+          );
+          break;
+        default:
+          getTopics(conditions, []);
+      }
+      callback(null);
+    };
+
+    async.waterfall([
+      resolveCategory,
+      resolveSection
+    ], function (err, result) {
+      // result now equals 'done'
+    });
+
+
+  });
 
   socket.on('subscribe', function(subscription) {
 

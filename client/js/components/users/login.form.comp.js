@@ -1,6 +1,4 @@
-/**
- * Created by zoonman on 12/12/16.
- */
+
 
 /**
  *
@@ -8,6 +6,7 @@
  * @param {{Object}}  $rootScope
  * @param {{Object}}  $scope
  * @param {{Object}}  $window
+ * @param {{Object}}  $translate
  * @param {{Object}}  $localStorage
  * @param {{Object}}  $sessionStorage
  */
@@ -28,7 +27,11 @@ function usersLoginController(socket,
   } else {
     $scope.user = false;
   }
-  $scope.authData = {email: '', 'password': ''};
+  $scope.authData = {
+    email: '',
+    password: '',
+    deviceId: $localStorage.deviceId
+  };
 
   $localStorage.$default({
         rememberMe: true
@@ -54,6 +57,9 @@ function usersLoginController(socket,
               $localStorage.jwt = response.token;
             } else {
               $sessionStorage.jwt = response.token;
+            }
+            if (response.deviceId) {
+              $localStorage.deviceId = response.deviceId;
             }
             $rootScope.user = angular.copy(response.user);
             socket.emit('authenticate', {token: response.token});

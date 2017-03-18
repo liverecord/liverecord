@@ -9,8 +9,9 @@ const jwt = require('jsonwebtoken');
 const gravatar = require('gravatar');
 const ucfirst = require('ucfirst');
 const md5 = require('md5');
+const errorHandler = require('./errors');
 
-function lrLogin(socket, handleError) {
+function lrLogin(socket) {
 
   socket.on('login', function(loginData, loginCallback) {
         console.log(loginData);
@@ -42,11 +43,12 @@ function lrLogin(socket, handleError) {
                         error: 'jwt_cannot_be_created'
                       }
                   );
-                  handleError(err);
+                  errorHandler(err);
                 } else {
                   loginCallback({
                         success: true,
                         user: webUser,
+                        deviceId: jwtUser['di'],
                         token: token
                       }
                   );
@@ -59,80 +61,92 @@ function lrLogin(socket, handleError) {
 
           models.User.findOne({email: loginData.email}, function(err, user) {
             if (err) {
-              return handleError(err);
+              return errorHandler(err);
             }
             if (user) {
-                  pw.verify(JSON.stringify(user.pw),
-                      loginData.password,
-                      function(err, isValid) {
-                        if (err) {
-                          loginCallback({
-                                success: false,
-                                error: 'password_verification_failed'
-                              }
-                          );
-                          handleError(err);
-                        }
-                        if (isValid) {
-                          respondAuthUser(user);
-                        } else {
-                          loginCallback({
-                                success: false,
-                                error: 'password_mismatch'
-                              }
-                          );
-                        }
-                      }
-                  );
-                } else {
-
-                  var eparts = loginData.email.split('@');
-                  var name = eparts[0];
-                  name = ucfirst(name);
-                  var newUser = new models.User({
-                    name: name,
-                    roles: [],
-                    email: loginData.email,
-                    settings: {
-                      notifications: {
-                        email: true
-                      }
+              pw.verify(JSON.stringify(user.pw),
+                  loginData.password,
+                  function(err, isValid) {
+                    if (err) {
+                      loginCallback({
+                            success: false,
+                            error: 'password_verification_failed'
+                          }
+                      );
+                      errorHandler(err);
                     }
-                  });
-                  pw.hash(loginData.password, function(err, pwHash) {
-                        if (err) {
-                          loginCallback({
-                                success: false,
-                                error: 'users_hash_cannot_be_created'
-                              }
-                          );
-                          handleError(err);
-                        } else {
-                          newUser.picture = gravatar.url(newUser.email,
-                              {s: '100', r: 'g', d: 'retro'},
-                              true
-                          );
-                          newUser.pw = JSON.parse(pwHash);
-                          console.log(pwHash);
-                          newUser.save(function(err, savedUser) {
-                                if (err) {
-                                  loginCallback({
-                                        success: false,
-                                        error: 'user_cannot_be_saved'
-                                      }
-                                  );
-                                  handleError(err);
-                                } else {
-                                  respondAuthUser(savedUser);
-                                }
-                              }
-                          );
-                        }
-                      }
-                  );
+                    if (isValid) {
+                      respondAuthUser(user);
+                    } else {
+                      loginCallback({
+                            success: false,
+                            error: 'password_mismatch'
+                          }
+                      );
+                    }
+                  }
+              );
+            } else {
+              // sign up
+              models.User.count().then(function(number) {
+                let roles = [];
+                if (number > 0) {
+                  // this is not a first user
+                } else {
+                  // this is first one
+                  roles = ['admin', 'moderator'];
                 }
-              }
-          );
+                var eParts = loginData.email.split('@');
+                var name = eParts[0];
+                name = name.replace(/\W+/g, ' ').replace(/\s+/g, ' ');
+                name = ucfirst(name);
+                var newUser = new models.User({
+                  name: name,
+                  roles: roles,
+                  email: loginData.email,
+                  settings: {
+                    notifications: {
+                      email: true
+                    }
+                  }
+                });
+                pw.hash(loginData.password, function(err, pwHash) {
+                  if (err) {
+                    loginCallback({
+                          success: false,
+                          error: 'users_hash_cannot_be_created'
+                        }
+                    );
+                    errorHandler(err);
+                  } else {
+                    newUser.picture = gravatar.url(
+                        newUser.email,
+                        {s: '100', r: 'g', d: 'retro'},
+                        true
+                    );
+                    newUser.pw = JSON.parse(pwHash);
+                    console.log(pwHash);
+                    newUser.save(function(err, savedUser) {
+                          if (err) {
+                            loginCallback({
+                                  success: false,
+                                  error: 'user_cannot_be_saved'
+                                }
+                            );
+                            errorHandler(err);
+                          } else {
+                            respondAuthUser(savedUser);
+                          }
+                        }
+                    );
+                  }
+                });
+              }).catch(function(reason) {
+                return errorHandler(reason);
+              });
+
+            }
+          });
         } else {
           loginCallback({
                 success: false,

@@ -10,6 +10,7 @@ app.controller(
       'CategoriesFactory',
       '$routeParams',
       '$timeout',
+      '$translate',
       'PerfectScrollBar',
       '$localStorage',
       '$location',
@@ -19,12 +20,14 @@ app.controller(
       '$sce',
       'Socialshare',
       'wpf',
+
       function(socket,
           $anchorScroll,
           $scope,
           CategoriesFactory,
           $routeParams,
           $timeout,
+          $translate,
           PerfectScrollBar,
           $localStorage,
           $location,
@@ -117,6 +120,9 @@ app.controller(
                 }
               }
             }
+            document
+                .getElementById('topic_list_id_' + $scope.topic._id)
+                .scrollIntoView();
           }, 50);
         }
 
@@ -288,13 +294,6 @@ app.controller(
 
         };
 
-        $scope.$on('$destroy', function(event) {
-          socket.off('topic:' + $routeParams.topic);
-          if (socketUploader) {
-            socketUploader.disconnect();
-          }
-        }
-        );
 
         $scope.switchAdvancedCompose = function() {
           $scope.advancedCompose = !$scope.advancedCompose;
@@ -487,142 +486,144 @@ app.controller(
 
         $scope.uploadFiles = [];
         $scope.uploadProgress = 0;
-
-        try {
-          socketUploader = io.connect();
-          var uploader = new SocketIOFileUpload(socketUploader);
-          // uploader.maxFileSize = 1024 * 1024 * 10;
-          uploader.listenOnInput(document.getElementById('upload_input'));
-          /*document
-              .getElementById('uploadEditorButton')
-              .addEventListener('click', uploader.prompt, false);
-
-          document
-              .getElementById('uploadEditorButton')
-              .addEventListener('touchend', uploader.prompt, false);*/
-
-          var commentElement = document.getElementById('comment');
-          uploader.listenOnDrop(commentElement);
-          var acceptObject = function(event) {
-            commentElement.style.cursor = 'copy';
-            commentElement.style.backgroundColor = '#81A5D4';
-          };
-          var declineObject = function(event) {
-            commentElement.style.cursor = 'none';
-            commentElement.style.backgroundColor = '';
-          };
-          var restoreTarget = function(event) {
-            commentElement.style.cursor = 'default';
-            commentElement.style.backgroundColor = '';
-          };
-
-          commentElement.addEventListener('dragenter', function(event) {
-                acceptObject(event);
-              }
-          );
-          commentElement.addEventListener('dragover', function(event) {
-                acceptObject(event);
-              }
-          );
-          commentElement.addEventListener('dragleave', function(event) {
-                restoreTarget(event);
-              }
-          );
-          commentElement.addEventListener('drop', function(event) {
-                restoreTarget(event);
-              }
-          );
-          commentElement.addEventListener('dragend', function(event) {
-                restoreTarget(event);
-              }
-          );
-          commentElement.addEventListener('dragexit', function(event) {
-                restoreTarget(event);
-              }
-          );
+        var uploader;
 
 
+        var setupUploader = function() {
+          try {
+            console.log('io.connect');
+            //socketUploader = io.connect();
 
-          socketUploader.on('file.uploaded', function(payload) {
-                console.log(payload);
-                var url = '/' + payload.absolutePath.replace(/^\//, '');
+            uploader = new SocketIOFileUpload(socket.self);
+            // uploader.maxFileSize = 1024 * 1024 * 10;
+            var fe = document.getElementById('upload_input');
+            uploader.listenOnInput(fe);
 
-                var text = '\n<a href="' + url + '">';
-
-                const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
-                if (IMAGE_EXTENSIONS.indexOf(payload.extension) > -1) {
-                  // an image
-                  text += '<img src="' + url + '" alt="' +
-                      payload.friendlyName + '"';
-                  if (payload.hasAlpha) {
-                    text += ' class="alpha"';
-                  }
-                  text += '>';
-                  text += '</a>\n';
-                } else if (payload.extension === 'mp4') {
-                  text += payload.friendlyName;
-                  text += '</a>\n';
-                  text += '<video src="' + url + '"';
-                  text += ' preload="metadata" controls> Play video ' +
-                      payload.friendlyName + '</video>';
-                } else {
-                  text += payload.friendlyName;
-                  text += '</a>\n';
-                }
-
-                $scope.commentText = $scope.commentText + text;
-                $scope.$applyAsync();
-          });
-
-          uploader.addEventListener('error', function(data) {
-                if (data.code === 1) {
-                  alert('Используйте файлы не более 10 MB');
-                }
-                console.log('upload error', data);
-                $rootScope.$applyAsync();
-                $scope.uploadProgress = 0;
-
-              }
-          );
-          uploader.addEventListener('start', function(event) {
-                event.file.fIndex = $rootScope.notifications.add(event);
-            $scope.uploadProgress = 0;
-
-            $rootScope.$applyAsync();
-              }
-          );
-
-          uploader.addEventListener('progress', function(event) {
-                $rootScope.notifications.list[event.file.fIndex] = event;
-            console.log('upload progress', event)
-            if (event.file.size > 0) {
-              $scope.uploadProgress = event.bytesLoaded / event.file.size * 100;
+            function getBodyElement() {
+              return document.getElementsByTagName('body')[0];
             }
+            var commentElement = getBodyElement();
+            uploader.listenOnDrop(commentElement);
 
+            var acceptObject = function(event) {
+              commentElement.style.cursor = 'copy';
+              commentElement.style.backgroundColor = '#81A5D4';
+              commentElement.classList.add('upload-accept');
+            };
+            var declineObject = function(event) {
+              commentElement.style.cursor = 'none';
+              commentElement.style.backgroundColor = '';
+              commentElement.classList.add('upload-decline');
+            };
+            var restoreTarget = function(event) {
+              commentElement.style.cursor = 'default';
+              commentElement.style.backgroundColor = '';
+              commentElement.classList.remove('upload-accept');
+              commentElement.classList.remove('upload-decline');
+            };
 
-            $rootScope.$applyAsync();
+            commentElement.addEventListener('dragenter', acceptObject);
+            commentElement.addEventListener('dragover', acceptObject);
+            commentElement.addEventListener('dragleave', restoreTarget);
+            commentElement.addEventListener('drop', restoreTarget);
+            commentElement.addEventListener('dragend', restoreTarget);
+            commentElement.addEventListener('dragexit', restoreTarget);
+
+            $scope.$on('$destroy', function(event) {
+              'use strict';
+              commentElement.removeEventListener('dragenter', acceptObject);
+              commentElement.removeEventListener('dragover', acceptObject);
+              commentElement.removeEventListener('dragleave', restoreTarget);
+              commentElement.removeEventListener('drop', restoreTarget);
+              commentElement.removeEventListener('dragend', restoreTarget);
+              commentElement.removeEventListener('dragexit', restoreTarget);
+              uploader.destroy();
+
+            });
+
+            socket.on('file.uploaded', function(payload) {
+              console.log(payload);
+              var url = '/' + payload.absolutePath.replace(/^\//, '');
+
+              var text = '\n<a href="' + url + '">';
+
+              const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
+              if (IMAGE_EXTENSIONS.indexOf(payload.extension) > -1) {
+                // an image
+                text += '<img src="' + url + '" alt="' +
+                    payload.friendlyName + '"';
+                if (payload.hasAlpha) {
+                  text += ' class="alpha"';
+                }
+                text += '>';
+                text += '</a>\n';
+              } else if (payload.extension === 'mp4') {
+                text += payload.friendlyName;
+                text += '</a>\n';
+                text += '<video src="' + url + '"';
+                text += ' preload="metadata" controls> Play video ' +
+                    payload.friendlyName + '</video>';
+              } else {
+                text += payload.friendlyName;
+                text += '</a>\n';
               }
-          );
-          uploader.addEventListener('load', function(event) {
-                $rootScope.notifications.list[event.file.fIndex] = event;
-            $scope.uploadProgress = 0;
 
-            $rootScope.$applyAsync();
-              }
-          );
-          uploader.addEventListener('complete', function(event) {
-                //delete $rootScope.notifications.list[event.file.fIndex];
-                console.log('$rootScope.notifications.list',
-                    $rootScope.notifications.list
-                )
-                $rootScope.$applyAsync();
-              }
-          );
+              $scope.commentText = $scope.commentText + text;
+              $scope.$applyAsync();
+            });
 
-        }
-        catch (e) {
-          console.error(e)
-        }
+            uploader.addEventListener('error', function(data) {
+                  if (data.code === 1) {
+                    alert('Используйте файлы не более 10 MB');
+                  }
+                  console.log('upload error', data);
+                  $rootScope.$applyAsync();
+                  $scope.uploadProgress = 0;
+
+                }
+            );
+            uploader.addEventListener('start', function(event) {
+                  event.file.fIndex = $rootScope.notifications.add(event);
+                  $scope.uploadProgress = 0;
+
+                  $rootScope.$applyAsync();
+                }
+            );
+
+            uploader.addEventListener('progress', function(event) {
+                  $rootScope.notifications.list[event.file.fIndex] = event;
+                  console.log('upload progress', event)
+                  if (event.file.size > 0) {
+                    $scope.uploadProgress = event.bytesLoaded / event.file.size * 100;
+                  }
+
+
+                  $rootScope.$applyAsync();
+                }
+            );
+            uploader.addEventListener('load', function(event) {
+                  $rootScope.notifications.list[event.file.fIndex] = event;
+                  $scope.uploadProgress = 0;
+
+                  $rootScope.$applyAsync();
+                }
+            );
+            uploader.addEventListener('complete', function(event) {
+                  //delete $rootScope.notifications.list[event.file.fIndex];
+                  console.log('$rootScope.notifications.list',
+                      $rootScope.notifications.list
+                  )
+                  $rootScope.$applyAsync();
+                }
+            );
+
+          }
+          catch (e) {
+            console.error(e)
+          }
+        };
+
+        $timeout(setupUploader, 1000);
 
         window.addEventListener('resize', function() {
           PerfectScrollBar.setup('topic');
@@ -644,16 +645,23 @@ app.controller(
         function editAction(action) {
           switch (action) {
             case 'link':
-              var url = prompt('Введите адрес ссылки');
-              if (url) {
-                wrapSelection('<a href=" + url + ">', '</a>');
+              var linkUrl = prompt('Введите адрес ссылки');
+              if (linkUrl) {
+                wrapSelection('<a href=" + linkUrl + ">', '</a>');
               }
 
               break;
             case 'picture':
-              var url = prompt('Введите адрес картинки');
-              if (url) {
-                wrapSelection('<img src=" + url + ">', '');
+              var purl = prompt('Введите адрес картинки');
+              if (purl) {
+                if (purl.indexOf('http://') === 0) {
+                  $translate('Please, use https:// URL for picture!')
+                      .then(function(trans) {
+                        alert(trans);
+                      });
+                } else {
+                  wrapSelection('<img src=" + purl + ">', '');
+                }
               }
               break;
             case 'list-ul':
@@ -685,6 +693,19 @@ app.controller(
           $scope.$applyAsync(editAction(action));
         };
 
+        $scope.$on('$destroy', function(event) {
+          socket.off('topic:' + $routeParams.topic);
+          if (socketUploader) {
+            //socketUploader.disconnect();
+            uploader.destroy();
+            //uploader = null;
+            //socketUploader = null;
+          }
+
+
+        });
+
+        console.log('details controller loaded...');
       }
     ]
 );

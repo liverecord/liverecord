@@ -5,9 +5,6 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
 
       var isPushEnabled = false;
       var useNotifications = false;
-
-//      Notification.requestPermission();
-
       function convertSubscription(subscription) {
         return {
           deviceId: $localStorage.deviceId,
@@ -25,9 +22,7 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
       }
 
       function urlBase64ToUint8Array(base64String) {
-
         console.log('vapidPublicKey', liveRecordConfig)
-
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding)
             .replace(/\-/g, '+')
@@ -63,32 +58,26 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
                     );
                   })
                   .catch(function(e) {
-                        if (Notification.permission === 'denied') {
-                          // The user denied the notification permission which
-                          // means we failed to subscribe and the user will need
-                          // to manually change the notification permission to
-                          // subscribe to push messages
-                          console.log('Permission for Notifications was denied');
-
-                        } else {
-                          // A problem occurred with the subscription, this can
-                          // often be down to an issue or lack of the
-                          // gcm_sender_id and / or gcm_user_visible_only
-                          console.log('Unable to subscribe to push.', e);
-                          // subBtn.disabled = false;
-                          // subBtn.textContent = 'Subscribe to Push Messaging';
-                        }
-                      }
+                    if (Notification.permission === 'denied') {
+                      // The user denied the notification permission
+                      // we need to display in-app notification
+                      console.log('Permission for Notifications was denied');
+                      $rootScope.pushNotificationDenied = true;
+                    } else {
+                      // A problem occurred with the subscription, this can
+                      // often be down to an issue or lack of the
+                      // gcm_sender_id and / or gcm_user_visible_only
+                      console.log('Unable to subscribe to push.', e);
+                      // subBtn.disabled = false;
+                      // subBtn.textContent = 'Subscribe to Push Messaging';
+                    }
+                  }
                   );
             }
         );
-        //   }
-        // });
       }
 
       function unsubscribe() {
-        // subBtn.disabled = true;
-
         navigator.serviceWorker.ready.then(function(reg) {
               // To unsubscribe from push messaging, you need get the
               // subcription object, which you can call unsubscribe() on.
@@ -96,41 +85,20 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
                   function(subscription) {
                     // Check we have a subscription to unsubscribe
                     if (!subscription) {
-                      // No subscription object, so set the state
-                      // to allow the user to subscribe to push
                       isPushEnabled = false;
-                      // subBtn.disabled = false;
-                      // subBtn.textContent = 'Subscribe to Push Messaging';
                       return;
                     }
-
-                    isPushEnabled = false;
-
-                    // setTimeout used to stop unsubscribe being called before
-                    // the message has been sent to everyone to tell them that
-                    // the unsubscription has occurred, including the person
-                    // unsubscribing. This is a dirty hack, and I'm probably
-                    // going to hell for writing this.
-                    setTimeout(function() {
-
-                          socket.emit('push', {
-                                statusType: 'unsubscribed',
-                                subscription: convertSubscription(subscription)
-                              }
-                          );
-
-                          // We have a subcription, so call unsubscribe on it
-                          subscription.unsubscribe().then(function(successful) {
-                            isPushEnabled = false;
-                          }).catch(function(e) {
-                            // We failed to unsubscribe, this can lead to
-                            // an unusual state, so may be best to remove
-                            // the subscription id from your data store and
-                            // inform the user that you disabled push
-                            console.log('Unsubscription error: ', e);
-                          });
-                        }, 3000
+                    socket.emit('push', {
+                          statusType: 'unsubscribed',
+                          subscription: convertSubscription(subscription)
+                        }
                     );
+                    // We have a subcription, so call unsubscribe on it
+                    subscription.unsubscribe().then(function(successful) {
+                      isPushEnabled = false;
+                    }).catch(function(e) {
+                      console.log('Unsubscription error: ', e);
+                    });
                   }
               ).catch(function(e) {
                 console.log('Error thrown while unsubscribing from ' +
@@ -170,28 +138,20 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
               // Do we already have a push message subscription?
               reg.pushManager.getSubscription()
                   .then(function(subscription) {
-                        // Enable any UI which subscribes / unsubscribes from
-                        // push messages.
-
-                        if (!subscription) {
-                          console.log('Not yet subscribed to Push')
-                          // We aren't subscribed to push, so set UI
-                          // to allow the user to enable push
-
-                          subscribe();
-
-                          return;
+                    if (!subscription) {
+                      console.log('Not yet subscribed to Push');
+                      subscribe();
+                      return;
+                    }
+                    // Set your UI to show they have subscribed for
+                    // push messages
+                    isPushEnabled = true;
+                    socket.emit('push', {
+                          statusType: 'init',
+                          subscription: convertSubscription(subscription)
                         }
-                        // Set your UI to show they have subscribed for
-                        // push messages
-                        isPushEnabled = true;
-                        socket.emit('push', {
-                              statusType: 'init',
-                              subscription: convertSubscription(subscription)
-                            }
-                        );
-                      }
-                  )
+                    );
+                  })
                   .catch(function(err) {
                         console.log('Error during getSubscription()', err);
                       }
@@ -200,12 +160,13 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
               // set up a message channel to communicate with the SW
               var channel = new MessageChannel();
               channel.port1.onmessage = function(e) {
-                console.log('Service worker sent', e);
-
+                console.log('Service worker sent event to frontend', e);
                 if (e.data.link) {
+                  // navigate to this url
                   $location.url(e.data.link);
                 }
               };
+              // send hello to server worker
               var mySW = reg.active;
               mySW.postMessage('hello', [channel.port2]);
             }
@@ -234,7 +195,7 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
           Notification.requestPermission();
         },
         unsubscribe: function(eventName, data, callback) {
-
+          unsubscribe();
         }
       };
     }
