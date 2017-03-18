@@ -31,178 +31,122 @@ app.controller(
         $scope.topicSwitch = SECTION_NEW_TOPICS;
         $scope.searchTerm = '';
         this.params = $routeParams;
-        this.name = 'Test';
         $rootScope.category = $routeParams.category;
-        $rootScope.$on('$routeChangeSuccess', function(event, next, current) {
-          //console.log('$routeChangeSuccess');
-          //console.log('event',event);
-          //console.log('next', next);
-          //console.log('current', current);
 
-          switch ($scope.topicSwitch) {
-            case SECTION_NEW_TOPICS:
-              if (next.params.category) {
-                $rootScope.category = next.params.category;
-                $rootScope.categories = CategoriesFactory
-                    .active(next.params.category);
-                subscribeToCategory(next.params.category, socket);
-                if (current && current.params.category) {
-                  if (current.params.category === next.params.category) {
-                    //
-                  } else {
-                    unSubscribeFromCategory(current.params.category, socket);
-                  }
-                } else {
-                  //
-                }
-              } else {
-                subscribeToCategory('', socket);
-                CategoriesFactory.active('-1');
-                $rootScope.category = '';
-                $rootScope.messages = [];
-              }
-              break;
-            case SECTION_RECENTLY_VIEWED:
-              break;
-            case SECTION_PARTICIPATED:
-              break;
-            case SECTION_BOOKMARKS:
-              break;
+        $rootScope.$on('$routeChangeSuccess', function(event, next, current) {
+
+          if (next.params.category) {
+            if ($rootScope.category != next.params.category) {
+              $rootScope.category = next.params.category;
+              CategoriesFactory.active($rootScope.category);
+              getTopics();
+            }
+          } else {
+            CategoriesFactory.active('-1');
+            $rootScope.categories = CategoriesFactory.categories;
+            $rootScope.category = '';
+            getTopics();
           }
+
+
 
         });
 
-        function listenSlug(category, socket) {
-          if (!socket.self.hasListeners('topics:' + category)) {
-            socket.on('topics:' + category, envelopeReceiver);
+        /**
+         * Filter array by category
+         * @param {array} arr
+         * @param {string} catSlug
+         * @return {array}
+         */
+        function filterByCategory(arr, catSlug) {
+          if (catSlug) {
+            return arr.filter(function(item) {
+              var itemCat = item.category.slug;
+              return itemCat == catSlug;
+            });
+
+          } else {
+            return arr;
           }
         }
-
-        function muteSlug(slug, socket) {
-          if (!socket.self.hasListeners('topics:' + slug)) {
-            socket.on('topics:' + slug, envelopeReceiver);
-          }
-        }
-
-        function subscribeToCategory(category, socket) {
-          listenSlug(category, socket);
-          socket.emit('subscribe', {
-                type: 'category',
-                slug: category,
-                term: $scope.searchTerm
-              }
-          );
-        }
-
-        function unSubscribeFromCategory(category, socket) {
-          if (socket.self.hasListeners('topics:' + category)) {
-            $rootScope.messages = [];
-            socket.off('topics:' + category, envelopeReceiver);
-          }
-        }
-
-
 
         var envelopeReceiver = function(envelope) {
           console.log('topics:envelope', envelope);
+
           switch (envelope.type) {
             case 'topicList':
+              /*
+
+               envelope = {
+                type: 'topicList',
+                data: [ {...} ],
+                switches: ['newTopics', 'viewed', 'bookmarked'],
+                category: ''
+
+               }
+               * */
               $rootScope.messages = array_id_merge(
                   $rootScope.messages,
-                  envelope.data,
+                  filterByCategory(envelope.data, $rootScope.category),
                   $routeParams.topic
               );
-              $rootScope.$applyAsync();
               PerfectScrollBar.setup('topics');
-
               break;
             case 'topic':
-              $rootScope.messages = array_id_merge($rootScope.messages,
-                                                   [envelope.data],
-                                                   $routeParams.topic
+              $rootScope.messages = filterByCategory(
+                  array_id_merge(
+                      $rootScope.messages,
+                      [envelope.data],
+                      $routeParams.topic
+                  ),
+                  $rootScope.category
               );
-              $rootScope.$applyAsync();
               PerfectScrollBar.setup('topic');
-
               break;
           }
+          $rootScope.$applyAsync();
+
         };
 
-        $scope.newTopics = function() {
+        socket.on('topics', envelopeReceiver);
+
+        function getTopics() {
           $rootScope.messages = [];
-          muteSlug($scope.topicSwitch, socket);
-          socket.emit('subscribe', {
-                type: 'section',
-                section: SECTION_NEW_TOPICS,
-                slug: $rootScope.category,
-                term: $scope.searchTerm
+          socket.emit('topics', {
+                tab: $scope.topicSwitch,
+                category: $rootScope.category,
+                term: $scope.searchTerm,
+                before: 0
               }
           );
+          document.getElementById('topics').scrollTop = '0px';
+        }
+
+        $scope.newTopics = function() {
           $scope.topicSwitch = SECTION_NEW_TOPICS;
+          getTopics();
         };
 
         $scope.recentlyViewed = function() {
-          $rootScope.messages = [];
-          muteSlug($scope.topicSwitch, socket);
-          listenSlug(SECTION_RECENTLY_VIEWED, socket);
           $scope.topicSwitch = SECTION_RECENTLY_VIEWED;
-          socket.emit('subscribe', {
-                type: 'section',
-                section: SECTION_RECENTLY_VIEWED,
-                slug: $rootScope.category,
-                term: $scope.searchTerm
-              }
-          );
+          getTopics();
         };
 
         $scope.participated = function() {
-          $rootScope.messages = [];
-          muteSlug($scope.topicSwitch, socket);
-          listenSlug(SECTION_PARTICIPATED, socket);
           $scope.topicSwitch = SECTION_PARTICIPATED;
-          socket.emit('subscribe', {
-                type: 'section',
-                section: SECTION_PARTICIPATED,
-                slug: $rootScope.category,
-                term: $scope.searchTerm
-              }
-          );
+          getTopics();
         };
 
         $scope.bookmarks = function() {
-          $rootScope.messages = [];
           $scope.topicSwitch = SECTION_BOOKMARKS;
-          listenSlug(SECTION_BOOKMARKS, socket);
-          socket.emit('subscribe', {
-                type: 'section',
-                section: SECTION_BOOKMARKS,
-                slug: $rootScope.category,
-                term: $scope.searchTerm
-              }
-          );
+          getTopics();
         };
 
         $scope.$watch('searchTerm', function(newv, oldv) {
-          if (newv) {
-            $rootScope.messages = [];
-            socket.emit('subscribe', {
-                  type: 'section',
-                  section: $scope.topicSwitch,
-                  slug: $rootScope.category,
-                  term: $scope.searchTerm
-                }
-            );
-          } else {
-            $rootScope.messages = [];
-            socket.emit('subscribe', {
-                  type: 'section',
-                  section: $scope.topicSwitch,
-                  slug: $rootScope.category,
-                  term: $scope.searchTerm
-                }
-            );
-          }
+          getTopics();
         });
+
+        socket.on('connect', getTopics);
 
       }
     ]

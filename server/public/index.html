@@ -22,7 +22,8 @@
         .ng-animate-shim {visibility:hidden;}
         .ng-anchor {position:absolute;}
         body{background-color:#f7fafc;color:#303e4d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";margin:0;-webkit-box-sizing:border-box;box-sizing:border-box}
-        body>.connecting{position:fixed;left:0;top:0;width:100vw;height:100vh;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-content:center;-ms-flex-line-pack:center;align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgb(48,62,77);}
+        body>.connecting{position:fixed;left:0;top:0;width:100vw;height:100vh;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-content:center;-ms-flex-line-pack:center;
+            align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgb(48,62,77);}
         .categories,.logo{width:14.590182208031484vw;overflow:hidden;text-overflow:ellipsis}
         body>.connecting div.center{-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;color:#8e949f;font-size:2vh}
         body>.connecting div.center h1{color:#eba36f;font-size:10vh;margin:1vh 0}
@@ -53,6 +54,11 @@
             </noscript>
         </div>
     </div>
+    <div class="upload-container">
+        <div class="flex-column center">
+            <div>{{'Drop file here'|translate}}</div>
+        </div>
+    </div>
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
             <div class="logo"><a href="/"><span class="hidden-xs">LinuxQuestions.ru</span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
@@ -81,12 +87,14 @@
                         <li ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}">{{::item.name}}</a></li>
                         <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
+
+                    <div ng-show="pushNotificationDenied" class="text-center"><a href="/help/enable-notification">{{'notifications were denied'|translate}}</a></div>
                     <div class="text-center total-online"><a href="/users">
                         {{'online'| translate : {x : totalConnections } }}
                     </a>
                         <br>
                         <br>
-                    <a href="https://zoonman.github.io/liverecord/" rel="nofollow">{{'powered by' | translate}} LiveRecord<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a>
+                    <a href="https://zoonman.github.io/liverecord/" class="powered" rel="nofollow">{{'powered by' | translate}} LiveRecord<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a>
                     </div>
                 </div>
                 <div class="settings" ng-show="user">
@@ -99,9 +107,9 @@
                     <input type="search" name="q" class="search" placeholder="{{'Search'|translate}}" ng-model="searchTerm">
                 </div>
                 <div class="topics" id="topics">
-                    <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages | orderBy:'-updated' | unique:'_id'  track by message._id">
+                    <div class="topic flex-row" ng-class="{active: message.active}" ng-repeat="message in messages | orderBy:'-updated' | unique:'_id'  track by message._id" id="topic_list_id_{{message._id}}">
                         <div class="topic-status">
-                            <div class="counter" ng-show="::message.updates">{{::message.updates}}</div>
+                            <div class="counter" ng-show="message.updates">{{message.updates}}</div>
                         </div>
                         <a class="topic-info" ng-href="/{{ ::message.category.slug }}/{{ ::message.slug }}" title="{{message.title}}">
                             <i class="fa fa-lock" ng-show="::message.private"></i>
@@ -141,7 +149,7 @@
         if (raf) raf(function() { window.setTimeout(loadDeferredStyles, 0); });
         else window.addEventListener('load', loadDeferredStyles);
     </script>
-    <audio id="audioNotifications" class="hidden audio" preload="none" volume="0.5">
+    <audio id="audioNotifications" class="hidden audio" preload="none" volume="0.25">
         <source src="/dist/s/nmsg.mp3" type="audio/mp3">
     </audio>
 </body>

@@ -97,6 +97,10 @@
   "online_x_mans":"{'0': ' никого нет',  '2': '{} человека',  '3': '{} человека',  '4': '{} человека',  'one': 'только вы',  'many': '{} человек',  'other': '{} человек'}",
   "online": "{x} online",
   "online_plural": "{x, select, one{1} two{2} others} online",
+  "powered by":"Powered by",
+  "notifications were denied":"Notifications were denied!",
+  "Enable notifications": "To enable notifications click icon on address bar, remove notifications blocking, reload page and confirm request.",
+  "Drop file here": "Drop file here",
   "":"",
   "_":""
 }

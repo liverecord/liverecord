@@ -87,6 +87,11 @@ app.config([
           controllerAs: 'uctl',
           templateUrl: '/dist/t/users.info.tpl'
         })
+        .when('/help/:section', {
+          controller: 'HelpController',
+          controllerAs: 'uctl',
+          templateUrl: '/dist/t/help.tpl'
+        })
         .when('/users', {
           controller: 'UsersOnlineController',
           controllerAs: 'uctl',

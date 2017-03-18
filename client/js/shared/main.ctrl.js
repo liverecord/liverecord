@@ -64,7 +64,7 @@ app.controller('MainCtrl',
                 'connect',
                 function(msg) {
                   $rootScope.websocketAlive = true;
-                  console.log('connected');
+                  console.log('connected', msg);
                   var jwt;
                   if ($localStorage.rememberMe) {
                     jwt = $localStorage.jwt;

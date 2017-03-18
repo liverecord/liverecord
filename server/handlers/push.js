@@ -3,6 +3,8 @@
  */
 const models = require('../schema');
 const errorHandler = require('./errors');
+const socketUtils = require('../common/socket');
+const chalk = require('chalk');
 
 function userPush(webpush, socket) {
   'use strict';
@@ -19,19 +21,8 @@ function userPush(webpush, socket) {
           }
         };
 
-        var remoteIp = socket.handshake.headers['x-forwarded-for'] ||
-            socket.request.connection.remoteAddress;
-
-        const device = {
-          _id: pushObj.subscription.deviceId,
-          ua: pushObj.subscription.ua,
-          lastIp: remoteIp,
-          pushSubscription: pushSubscription
-        };
-
-
-        if (socket.decoded_token._id) {
-          console.log('upadting push', socket.decoded_token._id);
+        if (socket.decoded_token._id && pushObj.statusType) {
+          console.log(chalk.bgBlue('updating push', socket.decoded_token._id));
           models.User.update(
               {
                 _id: socket.decoded_token._id,
@@ -40,7 +31,10 @@ function userPush(webpush, socket) {
               {
                 $set: {
                   updated: Date.now(),
-                  'devices.$': device
+                  'devices.$._id': pushObj.subscription.deviceId,
+                  'devices.$.ua': pushObj.subscription.ua,
+                  'devices.$.lastIp': socketUtils.remoteAddr(socket),
+                  'devices.$.pushSubscription': pushSubscription
                 }
               },
               function(err, res) {
@@ -50,8 +44,7 @@ function userPush(webpush, socket) {
                   console.log('res', res);
                   if (res.nModified === 0) {
                     device['pushEnabled'] = true;
-
-                        models.User.update(
+                    models.User.update(
                         {
                           _id: socket.decoded_token._id
                         },
@@ -59,8 +52,15 @@ function userPush(webpush, socket) {
                           $set: {
                             updated: Date.now()
                           },
-                          $push: {devices: device}
-
+                          $push: {
+                            devices: {
+                              _id: pushObj.subscription.deviceId,
+                              ua: pushObj.subscription.ua,
+                              lastIp: socketUtils.remoteAddr(socket),
+                              pushEnabled: true,
+                              pushSubscription: pushSubscription
+                            }
+                          }
                         },
                         function(err, res) {
                           if (err) {
