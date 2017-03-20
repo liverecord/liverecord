@@ -506,9 +506,18 @@ app.controller(
             uploader.listenOnDrop(commentElement);
 
             var acceptObject = function(event) {
-              commentElement.style.cursor = 'copy';
-              commentElement.style.backgroundColor = '#81A5D4';
-              commentElement.classList.add('upload-accept');
+              console.log('acceptObject', event.dataTransfer.types)
+              if (event.dataTransfer.types.indexOf('Files') > -1) {
+                $scope.$applyAsync(function() {
+                  commentElement.style.cursor = 'copy';
+                  commentElement.style.backgroundColor = '#81A5D4';
+                  commentElement.classList.add('upload-accept');
+                  event.dataTransfer.dropEffect = 'copy';
+
+                });
+              } else {
+                event.preventDefault();
+              }
             };
             var declineObject = function(event) {
               commentElement.style.cursor = 'none';
@@ -516,10 +525,15 @@ app.controller(
               commentElement.classList.add('upload-decline');
             };
             var restoreTarget = function(event) {
-              commentElement.style.cursor = 'default';
-              commentElement.style.backgroundColor = '';
-              commentElement.classList.remove('upload-accept');
-              commentElement.classList.remove('upload-decline');
+
+              $scope.$applyAsync(function() {
+                'use strict';
+                commentElement.style.cursor = 'default';
+                commentElement.style.backgroundColor = '';
+                commentElement.classList.remove('upload-accept');
+                commentElement.classList.remove('upload-decline');
+
+              });
             };
 
             commentElement.addEventListener('dragenter', acceptObject);
@@ -695,7 +709,6 @@ app.controller(
         $scope.$on('$destroy', function(event) {
           socket.off('topic:' + $routeParams.topic);
           if (socketUploader) {
-            //socketUploader.disconnect();
             uploader.destroy();
             //uploader = null;
             //socketUploader = null;

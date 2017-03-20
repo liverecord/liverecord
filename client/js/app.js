@@ -191,8 +191,28 @@ function array_id_merge(firstArray, secondArray, slug) {
             //break;
             if (newItems[i].updated < item.updated) {
               newItems[i].updated = item.updated;
+              [
+                'updated',
+                'updates',
+                'slug',
+                'title'
+              ].map(function(prop) {
+                if (item.hasOwnProperty(prop)) {
+                  newItems[i][prop] = item[prop];
+                }
+              });
             } else {
-              item.updated = newItems[i].updated;
+              //item.updated = newItems[i].updated;
+              [
+                'updated',
+                'updates',
+                'slug',
+                'title'
+              ].map(function(prop) {
+                if (newItems[i].hasOwnProperty(prop)) {
+                  item[prop] = newItems[i][prop];
+                }
+              });
             }
           }
         }

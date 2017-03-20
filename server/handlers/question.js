@@ -83,11 +83,17 @@ function question(socket, io, errorHandler) {
           topic.updated = Date.now();
           Topic
               .findByIdAndUpdate(topic._id, topic)
+              .populate('category')
               .then(function(r) {
                 console.log('rrrr', r);
-
-                socket.emit(
-                    'topics:' + topic.category.slug,
+                topic.updated = r.toObject().updated;
+                topic.category = r.toObject().category;
+                io.emit(
+                    'topics',
+                    TopicListStruct([topic])
+                );
+                socket.broadcast.emit(
+                    'topics',
                     TopicListStruct([topic])
                 );
 

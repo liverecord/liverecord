@@ -120,6 +120,80 @@ function configure(webPush, frontConfig) {
     webPush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
   }
 }
+const pushFailureCodes = [401, 410];
+
+function notifyUsers(webpush, foundTopic, socket, pushPayload) {
+  models
+      .TopicFanOut
+      .find({
+            topic: foundTopic._id,
+            user: {$ne: socket.webUser._id}
+          }
+      )
+      .lean()
+      .populate({
+            path: 'user',
+            select: 'name settings devices'
+          }
+      )
+      .then(function(topicFans) {
+        topicFans.map(function(fan) {
+          console.log('fan', fan);
+
+          if (fan.user.devices) {
+            fan.user
+                .devices
+                .map(function(device) {
+                  console.log('device', device);
+                  if (device.pushEnabled) {
+                    webpush
+                        .sendNotification(
+                            device.pushSubscription,
+                            pushPayload
+                        )
+                        .then(function(result) {
+                          console.log('Pushed', result);
+                        })
+                        .catch(function(reason) {
+                              console.log(
+                                  'Push failed', fan.user._id, device._id,
+                                  'reason:', reason
+                              );
+                              if (reason.statusCode &&
+                                  pushFailureCodes
+                                      .indexOf(
+                                          reason.statusCode
+                                      ) > -1) {
+                                models
+                                    .User
+                                    .update(
+                                        {
+                                          _id: fan.user._id,
+                                        },
+                                        {
+                                          $pull: {
+                                            'devices': {
+                                              _id:
+                                              device._id
+                                            }
+                                          }
+                                        })
+                                    .then(function(r) {
+                                      console.log(r);
+                                    })
+                                    .catch(errorHandler);
+
+                              }
+                            }
+                        );
+                  }
+                });
+          }
+        });
+      })
+      .catch(errorHandler);
+}
 
 module.exports.socketHandler = userPush;
 module.exports.configure = configure;
+module.exports.notifyUsers = notifyUsers;

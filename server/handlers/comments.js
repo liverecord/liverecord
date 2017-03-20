@@ -3,6 +3,7 @@
  */
 const xtend = require('xtend');
 const jp = require('jsonpath');
+const chalk = require('chalk');
 const models = require('../schema');
 const Topic = models.Topic;
 const CommentStruct = require('./envelope').comment;
@@ -11,7 +12,7 @@ const TopicListStruct = require('./envelope').topicList;
 const purify = require('./purify');
 const mailer = require('./mailer');
 const errorHandler = require('./errors');
-const pushFailureCodes = [401];
+const push = require('./push');
 
 function comments(socket, io, antiSpam, webpush) {
 
@@ -84,7 +85,9 @@ function comments(socket, io, antiSpam, webpush) {
                               'topic:' + foundTopic.slug,
                               detailedComment
                           );
-                          var commentUrl = 'http://' +
+                          var commentUrl =
+                              process.env.npm_package_config_server_protocol +
+                              '://' +
                               process.env.npm_package_config_server_name +
                               '/' + foundTopic.category.slug +
                               '/' +
@@ -136,6 +139,85 @@ function comments(socket, io, antiSpam, webpush) {
                                 }
                               }
                           );
+
+                          function updateHandler(err, data) {
+                            if (err) {
+                              return errorHandler(err);
+                            }
+                          }
+                          models.TopicFanOut.update(
+                              {
+                                topic: foundTopic._id,
+                                user: socket.webUser._id
+                              },
+                              {
+                                $set: {
+                                  updates: 0,
+                                  updated: savedComment.created,
+                                  commented: true
+                                }
+                              },
+                              {upsert: true}
+                          ).exec(updateHandler);
+                          models.TopicFanOut.update(
+                              {
+                                topic: foundTopic._id,
+                                user: {$ne: socket.webUser._id}
+                              },
+                              {
+                                $inc: {
+                                  updates: 1
+                                },
+                                $set: {
+                                  updated: savedComment.created
+                                }
+                              }
+                          ).exec(updateHandler);
+
+                          models.Topic.update(
+                              {
+                                topic: foundTopic._id
+                              },
+                              {
+                                $set: {
+                                  updated: savedComment.created
+                                }
+                              }
+                          ).exec(updateHandler);
+                          //
+                          models
+                              .TopicFanOut
+                              .find({
+                                topic: foundTopic._id,
+                                user: {$ne: socket.webUser._id}
+                              })
+                              .populate({
+                                path: 'user',
+                                match: { online: true },
+                                select: '_id'
+                              })
+                              .lean()
+                              .then(function(users) {
+                                if (users) {
+                                  users.map(function(curEl) {
+                                    if (curEl.updates == 0) {
+                                      curEl.updates = 1;
+                                    }
+                                    foundTopic2.updates = curEl.updates;
+                                    console.log(chalk.cyan(JSON.stringify(curEl)));
+                                    if (curEl.user) {
+                                      // broadcast event for everyone online
+                                      io
+                                          .to('user:' + curEl.user._id)
+                                          .emit(
+                                              'topics',
+                                              TopicListStruct([foundTopic2])
+                                      );
+                                    }
+                                  });
+                                }
+                              })
+                              .catch(errorHandler);
                           const pushPayload = JSON.stringify({
                                 action: 'subscribe',
                                 title: socket.webUser.name +
@@ -146,128 +228,13 @@ function comments(socket, io, antiSpam, webpush) {
                                 body: purify(comment.body, true)
                               }
                           );
-                          models
-                              .TopicFanOut
-                              .find({
-                                    topic: foundTopic._id,
-                                    user: {$ne: socket.webUser._id}
-                                  }
-                              )
-                              .lean()
-                              .populate({
-                                    path: 'user',
-                                    select: 'name settings devices'
-                                  }
-                              )
-                              .then(function(topicFans) {
-                                topicFans.forEach(function(fan) {
-                                  console.log('fan', fan);
-
-                                  if (fan.user.devices) {
-                                    fan.user
-                                        .devices
-                                        .forEach(function(device) {
-                                          console.log('device', device);
-                                          if (device.pushEnabled) {
-                                            webpush
-                                                .sendNotification(
-                                                    device.pushSubscription,
-                                                    pushPayload
-                                                )
-                                                .then(function(result) {
-                                                  console.log('Pushed', result);
-                                                })
-                                                .catch(function(reason) {
-                                                  console.log('Push failed', fan.user._id, device._id, 'reason:', reason);
-                                                  if (reason.statusCode &&
-                                                      pushFailureCodes
-                                                          .indexOf(
-                                                              reason.statusCode
-                                                          ) > -1) {
-                                                    models
-                                                        .User
-                                                        .update(
-                                                            {
-                                                              _id: fan.user._id,
-                                                            },
-                                                            {
-                                                              $pull: {
-                                                                'devices': {
-                                                                  _id:
-                                                                  device._id
-                                                                }
-                                                              }
-                                                            })
-                                                        .then(function(r) {
-                                                          console.log(r);
-                                                        })
-                                                        .catch(errorHandler);
-
-                                                  }
-                                                }
-                                            );
-                                          }
-                                        });
-                                  }
-                                });
-                              })
-                              .catch(errorHandler);
-                              //
-
-
-
-                              function updateHandler(err, data) {
-                                if (err) {
-                                  return errorHandler(err);
-                                }
-                              }
-
-                              models.TopicFanOut.update(
-                                  {
-                                    topic: foundTopic._id,
-                                    user: socket.webUser._id
-                                  },
-                                  {
-                                    $set: {
-                                      updates: 0,
-                                      updated: savedComment.created,
-                                      commented: true
-                                    }
-                                  },
-                                  {upsert: true}
-                              ).exec(updateHandler);
-                              models.TopicFanOut.update(
-                                  {
-                                    topic: foundTopic._id,
-                                    user: {$ne: socket.webUser._id}
-                                  },
-                                  {
-                                    $inc: {
-                                      updates: 1
-                                    },
-                                    $set: {
-                                      updated: savedComment.created
-                                    }
-                                  }
-                              ).exec(updateHandler);
-
-                              models.Topic.update(
-                                  {
-                                    topic: foundTopic._id
-                                  },
-                                  {
-                                    $set: {
-                                      updated: savedComment.created
-                                    }
-                                  }
-                              ).exec(updateHandler);
-
-                              antiSpam.processComment(savedComment);
+                          push.notifyUsers(webpush, foundTopic, socket, pushPayload);
+                          antiSpam.processComment(savedComment);
 
                         })
                         .catch(errorHandler);
               })
-              .catch(errorHandler);;
+              .catch(errorHandler);
 
         } else {
           fn({error: 'too_short'});

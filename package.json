@@ -8,6 +8,7 @@
       "uri": "mongodb://127.0.0.1:27017/liveRecord"
     },
     "server": {
+      "protocol": "http",
       "name": "10.0.0.5:8914",
       "host": "0.0.0.0",
       "port": 8914

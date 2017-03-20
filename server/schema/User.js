@@ -193,6 +193,9 @@ UserSchema.methods.refreshRank = function() {
 
 
 UserSchema.index({slug: 1});
+UserSchema.index({rank: -1});
+UserSchema.index({online: -1});
+UserSchema.index({deleted: -1});
 
 /*
  * @param {String} hashObject.hash

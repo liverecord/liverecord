@@ -6,7 +6,6 @@ app.controller(
     'AdminController',
     ['socket',
      '$scope',
-     'CategoriesFactory',
      '$routeParams',
      '$timeout',
      'PerfectScrollBar',
@@ -14,14 +13,13 @@ app.controller(
      '$document',
      function(socket,
               $scope,
-              CategoriesFactory,
               $routeParams,
               $timeout,
               PerfectScrollBar,
               $localStorage,
          $document) {
 
-       $scope.command = ''
+       $scope.command = '';
        //
        $scope.broadcastCommand = function() {
          'use strict';
