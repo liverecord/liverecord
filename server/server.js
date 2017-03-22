@@ -112,7 +112,7 @@ mongooseConnection.once('open', function() {
   var sendOnlineCount = function() {
     models
         .User
-        .count({online: true})
+        .count({online: true, deleted: false})
         .then(function(count) {
               io.volatile.emit('connections', count || 0);
             }
@@ -120,134 +120,133 @@ mongooseConnection.once('open', function() {
         .catch(errorHandler);
   };
 
-      // declare io handling
-      io
-          .on('connection', function(socket) {
+  // declare io handling
+  io
+      .on('connection', function(socket) {
 
-            threadConnections++;
-            console.log(
-                chalk.blue('Number of connections'), threadConnections);
-            // load categories
-            categoriesHandler(socket);
-            // todo: take it into module
-            loginHandler(socket);
-            topics.socketHandler(socket, errorHandler);
-            userHandler(socket, io, errorHandler);
+        threadConnections++;
+        console.log(
+            chalk.blue('Number of connections'), threadConnections);
+        // load categories
+        categoriesHandler(socket);
+        // todo: take it into module
+        loginHandler(socket);
+        topics.socketHandler(socket, errorHandler);
+        userHandler(socket, io, errorHandler);
 
-            var uploader = new SocketIOFileUploadSrv();
-            uploader.dir = filesUploadDirectory;
+        var uploader = new SocketIOFileUploadSrv();
+        uploader.dir = filesUploadDirectory;
 
-            uploadHandler(socket,
-                uploader,
-                filesUploadDirectory,
-                filesPublicDirectory,
-                errorHandler
-            );
+        uploadHandler(socket,
+            uploader,
+            filesUploadDirectory,
+            filesPublicDirectory,
+            errorHandler
+        );
 
-            console.log(chalk.yellow('socketioJwt.authorize', socket.id));
+        console.log(chalk.yellow('socketioJwt.authorize', socket.id));
 
-            socket.on('disconnect', function() {
-                  threadConnections--;
-                  console.log(chalk.blue('Number of connections'), threadConnections);
-                  sendOnlineCount();
-                }
-            );
+        socket.on('disconnect', function() {
+              threadConnections--;
+              console.log(chalk.blue('Number of connections'), threadConnections);
+              sendOnlineCount();
+            }
+        );
 
-            return socketioJwt.authorize({
-              secret: process.env.npm_package_config_jwt_secret,
-              required: false, // authorization is always not required
-              timeout: 5000    // 5 seconds to send the authentication message
-            })(socket);
-          })
-          .on('authenticated', function(socket) {
-                //console.log('authenticated', socket.decoded_token._id);
-                setTimeout(function() {
-                      sendOnlineCount();
-                    }, 1000
-                );
-                try {
-                  if (!socket.decoded_token) {
-                    return;
-                  }
-                  models.User
-                      .findById(socket.decoded_token._id)
-                      .then(function(currentUser) {
-                        if (currentUser) {
-                          var webUser = pick(currentUser,
-                              ['_id',
-                                'name',
-                                'email',
-                                'picture',
-                                'slug',
-                                'roles',
-                                'about',
-                                'gender',
-                                'rank',
-                                'devices',
-                                'settings'
-                              ]
-                          );
-                          // inform user
-                          socket.emit('user', webUser);
-                          socket.join('user:' + webUser._id);
-                          socket.webUser = webUser;
-                          // now have a user context and can work
-                          Raven.setContext({user: webUser});
-                          // handlers
-                          comments(socket, io, antiSpam, webpush);
-                          question(socket, io, errorHandler);
-                          bookmarks(socket, errorHandler);
-                          pushHandler.socketHandler(
-                              webpush,
-                              socket
-                          );
-
-                          models.User.update(
-                              {_id: currentUser._id},
-                              {$set: {online: true, updated: Date.now()}},
-                              function(err, res) {
-                                if (err) {
-                                  return errorHandler(err);
-                                }
-                              }
-                          );
-                          socket.on('command', function(req) {
-                            console.log(req);
-                            if (socket.webUser &&
-                                socket.webUser.roles.indexOf('admin') > -1) {
-                              io.emit('command', req);
-                            }
-                          });
-                        }
-                      }
-                      ).catch(function(reason) {
-                        if (reason) {
-                          return errorHandler(reason);
-                        }
-                      }
-                  );
-
-                  socket.on('disconnect', function(s) {
-                        if (socket.webUser && socket.webUser._id) {
-                          models.User.update({_id: socket.webUser._id},
-                              {'$set': {online: false, updated: Date.now()}}
-                          ).exec(function(err, other) {
-                            if (err) {
-                              return errorHandler(err);
-                            }
-                            //
-                          });
-                        }
-                        console.log(chalk.blue('Disconnected'), s);
-                      }
-                  );
-                }
-                catch (e) {
-                  Raven.captureException(e);
-                }
-              }
+        return socketioJwt.authorize({
+          secret: process.env.npm_package_config_jwt_secret,
+          required: false, // authorization is always not required
+          timeout: 5000    // 5 seconds to send the authentication message
+        })(socket);
+      })
+      .on('authenticated', function(socket) {
+          //console.log('authenticated', socket.decoded_token._id);
+          setTimeout(function() {
+                sendOnlineCount();
+              }, 1000
           );
+          try {
+            if (!socket.decoded_token) {
+              return;
+            }
+            models
+                .User
+                .findById(socket.decoded_token._id)
+                .then(function(currentUser) {
+                  if (currentUser) {
+                    var webUser = pick(currentUser,
+                        ['_id',
+                          'name',
+                          'email',
+                          'picture',
+                          'slug',
+                          'roles',
+                          'about',
+                          'gender',
+                          'rank',
+                          'devices',
+                          'settings'
+                        ]
+                    );
+                    // inform user
+                    socket.emit('user', webUser);
+                    socket.join('user:' + webUser._id);
+                    socket.webUser = webUser;
+                    // now have a user context and can work
+                    Raven.setContext({user: webUser});
+                    // handlers
+                    comments(socket, io, antiSpam, webpush);
+                    question(socket, io, errorHandler);
+                    bookmarks(socket, errorHandler);
+                    pushHandler.socketHandler(
+                        webpush,
+                        socket
+                    );
 
+                    models.User.update(
+                        {_id: currentUser._id},
+                        {$set: {online: true, updated: Date.now()}},
+                        function(err, res) {
+                          if (err) {
+                            return errorHandler(err);
+                          }
+                        }
+                    );
+                    socket.on('command', function(req) {
+                      console.log(req);
+                      if (socket.webUser &&
+                          socket.webUser.roles.indexOf('admin') > -1) {
+                        io.emit('command', req);
+                      }
+                    });
+                  }
+                }
+                ).catch(function(reason) {
+                  if (reason) {
+                    return errorHandler(reason);
+                  }
+                }
+            );
+
+            socket.on('disconnect', function(s) {
+                  if (socket.webUser && socket.webUser._id) {
+                    models.User.update({_id: socket.webUser._id},
+                        {'$set': {online: false, updated: Date.now()}}
+                    ).exec(function(err, other) {
+                      if (err) {
+                        return errorHandler(err);
+                      }
+                      //
+                    });
+                  }
+                  console.log(chalk.blue('Disconnected'), s);
+                }
+            );
+          }
+          catch (e) {
+            Raven.captureException(e);
+          }
+      });
       app.get('/:category/:topic', topics.expressRouter);
       app.get('*', staticHandlers.expressRouter);
     }
