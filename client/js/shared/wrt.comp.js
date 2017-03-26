@@ -263,9 +263,13 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     self.onCall = false;
 
     localPeerConnection.close();
-    localVideo.srcObject.getTracks().forEach(track => track.stop());
+    localVideo.srcObject.getTracks().forEach(function(track) {
+      track.stop();
+    });
     localVideo.srcObject = null;
-    remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+    remoteVideo.srcObject.getTracks().forEach(function(track) {
+      track.stop();
+    });
     remoteVideo.srcObject = null;
   };
 
