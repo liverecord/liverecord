@@ -1,30 +1,31 @@
 /**
  * Created by zoonman on 11/6/16.
  */
-var gulp = require('gulp');
+const gulp = require('gulp');
 
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var imagemin = require('gulp-imagemin');
-var sourcemaps = require('gulp-sourcemaps');
-var del = require('del');
-var cleanCSS = require('gulp-clean-css');
-var stylus = require('gulp-stylus');
-var Filter = require('gulp-filter');
-var ngAnnotate = require('gulp-ng-annotate');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const imagemin = require('gulp-imagemin');
+const sourcemaps = require('gulp-sourcemaps');
+const del = require('del');
+const cleanCSS = require('gulp-clean-css');
+const stylus = require('gulp-stylus');
+const Filter = require('gulp-filter');
+const ngAnnotate = require('gulp-ng-annotate');
+const embedTemplates = require('gulp-angular-embed-templates');
 
-var autoprefixer = require('autoprefixer');
-var postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
+const postcss = require('gulp-postcss');
 
-var fs = require('fs');
+const fs = require('fs');
 
-var runSequence = require('run-sequence');
-var replace = require('gulp-replace-task');
-var plumber = require('gulp-plumber');
+const runSequence = require('run-sequence');
+const replace = require('gulp-replace-task');
+const plumber = require('gulp-plumber');
 
-var currentDeployId = 0;
+let currentDeployId = 0;
 
-var paths = {
+let paths = {
   scripts: [
     'node_modules/angular/angular.js',
     'node_modules/angular-route/angular-route.js',
@@ -114,10 +115,11 @@ gulp.task('clean-locales', function(cb) {
 
 gulp.task('scripts-dev', function() {
       // Minify and copy all JavaScript (except vendor scripts)
-      var filter = Filter('**/*.coffee');
+      let filter = Filter('**/*.coffee');
       // with sourcemaps all the way down
       return gulp.src(paths.scripts)
           .pipe(sourcemaps.init())
+          .pipe(embedTemplates({skipTemplates: /\.html/ }))
           .pipe(ngAnnotate())
           .pipe(concat('main.' + currentDeployId + '.js'))
           .pipe(sourcemaps.write())
@@ -127,10 +129,11 @@ gulp.task('scripts-dev', function() {
 
 gulp.task('scripts', function() {
       // Minify and copy all JavaScript (except vendor scripts)
-      var filter = Filter('**/*.coffee');
+      let filter = Filter('**/*.coffee');
       // with sourcemaps all the way down
       return gulp.src(paths.scripts)
           .pipe(sourcemaps.init())
+          .pipe(embedTemplates({skipTemplates: /\.html/ }))
           .pipe(ngAnnotate())
           .pipe(uglify({mangle: false}))
           .pipe(concat('main.' + currentDeployId + '.js'))
@@ -160,7 +163,7 @@ gulp.task('currentDeployWrite', function() {
 
 gulp.task('css', function() {
 
-      var filter = Filter('**/*.styl', {restore: true});
+      let filter = Filter('**/*.styl', {restore: true});
 
       return gulp.src(paths.css)
           .pipe(filter)

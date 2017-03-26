@@ -27,7 +27,7 @@ module.exports = function(socket, handleError) {
                         }
                     );
                   } else {
-                    var newBookmark = new Bookmark({
+                    let newBookmark = new Bookmark({
                       topic: sreq.topic,
                       user: socket.webUser
                     }

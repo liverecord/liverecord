@@ -32,7 +32,7 @@ function topicBookmarkController($rootScope, $scope, socket) {
 }
 
 app.component('bookmark', {
-      templateUrl: '/dist/t/topic.bookmark.tpl',
+      templateUrl: '../../../tpl/topic.bookmark.tpl',
       controller: topicBookmarkController,
       controllerAs: 'wrtc',
       bindings: {

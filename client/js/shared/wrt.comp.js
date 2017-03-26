@@ -277,7 +277,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 }
 
 app.component('lrRtc', {
-  templateUrl: '/dist/t/rtc.tpl',
+  templateUrl: '../../tpl/rtc.tpl',
   controller: wrtcController,
   bindings: {
     topic: '=',

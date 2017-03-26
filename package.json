@@ -93,6 +93,7 @@
     "github-slugger": "^1.1.1",
     "gravatar": "^1.5.2",
     "gulp": "^3.9.1",
+    "gulp-angular-embed-templates": "^2.3.0",
     "gulp-changed": "^2.0.0",
     "gulp-clean-css": "^3.0.4",
     "gulp-concat": "^2.6.0",

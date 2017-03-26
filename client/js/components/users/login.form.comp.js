@@ -18,15 +18,12 @@ function usersLoginController(socket,
     $localStorage,
     $sessionStorage) {
 
-  var l = {
-
-  };
-
   if ($rootScope.user) {
     $scope.user = $rootScope.user;
   } else {
     $scope.user = false;
   }
+
   $scope.authData = {
     email: '',
     password: '',
@@ -75,7 +72,7 @@ function usersLoginController(socket,
 }
 
 app.component('usersLoginForm', {
-      templateUrl: '/dist/t/users.login.tpl',
+      templateUrl: '../../../tpl/users.login.tpl',
       controller: usersLoginController,
       bindings: {
         user: '='

@@ -64,57 +64,57 @@ app.config([
     $routeProvider
         .when('/ask', {
           controller: 'EditTopicController',
-          templateUrl: '/dist/t/topic.edit.tpl'
+          templateUrl: '../tpl/topic.edit.tpl'
         })
         .when('/ask?category=:category', {
           controller: 'EditTopicController',
-          templateUrl: '/dist/t/topic.edit.tpl'
+          templateUrl: '../tpl/topic.edit.tpl'
         })
         .when('/edit/:slug', {
               controller: 'EditTopicController',
-              templateUrl: '/dist/t/topic.edit.tpl'
+              templateUrl: '../tpl/topic.edit.tpl'
         })
         .when('/settings', {
               controller: 'SettingsController',
-              templateUrl: '/dist/t/settings.tpl'
+              templateUrl: '../tpl/settings.tpl'
         })
         .when('/admin', {
           controller: 'AdminController',
-          templateUrl: '/dist/t/admin.tpl'
+          templateUrl: '../tpl/admin.tpl'
         })
         .when('/users/:slug', {
           controller: 'UsersInfoController',
           controllerAs: 'uctl',
-          templateUrl: '/dist/t/users.info.tpl'
+          templateUrl: '../tpl/users.info.tpl'
         })
         .when('/help/:section', {
           controller: 'HelpController',
           controllerAs: 'uctl',
-          templateUrl: '/dist/t/help.tpl'
+          templateUrl: '../tpl/help.tpl'
         })
         .when('/users', {
           controller: 'UsersOnlineController',
           controllerAs: 'uctl',
-          templateUrl: '/dist/t/users.tpl'
+          templateUrl: '../tpl/users.tpl'
         })
         .when('/users/password/restore', {
           controller: 'UsersPasswordRestoreCtrl',
           controllerAs: 'uctl',
-          templateUrl: '/dist/t/users.password.restore.tpl'
+          templateUrl: '../tpl/users.password.restore.tpl'
         })
         .when('/:category/:topic', {
           controller: 'TopicDetailsCtrl',
           controllerAs: 'topic',
-          templateUrl: '/dist/t/topic.view.tpl'
+          templateUrl: '../tpl/topic.view.tpl'
         })
         .when('/:category', {
           controller: 'TopicStubCtrl',
           controllerAs: 'topicStub',
-          templateUrl: '/dist/t/topics.tpl'
+          templateUrl: '../tpl/topics.tpl'
         })
         .when('/', {
           controller: 'WelcomeCtrl',
-          templateUrl: '/dist/t/welcome.tpl'
+          templateUrl: '../tpl/welcome.tpl'
         })
         .otherwise('/');
 
