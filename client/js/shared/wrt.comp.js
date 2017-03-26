@@ -85,6 +85,8 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     console.log('gotRemoteStream', evt);
     remoteVideo = document.querySelector('#remoteVideo');
     remoteVideo.srcObject = evt.stream;
+    self.onCall = true;
+
   }
 
   socket.on('new-ice-candidate', function(data) {
@@ -111,6 +113,8 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     if (!localPeerConnection) {
       initPeer();
     }
+    self.onCall = true;
+
     localPeerConnection
         .setRemoteDescription(
             new RTCSessionDescription(offer)
@@ -144,6 +148,8 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   socket.on('video-answer', function(answer) {
     console.log('video-answer received', answer);
+    self.onCall = true;
+
     if (!localPeerConnection) {
       initPeer();
     }
@@ -255,6 +261,12 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   self.hangUp = function() {
     self.onCall = false;
+
+    localPeerConnection.close();
+    localVideo.srcObject.getTracks().forEach(track => track.stop());
+    localVideo.srcObject = null;
+    remoteVideo.srcObject.getTracks().forEach(track => track.stop());
+    remoteVideo.srcObject = null;
   };
 
 
