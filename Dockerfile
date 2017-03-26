@@ -10,7 +10,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 USER root
 
 ENV HOME /root
-ENV NODE_VERSION 7.6.0
+ENV NODE_VERSION 7.7.2
 
 
 # nvm environment variables
