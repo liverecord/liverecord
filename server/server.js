@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const death = require('death');
 const express = require('express');
+const session = require('express-session');
 const socketioJwt = require('socketio-jwt');
 const jwt = require('jsonwebtoken');
 const pick = require('object.pick');
@@ -12,7 +13,7 @@ const loginHandler = require('./handlers/login');
 const categoriesHandler = require('./handlers/categories');
 const bookmarks = require('./handlers/bookmarks');
 const topics = require('./handlers/topics');
-const userHandler = require('./handlers/users');
+const userHandlers = require('./handlers/users');
 const uploadHandler = require('./handlers/upload');
 const errorHandler = require('./handlers/errors');
 const pushHandler = require('./handlers/push');
@@ -23,23 +24,15 @@ const xtend = require('xtend');
 const fs = require('fs');
 const webpush = require('web-push');
 const chalk = require('chalk');
+const passport = require('passport');
+const passportHandler = require('./handlers/passport');
 //
 // Initialize app config
-var frontLiveRecordConfig = {
+let frontLiveRecordConfig = {
   gaId: process.env.npm_package_config_analytics_ga_id,
   version: '1'
 };
 
-var reloadConfiguration = () => {
-  frontLiveRecordConfig.version = fs
-      .readFileSync(
-          __dirname + '/public/version.txt', 'utf8'
-      )
-      .trim();
-  console.log(chalk.grey('Configuration reloaded'));
-};
-//
-reloadConfiguration();
 //
 const app = express();
 const SocketIOFileUploadSrv = require('socketio-file-upload');
@@ -55,6 +48,7 @@ if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
   const vfs = require('vinyl-fs');
   vfs.watch(
       __dirname + '/public/version.txt',
+      {interval: 1000},
       reloadConfiguration
   );
 } else {
@@ -67,6 +61,19 @@ app.set('frontLiveRecordConfig', frontLiveRecordConfig);
 //
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+
+var reloadConfiguration = () => {
+  frontLiveRecordConfig.version = fs
+      .readFileSync(
+          __dirname + '/public/version.txt', 'utf8'
+      )
+      .trim();
+  console.log(chalk.grey('Configuration reloaded'));
+  io.emit('command', 'window.location.reload(true);');
+};
+//
+reloadConfiguration();
+
 //
 server.listen(process.env.npm_package_config_server_port,
     process.env.npm_package_config_server_host
@@ -82,26 +89,50 @@ console.log(
 
 const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
 const filesUploadDirectory = __dirname + '/public/' + filesPublicDirectory;
+// configure serializers
+passport.serializeUser(function(user, done) {
+  console.log(chalk.magenta('serializeUser'), user);
+  done(null, user);
+});
+passport.deserializeUser(function(obj, done) {
+  console.log(chalk.magenta('deserializeUser'), obj);
+  done(null, obj);
+});
+// setup express session
+app.use(session({
+  secret: process.env.npm_package_config_security_session_secret,
+  resave: false,
+  saveUninitialized: false
+}));
+// hook passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', staticHandlers.expressRouter);
 app.use('/', express.static(__dirname + '/public'));
 app.use(SocketIOFileUploadSrv.router);
+
 
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
 
 mongoose.connect(process.env.npm_package_config_mongodb_uri);
 
-var mongooseConnection = mongoose.connection;
+let mongooseConnection = mongoose.connection;
 mongooseConnection.on('error',
     console.error.bind(console, chalk.red('connection error:'))
 );
 
-var threadConnections = 0;
+let threadConnections = 0;
 
 mongooseConnection.once('open', function() {
   // we're connected!
-  var models = require('./schema');
+  let models = require('./schema');
+
+
+  //app.use(passport.session());
+  passportHandler(passport, app);
+
   const antiSpam = require('./handlers/antispam');
   const siteMap = require('./handlers/sitemap');
   app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
@@ -109,7 +140,7 @@ mongooseConnection.once('open', function() {
 
   pushHandler.configure(webpush, frontLiveRecordConfig);
 
-  var sendOnlineCount = function() {
+  let sendOnlineCount = function() {
     models
         .User
         .count({online: true, deleted: false})
@@ -130,11 +161,11 @@ mongooseConnection.once('open', function() {
         // load categories
         categoriesHandler(socket);
         // todo: take it into module
-        loginHandler(socket);
+        loginHandler.socketHandler(socket);
         topics.socketHandler(socket, errorHandler);
-        userHandler(socket, io, errorHandler);
+        userHandlers.socketHandler(socket, io, errorHandler);
 
-        var uploader = new SocketIOFileUploadSrv();
+        let uploader = new SocketIOFileUploadSrv();
         uploader.dir = filesUploadDirectory;
 
         uploadHandler(socket,
@@ -174,7 +205,7 @@ mongooseConnection.once('open', function() {
                 .findById(socket.decoded_token._id)
                 .then(function(currentUser) {
                   if (currentUser) {
-                    var webUser = pick(currentUser,
+                    let webUser = pick(currentUser,
                         ['_id',
                           'name',
                           'email',
@@ -227,6 +258,21 @@ mongooseConnection.once('open', function() {
                   }
                 }
             );
+
+            socket.on('video-offer', function(req) {
+              console.log(chalk.red('video-offer'), req);
+              socket.broadcast.emit('video-offer', req);
+            });
+
+            socket.on('video-answer', function(req) {
+              console.log(chalk.red('video-answer'), req);
+              socket.broadcast.emit('video-answer', req);
+            });
+
+            socket.on('new-ice-candidate', function(req) {
+              console.log(chalk.red('new-ice-candidate'), req);
+              socket.broadcast.emit('new-ice-candidate', req);
+            });
 
             socket.on('disconnect', function(s) {
                   if (socket.webUser && socket.webUser._id) {

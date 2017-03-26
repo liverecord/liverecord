@@ -118,6 +118,7 @@ gulp.task('scripts-dev', function() {
       // with sourcemaps all the way down
       return gulp.src(paths.scripts)
           .pipe(sourcemaps.init())
+          .pipe(ngAnnotate())
           .pipe(concat('main.' + currentDeployId + '.js'))
           .pipe(sourcemaps.write())
           .pipe(gulp.dest('server/public/dist/j'));
@@ -209,13 +210,13 @@ gulp.task('locales', function() {
 
 // Rerun the task when a file changes
 gulp.task('watch', function() {
-      gulp.watch(paths.scripts, ['clean-js', 'scripts-dev']);
-      gulp.watch(paths.images, ['clean-img', 'images']);
-      gulp.watch(paths.css, ['clean-mycss', 'css']);
-      gulp.watch(paths.tpl, ['clean-tpl', 'tpl']);
-      gulp.watch(paths.fonts, ['clean-fonts', 'fonts']);
-      gulp.watch(paths.sounds, ['clean-sounds', 'sounds']);
-      gulp.watch(paths.locales, ['clean-locales', 'locales']);
+      gulp.watch(paths.scripts, { interval: 500 }, ['clean-js', 'scripts-dev']);
+      gulp.watch(paths.images, { interval: 5000 }, ['clean-img', 'images']);
+      gulp.watch(paths.css, { interval: 500 }, ['clean-mycss', 'css']);
+      gulp.watch(paths.tpl, { interval: 500 }, ['clean-tpl', 'tpl']);
+      gulp.watch(paths.fonts, { interval: 5000 }, ['clean-fonts', 'fonts']);
+      gulp.watch(paths.sounds, { interval: 5000 }, ['clean-sounds', 'sounds']);
+      gulp.watch(paths.locales, { interval: 1000 }, ['clean-locales', 'locales']);
     }
 );
 
@@ -223,7 +224,7 @@ gulp.task('watch', function() {
 gulp.task('default',
     [
       'currentDeployInit',
-      'scripts',
+      'scripts-dev',
       'tpl',
       'locales',
       'css',

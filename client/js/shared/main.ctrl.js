@@ -9,6 +9,7 @@ app.controller('MainCtrl',
       '$rootScope',
       '$localStorage',
       '$sessionStorage',
+      '$http',
       'tmhDynamicLocale',
       function($scope,
           socket,
@@ -16,6 +17,7 @@ app.controller('MainCtrl',
           $rootScope,
           $localStorage,
           $sessionStorage,
+          $http,
           tmhDynamicLocale) {
         $scope.currentCategorySlug = 'general';
         console.log('Main');
@@ -52,6 +54,7 @@ app.controller('MainCtrl',
           socket.emit('logout', {}, function(user) {
               }
           );
+          $http.delete('/api/jwt/').then().catch();
           $localStorage.$reset();
           $sessionStorage.$reset();
           $localStorage.rememberMe = false;
@@ -78,6 +81,23 @@ app.controller('MainCtrl',
                         }
                     ); // send the jwt
                   } else {
+                    $http
+                        .get('/api/jwt/')
+                        .then(function(jwtResponse) {
+                          console.log('jwtResponse', jwtResponse);
+                          socket.emit(
+                              'authenticate',
+                              {token: jwtResponse.data.jwt}
+                          );
+                          if ($localStorage.rememberMe) {
+                            $localStorage.jwt = jwtResponse.data.jwt;
+                          } else {
+                            $sessionStorage.jwt = jwtResponse.data.jwt;
+                          }
+                        })
+                        .catch(function(reason) {
+                          console.log(reason);
+                        });
                   }
                   socket.on('user', function(user) {
                         console.log('authenticated:', user);

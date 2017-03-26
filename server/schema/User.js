@@ -53,6 +53,15 @@ const UserSchema = new mongoose.Schema({
       }
     }
   ],
+  socialNetworks: [
+    {
+      _id: {
+        type:String,
+        required: false
+      },
+      network: String
+    }
+  ],
   totals: {
     topics: {type: Number, default: 0},
     comments: {type: Number, default: 0}

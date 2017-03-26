@@ -2,6 +2,10 @@
   <h3>{{'Join'|translate}}</h3>
   <p>{{'Signin or signup'|translate}}</p>
   <div class="message" ng-show="message">{{message}}</div>
+  <div class="sso">
+    <a href="/api/oauth/facebook/" class="button" target="_top"><i class="fa fa-fw fa-facebook"></i></a>
+    <a href="/api/oauth/twitter/" class="button" target="_top"><i class="fa fa-fw fa-twitter"></i></a>
+  </div>
   <form>
     <div>
       <label for="email">{{'Email'|translate}}</label>

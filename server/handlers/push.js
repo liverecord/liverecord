@@ -43,7 +43,7 @@ function userPush(webpush, socket) {
                 } else {
                   console.log('res', res);
                   if (res.nModified === 0) {
-                    device['pushEnabled'] = true;
+
                     models.User.update(
                         {
                           _id: socket.decoded_token._id

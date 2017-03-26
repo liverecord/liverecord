@@ -72,12 +72,17 @@ function modifyBody(inputString, options) {
   return inputString;
 }
 
-function sendResponse(res, html, code) {
+function sendJsonResponse(res, data, code) {
+  sendResponse(res, JSON.stringify(data), code, 'application/json');
+}
+
+function sendResponse(res, html, code, contentType) {
   'use strict';
   code = code || 200;
   html = html || '';
+  contentType = contentType || 'text/html';
   res.writeHead(code, {
-        'Content-Type': 'text/html; charset=UTF-8',
+        'Content-Type': contentType + '; charset=UTF-8',
         'x-frame-options': 'SAMEORIGIN',
         'x-xss-protection': '1; mode=block',
         'x-powered-by': 'LiveRecord'
@@ -88,7 +93,7 @@ function sendResponse(res, html, code) {
 }
 
 function expressRouter(req, res, next) {
-  var modifyBodyFunction = function(inputStr) {
+  let modifyBodyFunction = function(inputStr) {
     return modifyBody(inputStr, {
       title: 'Форум про Линукс и свободные программы',
       description: 'Общайся легко и свободно на нашем живом форуме.',
@@ -120,3 +125,4 @@ module.exports.sendResponse = sendResponse;
 module.exports.expressRouter = expressRouter;
 module.exports.serveIndex = serveIndex;
 module.exports.easyEscape = ee;
+module.exports.sendJsonResponse = sendJsonResponse;

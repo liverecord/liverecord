@@ -46,6 +46,7 @@
         </div>
       </div>
     </div>
+    <lr-rtc ng-show="experimental" ></lr-rtc>
 
     <div class="comments">
 

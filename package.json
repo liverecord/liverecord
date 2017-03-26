@@ -9,12 +9,13 @@
     },
     "server": {
       "protocol": "http",
-      "name": "10.0.0.5:8914",
+      "name": "localhost:8914",
       "host": "0.0.0.0",
       "port": 8914
     },
     "security": {
-      "restored_password_length": 12
+      "restored_password_length": 12,
+      "session_secret": "are you smelly cat?"
     },
     "jwt": {
       "secret": "yourSuperStrongSecretKeyToProtectYourUsersPrivacy"
@@ -27,8 +28,7 @@
       "dsn": ""
     },
     "webpush": {
-      "gcm_api_key": "",
-      "vapid_keys_path": "../config/vapidKeys.json"
+      "gcm_api_key": ""
     },
     "analytics": {
       "ga_id": "none"
@@ -38,6 +38,16 @@
       "extensions": {
         "blacklist": "",
         "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg"
+      }
+    },
+    "oauth": {
+      "facebook": {
+        "client_id": "",
+        "client_secret": ""
+      },
+      "twitter": {
+        "client_id": "",
+        "client_secret": ""
       }
     }
   },
@@ -77,6 +87,7 @@
     "escape-html": "^1.0.3",
     "express": "^4.15.2",
     "express-jwt": "^5.1.0",
+    "express-session": "^1.15.1",
     "fastclick": "^1.0.6",
     "font-awesome": "^4.7.0",
     "github-slugger": "^1.1.1",
@@ -99,6 +110,7 @@
     "jsonpath": "^0.2.11",
     "jsonwebtoken": "^7.3.0",
     "limax": "^1.4.1",
+    "ltrim": "^1.0.0",
     "md5": "^2.2.1",
     "md5-file": "^3.1.1",
     "mongoose": "^4.9.1",
@@ -108,6 +120,9 @@
     "nodemailer": "^3.1.7",
     "object.pick": "^1.2.0",
     "object.pluck": "^0.1.2",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.1",
+    "passport-twitter": "^1.0.4",
     "perfect-scrollbar": "^0.6.16",
     "raven": "^1.2.0",
     "run-sequence": "^1.2.2",

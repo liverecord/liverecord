@@ -14,23 +14,23 @@ const pw = require('credential')();
 const md5 = require('md5');
 const purify = require('./purify');
 const mailer = require('./mailer');
+const jwt = require('jsonwebtoken');
 
-// обработчик данных о пользователе
+// user data handler
 function userHandler(socket, io, errorHandler) {
   // когда мы получаем запрос на информацию о пользователе из веб-сокета
   socket.on('user', function(userRequest, fn) {
-        // fn - функция, которая будет транспортировать данные через веб-сокет
-        // клиенту назад
+        // fn - callback
 
-        // расширяем его, чтобы избежать проблемы с непереданным параметром
+        // extend data
         userRequest = xtend({
           'slug': ''
         }, userRequest
         );
-        var fields = {
-          '_id' : 1,
-          'name' : 1,
-          'email' : 1,
+        let fields = {
+          '_id': 1,
+          'name': 1,
+          'email': 1,
           'picture': 1,
           'about': 1,
           'slug': 1,
@@ -44,16 +44,13 @@ function userHandler(socket, io, errorHandler) {
           fields['devices.ua'] = 1;
           fields['devices.pushEnabled'] = 1;
         }
-        // ищем пользователя по слагу
+        // lookup by slug
         User
             .findOne({slug: userRequest.slug}, fields)
             .then(function(foundUser) {
               if (foundUser) {
-                // отбираем только необходимые поля (надо было с проекцией
-                // заморочиться)
-
-
-                var webUser = foundUser.toObject();
+                // select required fields
+                let webUser = foundUser.toObject();
                 Topic.find({
                       'user': foundUser._id,
                       deleted: false,
@@ -175,7 +172,7 @@ function userHandler(socket, io, errorHandler) {
         userRequest.picture = purify(userRequest.picture, true);
         userRequest.gender = purify(userRequest.gender, true);
 
-        var updateData = {
+        let updateData = {
           name: userRequest.name,
           gender: userRequest.gender,
           about: userRequest.about
@@ -245,11 +242,6 @@ function userHandler(socket, io, errorHandler) {
                 }
               }
             });
-
-
-
-
-
       }
   );
 
@@ -268,12 +260,12 @@ function userHandler(socket, io, errorHandler) {
                 return Math.floor(Math.random() * (max - min + 1)) + min;
               }
 
-              var newPassword = '';
+              let newPassword = '';
               for (
-                  var i = 0;
+                  let i = 0;
                   i < process.env.npm_package_config_security_restored_password_length;
                   i++) {
-                var range = getRandomIntInclusive(0, ranges.length - 1);
+                let range = getRandomIntInclusive(0, ranges.length - 1);
                 newPassword = newPassword +
                     String.fromCharCode(
                     getRandomIntInclusive(ranges[range][0], ranges[range][1])
@@ -301,7 +293,7 @@ function userHandler(socket, io, errorHandler) {
                             } else {
                               // create reusable transporter object using the
                               // setup e-mail data with unicode symbols
-                              var mailOptions = {
+                              let mailOptions = {
                                 from: process.env.npm_package_config_email_sender, // sender address
                                 to: foundUser.name + ' <' + foundUser.email + '>', // list of receivers
                                 subject: 'Восстановление пароля', // Subject
@@ -360,4 +352,20 @@ function userHandler(socket, io, errorHandler) {
   });
 }
 
-module.exports = userHandler;
+
+function getJwtToken(user, callback) {
+  let jwtUser = pick(user, ['_id', 'email']);
+  jwtUser['nt'] = md5(
+      user.pw.hash.substr(17, 2).toLowerCase() +
+      user.pw.salt.substr(7, 2).toUpperCase());
+  jwt.sign(jwtUser,
+      process.env.npm_package_config_jwt_secret,
+      {},
+      callback
+  );
+}
+
+
+module.exports.socketHandler = userHandler;
+module.exports.getJwtToken = getJwtToken;
+
