@@ -163,7 +163,7 @@ app.factory('wpf', function($rootScope, $localStorage, $location, $route, socket
                 console.log('Service worker sent event to frontend', e);
                 if (e.data.link) {
                   // navigate to this url
-                  $location.url(e.data.link);
+                  // $location.url(e.data.link);
                 }
               };
               // send hello to server worker
