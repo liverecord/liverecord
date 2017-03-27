@@ -11,9 +11,11 @@
 
 function wrtcController($rootScope, $scope, socket, $timeout) {
   var self = this;
-  var localStream,
+  var sharedLocalStream,
       peerConnections = [];
   var configuration = null;
+  self.callStarted = 0;
+  self.callTime = 0;
   var offerOptions = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
@@ -21,6 +23,8 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   self.tooltip = '';
   self.onCall = false;
+  self.audioIsEnabled = true;
+  self.videoIsEnabled = true;
 
   var constraints = window.constraints = {
     audio: true,
@@ -39,7 +43,31 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
       remoteVideo,
       servers = {
         iceServers: [
-          {urls: 'stun:stun.l.google.com:19302'}
+          {urls: 'stun:stun.l.google.com:19302'},
+          {urls: 'stun:stun1.l.google.com:19302'},
+          {urls: 'stun:stun2.l.google.com:19302'},
+          {urls: 'stun:stun3.l.google.com:19302'},
+          {urls: 'stun:stun4.l.google.com:19302'},
+          {urls: 'stun:stun.services.mozilla.com:3478'},
+          {urls: 'stun:stun.samsungsmartcam.com:3478'},
+          {urls: 'stun:stun.qq.com:3478'},
+          {urls: 'stun:stun.ekiga.net'},
+          {urls: 'stun:numb.viagenie.ca:3478'},
+          {
+            urls: 'turn:numb.viagenie.ca:3478',
+            credential: 'g4839vEwGv7q3nf',
+            username: 'philipp@zoonman.com'
+          },
+          {
+            urls: 'turn:192.158.29.39:3478?transport=udp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+          },
+          {
+            urls: 'turn:192.158.29.39:3478?transport=tcp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+          }
         ]
       };
 
@@ -81,12 +109,20 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     console.log('gotLocalIceCandidate', evt);
   }
 
+  var updateCallTimer = function() {
+    if (self.onCall) {
+      self.callTime = Date.now() - self.callStarted;
+      $timeout(updateCallTimer, 1000);
+    }
+  };
+
   function gotRemoteStream(evt) {
     console.log('gotRemoteStream', evt);
     remoteVideo = document.querySelector('#remoteVideo');
     remoteVideo.srcObject = evt.stream;
     self.onCall = true;
-
+    self.callStarted = Date.now();
+    updateCallTimer();
   }
 
   socket.on('new-ice-candidate', function(data) {
@@ -101,6 +137,9 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     }
   });
 
+  socket.on('video-hangup', function() {
+    hangUp();
+  });
 
   function initPeer() {
     localPeerConnection = new RTCPeerConnection(servers);
@@ -126,10 +165,11 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
         })
         .then(function(evt) {
           console.log('video-offer local video', evt);
-
+          sharedLocalStream = evt;
           localVideo = document.querySelector('#localVideo');
           localVideo.srcObject = evt;
-          return localPeerConnection.addStream(evt);
+          localVideo.volume = 0;
+          return localPeerConnection.addStream(sharedLocalStream);
         })
         .then(function() {
           l('video-offer stream added');
@@ -149,7 +189,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   socket.on('video-answer', function(answer) {
     console.log('video-answer received', answer);
     self.onCall = true;
-
     if (!localPeerConnection) {
       initPeer();
     }
@@ -161,10 +200,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
           l('video-answer remote description set');
         })
         .catch(handleError);
-
   });
-
-
 
   function makeTheCall(isCaller) {
     if (!localPeerConnection) {
@@ -176,9 +212,11 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
           .getUserMedia(constraints)
           .then(function(localStream) {
             'use strict';
+            sharedLocalStream = localStream;
             localVideo = document.querySelector('#localVideo');
-            localVideo.srcObject = localStream;
-            localPeerConnection.addStream(localStream);
+            localVideo.srcObject = sharedLocalStream;
+            localVideo.volume = 0;
+            localPeerConnection.addStream(sharedLocalStream);
             localPeerConnection
                 .createOffer(offerOptions)
                 .then(function(offer) {
@@ -259,18 +297,58 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     makeTheCall(true);
   };
 
-  self.hangUp = function() {
+  self.muteAudio = function() {
+    'use strict';
+    self.audioIsEnabled = ! self.audioIsEnabled;
+    if (sharedLocalStream) {
+      sharedLocalStream.getAudioTracks().forEach(function(track) {
+        track.enabled = self.audioIsEnabled;
+      });
+    }
+  };
+
+  self.muteVideo = function() {
+    'use strict';
+    self.videoIsEnabled = ! self.videoIsEnabled;
+    if (sharedLocalStream) {
+      sharedLocalStream.getVideoTracks().forEach(function(track) {
+        track.enabled = self.videoIsEnabled;
+      });
+    }
+
+  };
+
+  function hangUp() {
     self.onCall = false;
 
-    localPeerConnection.close();
-    localVideo.srcObject.getTracks().forEach(function(track) {
-      track.stop();
-    });
-    localVideo.srcObject = null;
-    remoteVideo.srcObject.getTracks().forEach(function(track) {
-      track.stop();
-    });
-    remoteVideo.srcObject = null;
+    if (remoteVideo && remoteVideo.srcObject) {
+      remoteVideo.srcObject.getTracks().forEach(function(track) {
+        track.stop();
+      });
+      remoteVideo.srcObject = null;
+    }
+    if (localVideo && localVideo.srcObject) {
+      localVideo.srcObject.getTracks().forEach(function(track) {
+        track.stop();
+      });
+      localVideo.srcObject = null;
+    }
+    if (sharedLocalStream) {
+      sharedLocalStream.getTracks().forEach(function(track) {
+        track.stop();
+      });
+      sharedLocalStream = null;
+    }
+    if (localPeerConnection) {
+      localPeerConnection.close();
+      localPeerConnection = null;
+    }
+  }
+
+  self.hangUp = function() {
+    self.onCall = false;
+    socket.emit('video-hangup', {yes: true});
+    hangUp();
   };
 
 

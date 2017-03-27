@@ -6,6 +6,7 @@
     <a href="/api/oauth/facebook/" class="button" target="_top"><i class="fa fa-fw fa-facebook"></i></a>
     <a href="/api/oauth/twitter/" class="button" target="_top"><i class="fa fa-fw fa-twitter"></i></a>
   </div>
+  <hr size="1">
   <form>
     <div>
       <label for="email">{{'Email'|translate}}</label>

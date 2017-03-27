@@ -269,6 +269,11 @@ mongooseConnection.once('open', function() {
               socket.broadcast.emit('video-answer', req);
             });
 
+            socket.on('video-hangup', function(req) {
+              console.log(chalk.red('video-hangup'), req);
+              socket.broadcast.emit('video-hangup', req);
+            });
+
             socket.on('new-ice-candidate', function(req) {
               console.log(chalk.red('new-ice-candidate'), req);
               socket.broadcast.emit('new-ice-candidate', req);
