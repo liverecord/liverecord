@@ -48,7 +48,9 @@ let paths = {
     'node_modules/angular-translate/dist/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
     'node_modules/angular-translate/dist/angular-translate-loader-url/angular-translate-loader-url.js',
     'node_modules/angular-dynamic-locale/dist/tmhDynamicLocale.js',
-    'client/js/**/*.js'
+    'client/js/app.js',
+    'client/js/shared/**/*.js',
+    'client/js/components/**/*.js',
   ],
   bootstrap: [],
   images: 'client/images/**/*',
@@ -122,7 +124,7 @@ gulp.task('scripts-dev', function() {
           .pipe(embedTemplates({skipTemplates: /\.html/ }))
           .pipe(ngAnnotate())
           .pipe(concat('main.' + currentDeployId + '.js'))
-          .pipe(sourcemaps.write())
+          .pipe(sourcemaps.write('./'))
           .pipe(gulp.dest('server/public/dist/j'));
     }
 );
