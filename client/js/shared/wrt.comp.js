@@ -11,25 +11,23 @@
 
 function wrtcController($rootScope, $scope, socket, $timeout) {
   var self = this;
-  var sharedLocalStream,
-      peerConnections = [];
-  var configuration = null;
-  self.callStarted = 0;
-  self.callTime = 0;
+  var sharedLocalStream;
   var offerOptions = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
   };
-
-  self.tooltip = '';
-  self.onCall = false;
-  self.audioIsEnabled = true;
-  self.videoIsEnabled = true;
-
   var constraints = window.constraints = {
     audio: true,
     video: true
   };
+
+  self.callStarted = 0;
+  self.callTime = 0;
+  self.tooltip = '';
+  self.onCall = false;
+  self.audioIsEnabled = true;
+  self.videoIsEnabled = true;
+  self.fullScreenIsEnabled = false;
 
   function trace(arg) {
     var now = (window.performance.now() / 1000).toFixed(3);
@@ -72,21 +70,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
       };
 
   /*
-  socket.on('call', function(data) {
-    console.log('socket.call', data);
-
-    if (!localPeerConnection) {
-      makeTheCall(false);
-    }
-    if (data.sdp) {
-      localPeerConnection.setRemoteDescription(
-          new RTCSessionDescription(data.sdp)
-      );
-    } else {
-
-
-    }
-  });
 
    // for chrome
    mandatory: {chromeMediaSource: 'screen'}
@@ -119,7 +102,8 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   function gotRemoteStream(evt) {
     console.log('gotRemoteStream', evt);
     remoteVideo = document.querySelector('#remoteVideo');
-    remoteVideo.srcObject = evt.stream;
+    //remoteVideo.srcObject = evt.stream;
+    remoteVideo.src = window.URL.createObjectURL(evt.stream);
     self.onCall = true;
     self.callStarted = Date.now();
     updateCallTimer();
@@ -153,7 +137,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
       initPeer();
     }
     self.onCall = true;
-
     localPeerConnection
         .setRemoteDescription(
             new RTCSessionDescription(offer)
@@ -203,6 +186,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   });
 
   function makeTheCall(isCaller) {
+    hangUp();
     if (!localPeerConnection) {
       initPeer();
     }
@@ -211,6 +195,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
           .mediaDevices
           .getUserMedia(constraints)
           .then(function(localStream) {
+
             'use strict';
             sharedLocalStream = localStream;
             localVideo = document.querySelector('#localVideo');
@@ -294,7 +279,42 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   self.callIn = function() {
     self.onCall = true;
+    listenFullScreenState();
     makeTheCall(true);
+  };
+
+  function enableFullScreen(el) {
+    if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (el.mozRequestFullScreen) {
+      el.mozRequestFullScreen();
+    } else if (el.msRequestFullscreen) {
+      el.msRequestFullscreen();
+    } else if (el.webkitRequestFullScreen) {
+      el.webkitRequestFullScreen();
+    }
+  }
+
+  function disableFullScreen(el) {
+    console.log(el);
+    if (el.exitFullscreen) {
+      el.exitFullscreen();
+    } else if (el.mozCancelFullScreen) {
+      el.mozCancelFullScreen();
+    } else if (el.msExitFullscreen) {
+      el.msExitFullscreen();
+    } else if (el.webkitCancelFullScreen) {
+      el.webkitCancelFullScreen();
+    }
+  }
+
+  self.enableFullScreen = function() {
+    if (! self.fullScreenIsEnabled) {
+      var el = document.getElementById('callComponent');
+      enableFullScreen(el);
+    } else {
+      disableFullScreen(document);
+    }
   };
 
   self.muteAudio = function() {
@@ -343,6 +363,31 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
       localPeerConnection.close();
       localPeerConnection = null;
     }
+    if (self.fullScreenIsEnabled) {
+      disableFullScreen(document);
+    }
+  }
+
+  function listenFullScreenState() {
+    document.addEventListener('fullscreenchange', function() {
+      self.fullScreenIsEnabled = !! document.fullscreenElement;
+      l('fullscreenchange');
+    }, false);
+
+    document.addEventListener('msfullscreenchange', function() {
+      l('msfullscreenchange');
+      self.fullScreenIsEnabled = !! document.msFullscreenElement;
+    }, false);
+
+    document.addEventListener('mozfullscreenchange', function() {
+      l('mozfullscreenchange');
+      self.fullScreenIsEnabled = !! document.mozFullScreen;
+    }, false);
+
+    document.addEventListener('webkitfullscreenchange', function() {
+      l('webkitfullscreenchange');
+      self.fullScreenIsEnabled = !! document.webkitIsFullScreen;
+    }, false);
   }
 
   self.hangUp = function() {
@@ -350,8 +395,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     socket.emit('video-hangup', {yes: true});
     hangUp();
   };
-
-
 }
 
 app.component('lrRtc', {

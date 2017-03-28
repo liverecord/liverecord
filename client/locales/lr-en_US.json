@@ -105,6 +105,9 @@
   "call in":"Call",
   "hang up":"Hangup",
   "join the call":"Join the call",
+  "turn fullscreen mode on":"Fullscreen mode",
+  "turn fullscreen mode off":"Exit from fullscreen mode",
+
   "":"",
   "_":""
 }

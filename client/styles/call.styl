@@ -1,6 +1,8 @@
 @import "variables.styl"
 
 div.call
+  position relative
+  transition all 0.1s
   padding-left 1vw
   padding-right 1vw
   padding-top 0.5vh
@@ -15,16 +17,92 @@ div.call
     background-color $greenBright
 
   .button.hangup
-    background-color $orange
+    background-color $red
 
   .intro
     align-self center
 
-  .controls
-    align-self flex-end
+  .video
+    position relative
+    a.fullscreen
+      position absolute
+      right 0
+      top 0
+      color white
+      text-shadow 0 0 1px black
 
   video
-    max-width $topicPanelWidth*0.5
+    max-width $ONE
+    background-color darken($blueDark, 10%)
+
+  &.active
+    width $ONE
+    position fixed
+    left 0
+    top calc(3em + 1vh)
+    height calc(99vh - 3em)
+    background-color $blueDark
+    margin 0
+    padding 0
+
+    video.focused
+      width 100%
+      height auto
+
+    #localVideo
+      max-width 10vw
+      max-height 10vh
+      width auto
+      height auto
+
+    .footer
+      width 100%
+      height 10vh
+      a
+        color white
+        text-shadow 0 0 1px black
+      .fg-pad
+        flex-grow 30
+      > div
+        flex-grow 1
+        min-width 2em
+        text-align center
+        align-self center
+
+        &.controls
+          background-color rgba(0,0,0,0.5)
+          border-radius 1vh
+          > div
+            flex-grow 1
+            min-width 2em
+            text-align center
+            align-self center
+            padding 0.5vh 0.5vw
+          .button
+            border-radius 0.5vh
+            padding 0.75vh 0.75vw
+
+      .time
+        width 3em
+
+  &.fullscreen
+    width 100vw
+    height 100vh
+    left 0
+    top 0
+    video.focused
+      max-width 100vw
+      max-height 100vh
+      width 100%
+      height auto
+    #localVideo
+      height 5vh
+      width auto
+    .footer
+      position fixed
+      height 5vh
+      bottom 0
+      left 0
 
 
 lr-rtc
