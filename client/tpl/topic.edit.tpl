@@ -57,7 +57,7 @@
           <div ng-show="topic.acl.length === 0"><i>{{'Add people'|translate}}</i></div>
         </div>
         <div class="flex-column search" >
-          <input id="lookupEmail" name="lookupEmail" type="email" data-ng-model="lookupEmail"
+          <input id="lookupEmail" name="lookupEmail" type="text" data-ng-model="lookupEmail"
                  placeholder="{{'Email or @nickname'|translate}}"
                  title="{{'Type email for lookup'|translate}}">
           <a class="button" data-ng-click="lookupAndAddToAcl()"
