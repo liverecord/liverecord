@@ -140,7 +140,7 @@ function notifyUsers(webpush, foundTopic, socket, pushPayload) {
         topicFans.map(function(fan) {
           console.log('fan', fan);
 
-          if (fan.user.devices) {
+          if (fan.user && fan.user.devices) {
             fan.user
                 .devices
                 .map(function(device) {

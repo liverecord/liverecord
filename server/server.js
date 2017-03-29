@@ -43,20 +43,6 @@ process.on('UnhandledPromiseRejectionWarning', errorHandler);
 const Raven = require('raven');
 
 //
-if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
-  mongoose.set('debug', true);
-  const vfs = require('vinyl-fs');
-  vfs.watch(
-      __dirname + '/public/version.txt',
-      {interval: 1000},
-      reloadConfiguration
-  );
-} else {
-  // use Raven to capture errors on production
-  Raven.config(process.env.npm_package_config_sentry_dsn).install();
-  app.use(Raven.requestHandler());
-}
-
 app.set('frontLiveRecordConfig', frontLiveRecordConfig);
 //
 const server = require('http').Server(app);
@@ -71,6 +57,20 @@ var reloadConfiguration = () => {
   console.log(chalk.grey('Configuration reloaded'));
   io.emit('command', 'window.location.reload(true);');
 };
+//
+if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
+  mongoose.set('debug', true);
+  const vfs = require('vinyl-fs');
+  vfs.watch(
+      __dirname + '/public/version.txt',
+      {interval: 1000},
+      reloadConfiguration
+  );
+} else {
+  // use Raven to capture errors on production
+  Raven.config(process.env.npm_package_config_sentry_dsn).install();
+  app.use(Raven.requestHandler());
+}
 //
 reloadConfiguration();
 
@@ -259,24 +259,19 @@ mongooseConnection.once('open', function() {
                 }
             );
 
-            socket.on('video-offer', function(req) {
-              console.log(chalk.red('video-offer'), req);
-              socket.broadcast.emit('video-offer', req);
-            });
-
-            socket.on('video-answer', function(req) {
-              console.log(chalk.red('video-answer'), req);
-              socket.broadcast.emit('video-answer', req);
-            });
-
-            socket.on('video-hangup', function(req) {
-              console.log(chalk.red('video-hangup'), req);
-              socket.broadcast.emit('video-hangup', req);
-            });
-
-            socket.on('new-ice-candidate', function(req) {
-              console.log(chalk.red('new-ice-candidate'), req);
-              socket.broadcast.emit('new-ice-candidate', req);
+            [
+              'video-init',
+              'video-offer',
+              'video-answer',
+              'video-hangup',
+              'new-ice-candidate'
+            ].map(function(eventName) {
+              socket.on(eventName, function(req) {
+                console.log(chalk.red(eventName), req);
+                if (req.topic) {
+                  socket.broadcast.to('topic:' + req.topic).emit(eventName, req);
+                }
+              });
             });
 
             socket.on('disconnect', function(s) {

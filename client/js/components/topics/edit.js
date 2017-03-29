@@ -89,6 +89,8 @@ app.controller(
           });
         }
 
+
+
         $scope.$watch('topic.category', refreshTitle);
 
 
@@ -143,6 +145,8 @@ app.controller(
           });
         };
 
+
+
         $scope.ask = function() {
 
           console.log($scope.addNewTopic);
@@ -176,6 +180,13 @@ app.controller(
           }
         };
 
+        $timeout(function() {
+          if ($routeParams.user) {
+            $scope.topic.private = true;
+            $scope.lookupEmail = $routeParams.user;
+            $scope.lookupAndAddToAcl();
+          }
+        }, 100);
 
         $scope.$on('$destroy', function(event) {
               if (socketUploader) {

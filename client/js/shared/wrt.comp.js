@@ -88,7 +88,10 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   }
 
   function gotLocalIceCandidate(evt) {
-    socket.emit('new-ice-candidate', {candidate: evt.candidate});
+    socket.emit('new-ice-candidate', {
+      topic: self.topic.slug,
+      candidate: evt.candidate
+    });
     console.log('gotLocalIceCandidate', evt);
   }
 
@@ -111,17 +114,26 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   socket.on('new-ice-candidate', function(data) {
     console.log('new-ice-candidate', data);
-    if (!localPeerConnection) {
-      makeTheCall(false);
+    if (data.topic === self.topic.slug) {
+      if (!localPeerConnection) {
+        makeTheCall(false);
+      }
+      if (data.candidate) {
+        localPeerConnection.addIceCandidate(
+            new RTCIceCandidate(data.candidate)
+        );
+      }
     }
-    if (data.candidate) {
-      localPeerConnection.addIceCandidate(
-          new RTCIceCandidate(data.candidate)
-      );
-    }
+
   });
 
-  socket.on('video-hangup', function() {
+  socket.on('video-hangup', function(data) {
+    if (self.topic.slug !== data.topic) return;
+    hangUp();
+  });
+
+  socket.on('video-init', function(data) {
+    if (self.topic.slug !== data.topic) return;
     hangUp();
   });
 
@@ -133,13 +145,14 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   socket.on('video-offer', function(offer) {
     console.log('video-offer received', offer);
+    if (self.topic.slug !== offer.topic) return;
     if (!localPeerConnection) {
       initPeer();
     }
     self.onCall = true;
     localPeerConnection
         .setRemoteDescription(
-            new RTCSessionDescription(offer)
+            new RTCSessionDescription(offer.sdp)
         )
         .then(function() {
           return navigator
@@ -164,20 +177,25 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
         })
         .then(function() {
           l('video-offer local description set');
-          socket.emit('video-answer', localPeerConnection.localDescription);
+          socket.emit(
+              'video-answer',
+              {
+                topic: self.topic.slug,
+                sdp: localPeerConnection.localDescription});
         })
         .catch(handleError);
   });
 
   socket.on('video-answer', function(answer) {
     console.log('video-answer received', answer);
+    if (self.topic.slug !== answer.topic) return;
     self.onCall = true;
     if (!localPeerConnection) {
       initPeer();
     }
     localPeerConnection
         .setRemoteDescription(
-            new RTCSessionDescription(answer)
+            new RTCSessionDescription(answer.sdp)
         )
         .then(function() {
           l('video-answer remote description set');
@@ -191,6 +209,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
       initPeer();
     }
     if (isCaller) {
+      self.onCall = true;
       navigator
           .mediaDevices
           .getUserMedia(constraints)
@@ -210,7 +229,11 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
                 })
                 .then(function() {
                   l('createOffer share localDescription');
-                  socket.emit('video-offer', localPeerConnection.localDescription);
+                  socket.emit(
+                      'video-offer',
+                      {
+                        topic: self.topic.slug,
+                        sdp: localPeerConnection.localDescription});
                 })
                 .catch(handleError);
 
@@ -218,60 +241,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
           .catch(handleError);
     }
 
-    /*
-    localPeerConnection = new RTCPeerConnection(servers);
-    localPeerConnection.onicecandidate = gotLocalIceCandidate;
-    localPeerConnection.onaddstream = gotRemoteStream;
-    l('call...');
-    navigator
-        .mediaDevices
-        .getUserMedia({audio: true, video: true})
-        .then(function(stream) {
-          // get local stream
-          localVideo = document.querySelector('#localVideo');
-          localVideo.srcObject = stream;
-          l('got user media');
-          if (isCaller) {
-            l('createOffer');
-            localPeerConnection.addStream(stream);
-            localPeerConnection
-                .createOffer(offerOptions)
-                .then(function(offer) {
-                  l('createOffer negotiationneeded');
-                  return localPeerConnection.setLocalDescription(offer);
-                })
-                .then(function() {
-                  l('createOffer share localDescription');
-
-                  socket.emit('call', localPeerConnection.localDescription);
-                })
-                .catch(handleError);
-          } else {
-            // localPeerConnection.remoteDescription
-            localPeerConnection
-                .createAnswer()
-                .then(function(answer) {
-                  l('createAnswer..');
-                  return localPeerConnection.setLocalDescription(answer);
-                })
-                .then(function(desc) {
-                  l('createAnswer.then.')
-                  socket.emit('call', {'sdp': desc});
-                })
-                .catch(handleError);
-            /*localPeerConnection.remoteDescription,
-             gotDescription* /
-          }
-
-          function gotDescription(desc) {
-            l('gotDescription');
-            localPeerConnection.setLocalDescription(desc);
-
-          }
-        })
-        .catch(handleError);
-
-      */
   }
 
   var handleError = console.log;
@@ -279,6 +248,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   self.callIn = function() {
     self.onCall = true;
+    socket.emit('video-init', {topic: self.topic.slug});
     listenFullScreenState();
     makeTheCall(true);
   };
@@ -392,7 +362,9 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   self.hangUp = function() {
     self.onCall = false;
-    socket.emit('video-hangup', {yes: true});
+    socket.emit('video-hangup', {
+      topic: self.topic.slug,
+      yes: true});
     hangUp();
   };
 }
