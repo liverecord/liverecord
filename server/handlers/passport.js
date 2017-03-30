@@ -1,6 +1,10 @@
 const chalk = require('chalk');
 const FacebookStrategy = require('passport-facebook');
 const TwitterStrategy = require('passport-twitter');
+const WindowsLiveStrategy = require('passport-windowslive');
+const VKontakteStrategy = require('passport-vkontakte').Strategy;
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const httpUtil = require('../common/http');
 const models = require('../schema');
 const users = require('./users');
@@ -138,6 +142,143 @@ function setup(passport, app) {
         passport.authenticate(
             'twitter',
             {failureRedirect: '/'}
+        )
+    );
+  }
+
+  if (process.env.npm_package_config_oauth_windowslive_client_id) {
+    passport.use(new WindowsLiveStrategy({
+          clientID:
+          process.env.npm_package_config_oauth_windowslive_client_id,
+          clientSecret:
+          process.env.npm_package_config_oauth_windowslive_client_secret,
+          callbackURL:
+              httpUtil.url('/api/oauth/windowslive/callback'),
+          profileFields: [
+            'id',
+            'emails',
+            'displayName',
+            'photos',
+            'profileUrl'
+          ],
+        },
+        function(accessToken, refreshToken, profile, cb) {
+          profile.about = profile._json.description;
+          initUser(accessToken, refreshToken, profile, cb);
+        }
+    ));
+    //
+    app.use('/api/oauth/windowslive',
+        passport.authenticate(
+            'windowslive',
+            {
+              scope: ['wl.emails', 'wl.signin', 'wl.basic'],
+              failureRedirect: '/'
+            }
+        )
+    );
+  }
+
+  if (process.env.npm_package_config_oauth_vkontakte_client_id) {
+    passport.use(new VKontakteStrategy({
+          clientID:
+          process.env.npm_package_config_oauth_vkontakte_client_id,
+          clientSecret:
+          process.env.npm_package_config_oauth_vkontakte_client_secret,
+          callbackURL:
+              httpUtil.url('/api/oauth/vkontakte/callback'),
+          profileFields: [
+            'id',
+            'email',
+            //'emails',
+            'displayName',
+            'gender',
+            'photos',
+            'profileUrl'
+          ],
+          scope: ['email']
+        },
+        function(accessToken, refreshToken, params, profile, cb) {
+          if (!profile.emails && params.email) {
+            profile.emails = [
+              {value: params.email}
+            ];
+          }
+          initUser(accessToken, refreshToken, profile, cb);
+        }
+    ));
+    //
+    app.use('/api/oauth/vkontakte',
+        passport.authenticate(
+            'vkontakte',
+            {
+              scope: ['email'],
+              failureRedirect: '/'}
+        )
+    );
+  }
+
+  if (process.env.npm_package_config_oauth_google_client_id) {
+    passport.use(new GoogleStrategy({
+          clientID:
+          process.env.npm_package_config_oauth_google_client_id,
+          clientSecret:
+          process.env.npm_package_config_oauth_google_client_secret,
+          callbackURL:
+              httpUtil.url('/api/oauth/google/callback'),
+          /*profileFields: [
+            'id',
+            'emails',
+            'displayName',
+            'photos',
+            'profileUrl'
+          ],*/
+          access_type: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile email profile openid'
+        },
+        function(accessToken, refreshToken, profile, cb) {
+          initUser(accessToken, refreshToken, profile, cb);
+        }
+    ));
+    //
+    app.use('/api/oauth/google',
+        passport.authenticate(
+            'google',
+            {
+              scope: ['profile'],
+              failureRedirect: '/'
+            }
+        )
+    );
+  }
+
+  if (process.env.npm_package_config_oauth_github_client_id) {
+    passport.use(new GitHubStrategy({
+          clientID:
+          process.env.npm_package_config_oauth_github_client_id,
+          clientSecret:
+          process.env.npm_package_config_oauth_github_client_secret,
+          callbackURL:
+              httpUtil.url('/api/oauth/github/callback'),
+          profileFields: [
+            'id',
+            'emails',
+            'displayName',
+            'photos',
+            'profileUrl'
+          ],
+        },
+        function(accessToken, refreshToken, profile, cb) {
+          initUser(accessToken, refreshToken, profile, cb);
+        }
+    ));
+    //
+    app.use('/api/oauth/github',
+        passport.authenticate(
+            'github',
+            {
+              scope: ['user:email'],
+              failureRedirect: '/'
+            }
         )
     );
   }

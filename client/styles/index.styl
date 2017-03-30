@@ -527,7 +527,6 @@ input[type="reset"]
         background-color lighten($blueDark, 70)
         .topic-body
           line-height 1.618
-          white-space: pre-line
           text-rendering optimizeLegibility
           -webkit-font-smoothing antialiased
           img, video
@@ -968,6 +967,8 @@ pre,code,.mono
   -moz-tab-size: 4;
   -webkit-tab-size: 4;
   -o-tab-size: 4;
+  white-space: pre
+
 
 .signinform
   padding 1vh 2vw
@@ -995,6 +996,19 @@ import('googlecode.styl')
 
 .text-right
   text-align right
+
+.text-facebook
+  color $brandFacebook
+.text-twitter
+  color $brandTwitter
+.text-vk
+  color $brandVK
+.text-windows
+  color $brandMicrosoft
+.text-google
+  color $brandGoogle
+.text-github
+  color $brandGithub
 
 .help-block
   background-color lighten($orange, 20)

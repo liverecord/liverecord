@@ -1,12 +1,17 @@
 <div class="signinform" ng-cloak="">
   <h3>{{'Join'|translate}}</h3>
-  <p>{{'Signin or signup'|translate}}</p>
-  <div class="message" ng-show="message">{{message}}</div>
   <div class="sso">
-    <a href="/api/oauth/facebook/" class="button" target="_top"><i class="fa fa-fw fa-facebook"></i></a>
-    <a href="/api/oauth/twitter/" class="button" target="_top"><i class="fa fa-fw fa-twitter"></i></a>
+    {{'Sign in with'|translate}}
+    <a href="/api/oauth/facebook/" class="text-facebook" target="_top"><i class="fa fa-fw fa-facebook-official"></i></a>
+    <a href="/api/oauth/twitter/" class="text-twitter" target="_top"><i class="fa fa-fw fa-twitter"></i></a>
+    <a href="/api/oauth/windowslive/" class="text-windows" target="_top"><i class="fa fa-fw fa-windows"></i></a>
+    <a href="/api/oauth/vkontakte/" class="text-vk" target="_top"><i class="fa fa-fw fa-vk"></i></a>
+    <a href="/api/oauth/github/" class="text-github" target="_top"><i class="fa fa-fw fa-github"></i></a>
+    <!-- a href="/api/oauth/google/" class="text-google" target="_top"><i class="fa fa-fw fa-google-plus-square"></i></a -->
   </div>
   <hr size="1">
+  <p>{{'Signin or signup'|translate}}</p>
+  <div class="message" ng-show="message">{{message}}</div>
   <form>
     <div>
       <label for="email">{{'Email'|translate}}</label>

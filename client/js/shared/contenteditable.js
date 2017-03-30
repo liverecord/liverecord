@@ -6,7 +6,7 @@ app.directive('contenteditable', function() {
   return {
     require: 'ngModel',
     link: function(scope, elm, attrs, ctrl) {
-      // view -> model
+      // update model
       elm.on('blur', function() {
             ctrl.$setViewValue(elm.html());
           }
@@ -29,3 +29,4 @@ app.directive('contenteditable', function() {
     }
   };
 });
+

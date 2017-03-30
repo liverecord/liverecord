@@ -217,8 +217,8 @@ gulp.task('locales', function() {
 gulp.task('watch', function() {
       gulp.watch(paths.scripts, { interval: 500 }, ['clean-js', 'scripts-dev']);
       gulp.watch(paths.images, { interval: 5000 }, ['clean-img', 'images']);
-      gulp.watch(paths.css, { interval: 500 }, ['clean-mycss', 'css']);
-      gulp.watch(paths.tpl, { interval: 500 }, ['clean-tpl', 'tpl']);
+      gulp.watch(paths.css, { interval: 1000 }, ['clean-mycss', 'css']);
+      gulp.watch(paths.tpl, { interval: 1000 }, ['clean-tpl', 'tpl', 'scripts-dev']);
       gulp.watch(paths.fonts, { interval: 5000 }, ['clean-fonts', 'fonts']);
       gulp.watch(paths.sounds, { interval: 5000 }, ['clean-sounds', 'sounds']);
       gulp.watch(paths.locales, { interval: 1000 }, ['clean-locales', 'locales']);

@@ -48,6 +48,22 @@
       "twitter": {
         "client_id": "",
         "client_secret": ""
+      },
+      "windowslive": {
+        "client_id": "",
+        "client_secret": ""
+      },
+      "vkontakte": {
+        "client_id": "",
+        "client_secret": ""
+      },
+      "github": {
+        "client_id": "",
+        "client_secret": ""
+      },
+      "google": {
+        "client_id": "",
+        "client_secret": ""
       }
     }
   },
@@ -123,7 +139,12 @@
     "object.pluck": "^0.1.2",
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
+    "passport-github2": "^0.1.10",
+    "passport-google-oauth": "^1.0.0",
+    "passport-google-oauth2": "^0.1.6",
     "passport-twitter": "^1.0.4",
+    "passport-vkontakte": "^0.3.2",
+    "passport-windowslive": "^1.0.2",
     "perfect-scrollbar": "^0.6.16",
     "raven": "^1.2.0",
     "run-sequence": "^1.2.2",
