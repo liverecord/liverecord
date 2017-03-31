@@ -29,7 +29,10 @@ function initUser(accessToken, refreshToken, profile, cb) {
       cond.push({email: k.value});
     }
   }
-
+  var picture = '';
+  if (profile.photos && profile.photos[0] && profile.photos[0].value) {
+    picture = profile.photos[0].value;
+  }
   models
       .User
       .findOne({$or: cond}, {_id: 1, email: 1, slug: 1, pw: 1})
@@ -48,7 +51,7 @@ function initUser(accessToken, refreshToken, profile, cb) {
               network: profile.provider || '',
               link: profile.profileUrl || '',
             },
-            picture: profile.photos[0].value || '',
+            picture: picture,
             about: profile.about || ''
           }, function(signUpResult) {
             if (signUpResult.success) {
@@ -163,7 +166,6 @@ function setup(passport, app) {
           ],
         },
         function(accessToken, refreshToken, profile, cb) {
-          profile.about = profile._json.description;
           initUser(accessToken, refreshToken, profile, cb);
         }
     ));
@@ -225,15 +227,7 @@ function setup(passport, app) {
           clientSecret:
           process.env.npm_package_config_oauth_google_client_secret,
           callbackURL:
-              httpUtil.url('/api/oauth/google/callback'),
-          /*profileFields: [
-            'id',
-            'emails',
-            'displayName',
-            'photos',
-            'profileUrl'
-          ],*/
-          access_type: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile email profile openid'
+              httpUtil.url('/api/oauth/google/callback')
         },
         function(accessToken, refreshToken, profile, cb) {
           initUser(accessToken, refreshToken, profile, cb);
@@ -244,7 +238,9 @@ function setup(passport, app) {
         passport.authenticate(
             'google',
             {
-              scope: ['profile'],
+              scope: [
+                  'profile email https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
+              ],
               failureRedirect: '/'
             }
         )

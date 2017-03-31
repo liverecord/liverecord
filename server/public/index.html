@@ -23,34 +23,39 @@
         .ng-anchor {position:absolute;}
         body{background-color:#f7fafc;color:#303e4d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";margin:0;-webkit-box-sizing:border-box;box-sizing:border-box}
         body>.connecting{position:fixed;left:0;top:0;width:100vw;height:100vh;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-content:center;-ms-flex-line-pack:center;
-            align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgb(48,62,77);}
-        .categories,.logo{width:14.590182208031484vw;overflow:hidden;text-overflow:ellipsis}
+            align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgba(48,62,77,0.9);}
         body>.connecting div.center{-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;color:#8e949f;font-size:2vh}
-        body>.connecting div.center h1{color:#eba36f;font-size:10vh;margin:1vh 0}
-        body>.connecting div.center .text-right{text-align:right}
         body>.connecting div.center small{color:#808942}
         @media (max-width:767px) {body>.connecting div.center h1{color:#eba36f;font-size:3vh;margin:1vh 0}}
     </style>
     <script type="application/javascript">
         var liveRecordConfig = {};
-        /*
+
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
                     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
                 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-        */
+
+        if (liveRecordConfig.gaId) {
+          ga('create', liveRecordConfig.gaId, 'auto');
+          ga('send', 'pageview');
+        }
     </script>
     <script src="/dist/j/main.1.js" type="application/javascript" charset="UTF-8" async></script>
-    <script src="/ga.js" type="application/javascript" charset="UTF-8" defer></script>
 </head>
 <body data-ng-controller="MainCtrl">
     <div class="connecting " ng-hide="websocketAlive">
         <div class="flex-column center">
-            <div ng-cloak="">живая конференция</div>
-            <h1>LinuxQuestions.ru</h1>
-            <div>Только вместе мы сделаем этот мир лучше.</div>
-            <div class="text-right" ng-cloak=""><small>подключаемся...</small></div>
-            <div style="text-align: center"><img src="/dist/i/best_loader_ever.gif" alt="Самый лучший индикатор загрузки!" width="120" height="90"></div>
+            <div class="lrLogo">
+                <div class="l"></div>
+                <div class="c"></div>
+                <div class="c1"></div>
+                <div class="c2"></div>
+                <div class="c3"></div>
+                <div class="c4"></div>
+                <div class="c5"></div>
+            </div>
+            <div class="center" ng-cloak=""><small>подключаемся...</small></div>
             <noscript>
                 <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">{{'Javascript required'|translate}}!</p>
             </noscript>

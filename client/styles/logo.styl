@@ -1,0 +1,125 @@
+@import "variables.styl"
+
+$logoScale = 1vmin
+$logoDuration = 100ms
+
+.logo
+  width $categoriesPanelWidth
+  height calc(3em + 1vh)
+  line-height calc(3em + 1vh)
+
+  text-align center
+  vertical-align middle
+  text-overflow ellipsis
+  overflow hidden
+
+.logo a
+  text-decoration none
+  color $orange
+  span
+    font-feature-settings "liga"
+    font-variant-ligatures common-ligatures
+    font-kerning normal
+
+@keyframes catergoriesBarIn
+  0%
+    opacity 0
+    transform translate(0, 50vh )
+  100%
+    opacity 1
+    transform translate(0, 0) scale(1)
+
+@keyframes topicsBarIn
+  0%
+    opacity 0
+    transform translate(0, -50vh )
+  100%
+    opacity 1
+    transform translate(0, 0) scale(1)
+
+@keyframes commentsBarIn
+  0%
+    opacity 0
+    transform translate( 50vw, 0 )
+  100%
+    opacity 1
+    transform translate(0, 0) scale(1)
+
+
+div.lrLogo
+  position relative
+  transition all 0.1s
+  color white
+  width (16 * $logoScale)
+  height (16 * $logoScale)
+  display block
+
+  .l, .c, .c1, .c2, .c3, .c4, .c5
+    position absolute
+    display block
+    background-color white
+    transition all
+    animation-iteration-count 1
+    animation-fill-mode both
+
+  .c1, .c2, .c3, .c4, .c5
+    animation-duration $logoDuration
+
+  .l
+    left 0 * $logoScale
+    top 1 * $logoScale
+    width 2 * $logoScale
+    height 14 * $logoScale
+    animation-duration $logoDuration * 2
+    animation-name catergoriesBarIn
+
+  .c
+    left 3 * $logoScale
+    top 1 * $logoScale
+    width 4 * $logoScale
+    height 14 * $logoScale
+    animation-duration $logoDuration * 2
+
+    animation-name topicsBarIn
+
+  .c1
+    left 8 * $logoScale
+    top 1 * $logoScale
+    width 8 * $logoScale
+    height 2 * $logoScale
+    animation-name commentsBarIn
+    animation-delay 0
+
+  .c2
+    left 8 * $logoScale
+    top 4 * $logoScale
+    width 8 * $logoScale
+    height 2 * $logoScale
+    animation-name commentsBarIn
+    animation-delay $logoDuration * 0.25
+
+  .c3
+    left 8 * $logoScale
+    top 7 * $logoScale
+    width 8 * $logoScale
+    height 2 * $logoScale
+    animation-name commentsBarIn
+    animation-delay $logoDuration * 0.5
+
+
+  .c4
+    left 8 * $logoScale
+    top 10 * $logoScale
+    width 8 * $logoScale
+    height 2 * $logoScale
+    animation-name commentsBarIn
+    animation-delay $logoDuration * 0.75
+
+  .c5
+    left 8 * $logoScale
+    top 13 * $logoScale
+    width 8 * $logoScale
+    height 2 * $logoScale
+    animation-name commentsBarIn
+    animation-delay $logoDuration * 1
+

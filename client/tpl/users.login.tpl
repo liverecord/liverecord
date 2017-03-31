@@ -7,7 +7,7 @@
     <a href="/api/oauth/windowslive/" class="text-windows" target="_top"><i class="fa fa-fw fa-windows"></i></a>
     <a href="/api/oauth/vkontakte/" class="text-vk" target="_top"><i class="fa fa-fw fa-vk"></i></a>
     <a href="/api/oauth/github/" class="text-github" target="_top"><i class="fa fa-fw fa-github"></i></a>
-    <!-- a href="/api/oauth/google/" class="text-google" target="_top"><i class="fa fa-fw fa-google-plus-square"></i></a -->
+    <a href="/api/oauth/google/" class="text-google" target="_top"><i class="fa fa-fw fa-google-plus-square"></i></a>
   </div>
   <hr size="1">
   <p>{{'Signin or signup'|translate}}</p>
