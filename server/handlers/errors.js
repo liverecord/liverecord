@@ -3,7 +3,7 @@
  */
 const chalk = require('chalk');
 
-module.exports = function errorHandler() {
+module.exports = () => {
   console.trace(
       chalk.red.bold('Stack trace:'),
       arguments[0]);

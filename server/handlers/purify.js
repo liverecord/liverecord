@@ -5,13 +5,13 @@
 const createDOMPurify = require('dompurify');
 const jsdom = require('jsdom');
 const window = jsdom.jsdom('', {
-      features: {
-        FetchExternalResources: false, // disables resource loading over HTTP /
-                                       // filesystem
-        ProcessExternalResources: false // do not execute JS within script
-                                        // blocks
-      }
-    }
+  features: {
+    FetchExternalResources: false, // disables resource loading over HTTP /
+                                   // filesystem
+    ProcessExternalResources: false // do not execute JS within script
+                                    // blocks
+  }
+}
 ).defaultView;
 const DOMPurify = createDOMPurify(window);
 const DOMPurify2 = createDOMPurify(window);
@@ -84,7 +84,8 @@ var _initDocument = function(dirty) {
   return getElementsByTagName.call(doc, 'body')[0];
 };
 
-module.exports = function(str, strict) {
+module.exports = function(str, strict, wysiwyg) {
+  wysiwyg = wysiwyg || false;
   if (strict) {
     return DOMPurify.sanitize(str, {
           ALLOWED_TAGS: []

@@ -11,6 +11,8 @@ const users = require('./users');
 const statics = require('./static');
 const lrLogin = require('./login');
 const pick = require('object.pick');
+const errorHandler = require('./errors');
+
 
 function initUser(accessToken, refreshToken, profile, cb) {
   'use strict';
@@ -29,14 +31,14 @@ function initUser(accessToken, refreshToken, profile, cb) {
       cond.push({email: k.value});
     }
   }
-  var picture = '';
+  let picture = '';
   if (profile.photos && profile.photos[0] && profile.photos[0].value) {
     picture = profile.photos[0].value;
   }
   models
       .User
       .findOne({$or: cond}, {_id: 1, email: 1, slug: 1, pw: 1})
-      .then(function(user) {
+      .then((user) => {
         if (user) {
           cb(null, user);
         } else {
@@ -53,7 +55,8 @@ function initUser(accessToken, refreshToken, profile, cb) {
             },
             picture: picture,
             about: profile.about || ''
-          }, function(signUpResult) {
+          },
+          (signUpResult) => {
             if (signUpResult.success) {
               models
                   .User
@@ -61,23 +64,23 @@ function initUser(accessToken, refreshToken, profile, cb) {
                       {_id: signUpResult.user._id},
                       {_id: 1, email: 1, slug: 1, pw: 1}
                   )
-                  .then(function(user) {
+                  .then((user) => {
                     if (user) {
                       cb(null, user);
                     } else {
                       cb(null, signUpResult.user);
                     }
-                  });
+                  })
+                  .catch(errorHandler);
             } else {
               cb(signUpResult, null);
             }
           });
         }
       })
-      .catch(function(reason) {
+      .catch((reason) => {
         cb(reason, null);
       });
-  //cb('reason', null);
 }
 
 /*

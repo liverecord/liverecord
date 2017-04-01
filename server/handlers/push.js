@@ -37,13 +37,12 @@ function userPush(webpush, socket) {
                   'devices.$.pushSubscription': pushSubscription
                 }
               },
-              function(err, res) {
+              (err, res) => {
                 if (err) {
                   return errorHandler(err);
                 } else {
                   console.log('res', res);
                   if (res.nModified === 0) {
-
                     models.User.update(
                         {
                           _id: socket.decoded_token._id
@@ -62,11 +61,11 @@ function userPush(webpush, socket) {
                             }
                           }
                         },
-                        function(err, res) {
+                        (err, res) => {
                           if (err) {
                             return errorHandler(err);
                           } else {
-
+                            // ???
                           }
                         }
                     );
@@ -75,21 +74,18 @@ function userPush(webpush, socket) {
               }
           );
         }
-
-
-
         sc({success: true});
       }
   );
 }
 
 function configure(webPush, frontConfig) {
-  var generateAndSaveVapidKeys = function() {
-    var vapidConf = {
+  let generateAndSaveVapidKeys = () => {
+    let vapidConf = {
       name: 'vapidKeys',
       value: webPush.generateVAPIDKeys()
     };
-    var vapidDoc = new models.Parameters(vapidConf);
+    let vapidDoc = new models.Parameters(vapidConf);
     vapidDoc.save();
     frontConfig['vapidPublicKey'] = vapidConf.value.publicKey;
     return vapidConf.value;
@@ -97,8 +93,8 @@ function configure(webPush, frontConfig) {
 
   models.Parameters
       .findOne({name: 'vapidKeys'})
-      .then(function(vapidKeyDoc) {
-        var vapidKeys;
+      .then((vapidKeyDoc) => {
+        let vapidKeys;
         if (vapidKeyDoc) {
           vapidKeys = vapidKeyDoc.value;
           webPush.setVapidDetails(
@@ -111,7 +107,7 @@ function configure(webPush, frontConfig) {
           generateAndSaveVapidKeys();
         }
       })
-      .catch(function(reason) {
+      .catch((reason) => {
         errorHandler(reason);
         generateAndSaveVapidKeys();
       });
@@ -136,14 +132,14 @@ function notifyUsers(webpush, foundTopic, socket, pushPayload) {
             select: 'name settings devices'
           }
       )
-      .then(function(topicFans) {
-        topicFans.map(function(fan) {
+      .then((topicFans) => {
+        topicFans.map((fan) => {
           console.log('fan', fan);
 
           if (fan.user && fan.user.devices) {
             fan.user
                 .devices
-                .map(function(device) {
+                .map((device) => {
                   console.log('device', device);
                   if (device.pushEnabled) {
                     webpush
@@ -151,10 +147,8 @@ function notifyUsers(webpush, foundTopic, socket, pushPayload) {
                             device.pushSubscription,
                             pushPayload
                         )
-                        .then(function(result) {
-                          console.log('Pushed', result);
-                        })
-                        .catch(function(reason) {
+                        .then((result) => console.log('Pushed', result))
+                        .catch((reason) => {
                               console.log(
                                   'Push failed', fan.user._id, device._id,
                                   'reason:', reason
@@ -178,9 +172,7 @@ function notifyUsers(webpush, foundTopic, socket, pushPayload) {
                                             }
                                           }
                                         })
-                                    .then(function(r) {
-                                      console.log(r);
-                                    })
+                                    .then((r) => console.log(r))
                                     .catch(errorHandler);
 
                               }

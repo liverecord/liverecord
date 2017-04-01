@@ -34,11 +34,11 @@ module.exports = function(socket, handleError) {
                     );
                     newBookmark
                         .save()
-                        .then(function(savedBookmark) {
+                        .then((savedBookmark) => {
                               socketCallback({bookmarked: true});
                             }
                         )
-                        .catch(function(reason) {
+                        .catch((reason) => {
                               socketCallback({bookmarked: false});
                               handleError(reason);
                             }
@@ -46,7 +46,7 @@ module.exports = function(socket, handleError) {
                   }
                 }
             )
-            .catch(function(reason) {
+            .catch((reason) => {
                   socketCallback({bookmarked: false});
                   handleError(reason);
                 }
