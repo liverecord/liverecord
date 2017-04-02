@@ -1,0 +1,40 @@
+@import "variables.styl"
+
+
+lr-editor
+
+  border-radius 3px
+  display block
+  border solid 1px $normalGrey
+  background-color white
+  margin 0.5vh 0.5vw
+  width 99%
+
+  div.toolbar
+    border-bottom solid 1px $normalGrey
+    background-color rgba(0,0,0,0.05)
+    border-radius: 2px;
+
+    a.format
+      padding 0.8vh
+      display inline-block
+      cursor pointer
+      margin 0.1vh
+      box-shadow: 0.1vh 0.1vh 0.2vh -0.1vh white inset;
+      border-radius: 0.2vh;
+
+      &.active
+        background-color alpha($normalGrey, 50% )
+        box-shadow: 0.1vh 0.1vh 0.2vh -0.1vh $normalGrey inset;
+
+    .fa
+      color $blueDark
+
+  div.editor
+    display block
+    min-height 1em
+    padding 1vh 1vw
+    color $blueDark
+    border-radius 3px
+    overflow auto
+

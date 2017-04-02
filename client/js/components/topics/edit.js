@@ -207,44 +207,47 @@ app.controller(
           //uploader.listenOnDrop(document.getElementById("topic"));
 
           var commentElement = document.getElementById('questionDetails');
-          uploader.listenOnDrop(commentElement);
-          var acceptObject = function(event) {
-            commentElement.style.cursor = 'copy';
-            commentElement.style.backgroundColor = '#81A5D4';
-          };
-          var declineObject = function(event) {
-            commentElement.style.cursor = 'none';
-            commentElement.style.backgroundColor = '';
-          };
-          var restoreTarget = function(event) {
-            commentElement.style.cursor = 'default';
-            commentElement.style.backgroundColor = '';
-          };
+          if (commentElement) {
+            uploader.listenOnDrop(commentElement);
+            var acceptObject = function(event) {
+              commentElement.style.cursor = 'copy';
+              commentElement.style.backgroundColor = '#81A5D4';
+            };
+            var declineObject = function(event) {
+              commentElement.style.cursor = 'none';
+              commentElement.style.backgroundColor = '';
+            };
+            var restoreTarget = function(event) {
+              commentElement.style.cursor = 'default';
+              commentElement.style.backgroundColor = '';
+            };
 
-          commentElement.addEventListener('dragenter', function(event) {
-                acceptObject(event);
-              }
-          );
-          commentElement.addEventListener('dragover', function(event) {
-                acceptObject(event);
-              }
-          );
-          commentElement.addEventListener('dragleave', function(event) {
-                restoreTarget(event);
-              }
-          );
-          commentElement.addEventListener('drop', function(event) {
-                restoreTarget(event);
-              }
-          );
-          commentElement.addEventListener('dragend', function(event) {
-                restoreTarget(event);
-              }
-          );
-          commentElement.addEventListener('dragexit', function(event) {
-                restoreTarget(event);
-              }
-          );
+            commentElement.addEventListener('dragenter', function(event) {
+                  acceptObject(event);
+                }
+            );
+            commentElement.addEventListener('dragover', function(event) {
+                  acceptObject(event);
+                }
+            );
+            commentElement.addEventListener('dragleave', function(event) {
+                  restoreTarget(event);
+                }
+            );
+            commentElement.addEventListener('drop', function(event) {
+                  restoreTarget(event);
+                }
+            );
+            commentElement.addEventListener('dragend', function(event) {
+                  restoreTarget(event);
+                }
+            );
+            commentElement.addEventListener('dragexit', function(event) {
+                  restoreTarget(event);
+                }
+            );
+          }
+
 
           socketUploader.on('file.uploaded', function(payload) {
                 console.log(payload);
@@ -286,7 +289,7 @@ app.controller(
 
         }
         catch (e) {
-          console.error(e)
+          console.error(e);
         }
 
         //

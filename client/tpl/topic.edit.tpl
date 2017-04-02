@@ -3,11 +3,10 @@
   <div ng-cloak="">
     <h1>
       <span ng-hide="editing">{{'Create new topic'|translate}}</span>
-      <span ng-show="editing">{{'Edit topic'|translate}} <q>{{::topic.title}}</q></span>
+      <span ng-show="editing">{{'Edit topic'|translate}} <q>{{topic.title}}</q></span>
     </h1>
     <form ng-submit="ask()" name="addNewTopicForm">
     <div class="flex-row">
-      <label class="label" for="questionCategory">{{'Category'|translate}}</label>
       <select id="questionCategory" name="questionCategory" required
               ng-options="item as item.name for item in categories track by item._id"
               ng-model="topic.category" placeholder="{{'Category'|translate}}">
@@ -16,19 +15,24 @@
       <i class="fa fa-fw fa-times" ng-show="addNewTopicForm.questionCategory.$invalid"></i>
       <i class="fa fa-fw fa-check" ng-show="addNewTopicForm.questionCategory.$valid"></i>
     </div>
-    <div class="flex-row">
-      <label class="label" for="questionTitle">{{'Title'|translate}}</label>
+
+      <div class="flex-row">
       <input id="questionTitle" name="title" type="text" data-ng-model="topic.title" placeholder="{{'Topic title'|translate}}" required>
       <i class="fa fa-fw fa-times" ng-show="addNewTopicForm.title.$invalid"></i>
       <i class="fa fa-fw fa-check" ng-show="addNewTopicForm.title.$valid"></i>
     </div>
     <div class="flex-row">
-      <label class="label" for="questionDetails">{{'Details'|translate}}</label>
-      <textarea id="questionDetails" name="body" cols="30" rows="10" placeholder="{{'Details'|translate}}"
+      <lr-editor html="topic.body"></lr-editor>
+    </div>
+      <div class="flex-row">
+
+      <!textarea id="questionDetails" name="body" cols="30" rows="10" placeholder="{{'Details'|translate}}"
                 data-ng-model="topic.body" required></textarea>
       <i class="fa fa-fw fa-times" ng-show="addNewTopicForm.body.$invalid"></i>
       <i class="fa fa-fw fa-check" ng-show="addNewTopicForm.body.$valid"></i>
     </div>
+
+
     <div class="flex-row">
       <label class="label">&nbsp;</label>
       <div class="small">{{'We support some HTML tags'|translate}}:

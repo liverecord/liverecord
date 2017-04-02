@@ -25,6 +25,9 @@ body
 a
   color $blueRegular
 
+:focus
+  outline dotted 1px $blueLight
+
 button,input,textarea
   font-family inherit
   font-size inherit
@@ -133,7 +136,8 @@ body > .container.websocketAlive .body
 .categories
   width $categoriesPanelWidth
   background-color $blueDark
-  vertical-gradient(rgb(34, 46, 59), rgb(46, 63, 82))
+  /*vertical-gradient(rgb(34, 46, 59), rgb(46, 63, 82))*/
+  vertical-gradient(darken($blueDark, 5%), lighten($blueDark, 5%))
 
   overflow hidden
   text-overflow ellipsis
@@ -239,7 +243,14 @@ input[type="reset"]
 
 .view-panel 
   width $topicPanelWidth
-  background #F7FAFC
+  //background #F7FAFC
+  background-color lighten($blueDark, 73)
+
+  blockquote
+    background-color floralwhite
+    border-left: 5px solid #faf0e6
+    padding 0 0.5vw
+
 
 .topics-panel
   width: $topicsPanelWidth
@@ -278,7 +289,8 @@ input[type="reset"]
 
   > .topics-switch
       height calc(3em + 1vh)
-      background-color rgb(63,	79,	99)
+      //background-color rgb(63,	79,	99)
+      background-color lighten($blueDark, 5)
       line-height calc(3em + 1vh)
       vertical-align middle
       text-align center
@@ -350,7 +362,7 @@ input[type="reset"]
       text-overflow ellipsis
 
     &.active
-      background rgb(48, 64, 80)
+      background-color lighten($blueDark, 25)
       position relative
       border-left solid 1px rgba(255,255,255,0.25)
       a
@@ -764,10 +776,6 @@ input[type="reset"]
                 box-shadow none
             video
               background-color $darkGrey
-            blockquote
-              background-color floralwhite
-              border-left: 5px solid #faf0e6
-              padding 0 0.5vw
           .text-feedback
             border solid 1px $lightGrey
             border-radius 3px
@@ -865,6 +873,8 @@ input[type="reset"]
     button[disabled]
       background-color desaturate($blueRegular, 10%)
 
+    .editor
+      height 50vh
     .private
       background rgba(0,0,0,0.1)
       padding 1vh 1vw
@@ -944,14 +954,19 @@ input[type="reset"]
       font-style italic
       padding 1em
 
-pre,code,.mono
-  font-family Consolas,monaco,monospace
+pre,
+code,
+.mono,
+kbd
   tab-size: 4;
   -moz-tab-size: 4;
   -webkit-tab-size: 4;
   -o-tab-size: 4;
-  white-space: pre
 
+pre,
+code,
+.mono
+  white-space: pre
 
 .signinform
   padding 1vh 2vw
@@ -968,8 +983,8 @@ pre,code,.mono
     color $orange
     background-color white
 
-import('user.styl')
-import('googlecode.styl')
+
+
 
 .text-center
   text-align center
@@ -1049,3 +1064,7 @@ body.upload-accept > .upload-container
 
 @import "settings.styl"
 @import "logo.styl"
+@import "editor.styl"
+@import 'user.styl'
+@import 'googlecode.styl'
+

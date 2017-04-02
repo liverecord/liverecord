@@ -75,7 +75,7 @@ function question(socket, io, errorHandler) {
         );
 
 
-        topic.body = purify(topic.body);
+        topic.body = purify(topic.body, false, true);
         topic.title = purify(topic.title, true);
 
 
