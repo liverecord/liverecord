@@ -14,7 +14,6 @@ const window = jsdom.jsdom('', {
 }
 ).defaultView;
 const DOMPurify = createDOMPurify(window);
-const DOMPurify2 = createDOMPurify(window);
 const hljs = require('highlight.js');
 
 const escapeHtml = require('escape-html');

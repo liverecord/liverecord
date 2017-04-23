@@ -72,11 +72,13 @@ function userHandler(socket, io, errorHandler) {
   );
   socket.on('user.lookup', function(userRequest, socketCallback) {
     'use strict';
+    let email = userRequest.trim();
+    let slug = email.replace(/^@/, '');
     User
         .findOne({
           '$or': [
-            {email: userRequest},
-            {slug: userRequest}
+            {email: email},
+            {slug: slug}
           ]
         }, {name: 1, slug: 1, picture: 1})
         .then(function(doc) {
@@ -88,6 +90,45 @@ function userHandler(socket, io, errorHandler) {
         .catch(function(reason) {
           errorHandler(reason);
         });
+  });
+
+  socket.on('user.search', function(userRequest, socketCallback) {
+    'use strict';
+    let term = userRequest.trim();
+
+    User
+        .find(
+        {$text: {$search: term}},
+        {score: {$meta: 'textScore'}, name: 1, slug: 1, picture: 1}
+        )
+        .sort({score: {$meta: 'textScore'}})
+        .lean()
+        .limit(10)
+        .then(function(results) {
+          socketCallback(results);
+        })
+        .catch(function(reason) {
+          socketCallback([]);
+        });
+
+    /*
+    let slug = email.replace(/^@/, '');
+    User
+        .findOne({
+          '$or': [
+            {email: email},
+            {slug: slug}
+          ]
+        }, {name: 1, slug: 1, picture: 1})
+        .then(function(doc) {
+          socketCallback({
+            success: !!doc,
+            user: doc
+          });
+        })
+        .catch(function(reason) {
+          errorHandler(reason);
+        });*/
   });
 
   socket.on('user.validate', function(userRequest, socketCallback) {

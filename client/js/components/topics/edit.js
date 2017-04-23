@@ -27,17 +27,13 @@ app.controller(
           socket,
           wpf) {
 
-        var socketUploader;
-
         $scope.topic = {
+          category: {_id: '', name: ''},
           title: '',
           body: '',
           private: false,
           acl: []
         };
-        $scope.topic.category = CategoriesFactory.active() || '';
-
-
 
         $scope.previewHtml = '';
         $scope.lookupEmail = '';
@@ -74,17 +70,29 @@ app.controller(
           return 'topic_new_body_' + $scope.topic.category._id;
         };
 
-        $scope.topic
-            .title = $localStorage[storageTitleKey()] || '';
-        $scope.topic
-            .body = $localStorage[storageBodyKey()] || '';
+        var storageAclKey = function() {
+          return 'topic_new_acl_' + $scope.topic.category._id;
+        };
 
-        $scope.editing = !!$routeParams.slug;
+        CategoriesFactory.load().then(function() {
+
+          $scope.topic.category = CategoriesFactory.active() || '';
+
+          $scope.topic
+              .title = $localStorage[storageTitleKey()] || '';
+          $scope.topic
+              .body = $localStorage[storageBodyKey()] || '';
+          $scope.topic
+              .acl = $localStorage[storageAclKey()] || [];
+          $scope.editing = !!$routeParams.slug;
+
+        }).catch(console.log);
+
 
         if ($routeParams.slug) {
-          socket.emit('topic.get', {slug: $routeParams.slug}, function(response) {
-            if (response.success) {
-              $scope.topic = response.topic;
+          socket.emit('topic.get', {slug: $routeParams.slug}, function(res) {
+            if (res.success) {
+              $scope.topic = res.topic;
             }
           });
         }
@@ -120,18 +128,70 @@ app.controller(
           return newValue;
         });
 
+        $scope.$watch('topic.acl', function(newValue, oldValue) {
+          if (newValue) {
+            $localStorage[storageAclKey()] = $scope.topic.acl;
+          } else {
+            if ($localStorage[storageAclKey()]) {
+              delete $localStorage[storageAclKey()];
+            }
+          }
+          if ($scope.topic.acl) {
+            $scope.topic.private = !! $scope.topic.acl.length;
+          } else {
+            $scope.topic.private = false;
+          }
+          return newValue;
+        });
+
         var sending = false;
         $scope.removeFromAcl = function(friend) {
           'use strict';
           $scope.topic.acl = $scope.topic.acl.filter(function(item) {
-            return item._id != friend._id;
+            return item._id !== friend._id;
           });
+        };
+        $scope.showSearchResults = false;
+        $scope.runSearch = function() {
+
+          if ($localStorage['userSearch'] && $localStorage['userSearch'][$scope.lookupEmail]) {
+            var results = $localStorage['userSearch'][$scope.lookupEmail];
+            $scope.searchResults = results || [];
+            $scope.showSearchResults = !! $scope.searchResults.length;
+            $timeout(function() {
+              $scope.showSearchResults = !! $scope.searchResults.length;
+            }, 100);
+          } else {
+            socket.emit('user.search', $scope.lookupEmail, function(results) {
+              'use strict';
+              $scope.searchResults = results;
+              if (!$localStorage['userSearch']) $localStorage['userSearch'] = {};
+              $localStorage['userSearch'][$scope.lookupEmail] = results;
+              $scope.showSearchResults = !! results.length;
+              $timeout(function() {
+                $scope.showSearchResults = !! results.length;
+              }, 100);
+            });
+          }
+        };
+
+        $scope.docClick = function() {
+          $scope.showSearchResults = false;
+        };
+
+        $scope.addToAcl = function(item, evt) {
+          'use strict';
+          $scope.topic.acl = array_id_merge($scope.topic.acl, [item]);
+          if (evt) {
+            evt.preventDefault();
+            evt.cancelBubble = true;
+          }
         };
         $scope.lookupAndAddToAcl = function() {
           'use strict';
           socket.emit('user.lookup', $scope.lookupEmail, function(result) {
             if (result.success) {
-              $scope.topic.acl = array_id_merge($scope.topic.acl, [result.user]);
+              $scope.addToAcl(result.user);
               $scope.lookupEmail = '';
             } else {
               $translate(
@@ -188,109 +248,9 @@ app.controller(
           }
         }, 100);
 
-        $scope.$on('$destroy', function(event) {
-              if (socketUploader) {
-                socketUploader.disconnect();
-              }
-            }
-        );
-
-        try {
-          socketUploader = io.connect();
-          var uploader = new SocketIOFileUpload(socketUploader);
-          // uploader.maxFileSize = 1024 * 1024 * 10;
-
-          document
-              .getElementById('pickFile')
-              .addEventListener('click', uploader.prompt, false);
-
-          //uploader.listenOnDrop(document.getElementById("topic"));
-
-          var commentElement = document.getElementById('questionDetails');
-          if (commentElement) {
-            uploader.listenOnDrop(commentElement);
-            var acceptObject = function(event) {
-              commentElement.style.cursor = 'copy';
-              commentElement.style.backgroundColor = '#81A5D4';
-            };
-            var declineObject = function(event) {
-              commentElement.style.cursor = 'none';
-              commentElement.style.backgroundColor = '';
-            };
-            var restoreTarget = function(event) {
-              commentElement.style.cursor = 'default';
-              commentElement.style.backgroundColor = '';
-            };
-
-            commentElement.addEventListener('dragenter', function(event) {
-                  acceptObject(event);
-                }
-            );
-            commentElement.addEventListener('dragover', function(event) {
-                  acceptObject(event);
-                }
-            );
-            commentElement.addEventListener('dragleave', function(event) {
-                  restoreTarget(event);
-                }
-            );
-            commentElement.addEventListener('drop', function(event) {
-                  restoreTarget(event);
-                }
-            );
-            commentElement.addEventListener('dragend', function(event) {
-                  restoreTarget(event);
-                }
-            );
-            commentElement.addEventListener('dragexit', function(event) {
-                  restoreTarget(event);
-                }
-            );
-          }
 
 
-          socketUploader.on('file.uploaded', function(payload) {
-                console.log(payload);
-                var url = '/' + payload.absolutePath.replace(/^\//, '');
 
-                var text = '\n<a href="' + url + '">';
-
-                const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif'];
-                if (IMAGE_EXTENSIONS.indexOf(payload.extension) > -1) {
-                  // an image
-                  text += '<img src="' + url + '" alt="' +
-                      payload.friendlyName + '"';
-                  if (payload.hasAlpha) {
-                    text += ' class="alpha"';
-                  }
-                  text += '>';
-                } else {
-                  text += payload.friendlyName;
-                }
-                text += '</a>\n';
-
-            $scope.topic.body = $scope.topic.body + text;
-                $scope.$applyAsync();
-              }
-          );
-          uploader.addEventListener('error', function(data) {
-                if (data.code === 1) {
-                  translate(
-                      'Use files below {{size}} bytes',
-                      {size: uploader.maxFileSize}
-                  )
-                      .then(function(translation) {
-                        alert(translation);
-                      });
-                }
-                console.log('upload error', data);
-              }
-          );
-
-        }
-        catch (e) {
-          console.error(e);
-        }
 
         //
 

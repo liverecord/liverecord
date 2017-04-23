@@ -6,24 +6,36 @@ app.directive('contenteditable', ['$timeout', function($timeout) {
   return {
     require: 'ngModel',
     link: function(scope, elm, attrs, ctrl) {
-
+      // update value
       var setViewValue = function() {
+        console.timeStamp('setViewValue');
         ctrl.$setViewValue(elm.html());
-        if (scope.$ctrl.keyUpHandler) {
-          scope.$ctrl.keyUpHandler();
-        }
       };
       // update model
-      elm.on('change', setViewValue);
-      elm.on('blur', setViewValue);
-      elm.on('keyup', function(evt) {
-        setViewValue();
+      [
+        'change',
+        'blur',
+        'focus',
+        'click',
+        'mousedown',
+        'mouseup',
+        'paste',
+        'keydown',
+        'keypress',
+        'keyup'
+      ].map(function(eventName) {
+        elm.on(eventName, function(event) {
+          if (scope.$ctrl[eventName + 'Handler']) {
+            scope.$ctrl[eventName + 'Handler'](event);
+          }
+          setViewValue();
+        });
       });
 
 
       var refreshModel = function() {
         setViewValue();
-        $timeout(refreshModel, 1000);
+        $timeout(refreshModel, 500);
       };
 
       refreshModel();
@@ -31,10 +43,10 @@ app.directive('contenteditable', ['$timeout', function($timeout) {
       // model -> view
       ctrl.$render = function() {
         elm.html(ctrl.$viewValue);
+        elm.on('click', function(evt) {
+          evt.preventDefault();
+        });
       };
-
-      console.log('scope', scope);
-
       // load init value from DOM
       setViewValue();
     }

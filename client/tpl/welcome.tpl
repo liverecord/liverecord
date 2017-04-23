@@ -20,7 +20,7 @@
         изменение и распространение.</p>
       <h6>Примеры свободных операционных систем</h6>
       <ul class="small">
-        <li>386BSD , FreeBSD , FreeDOS , GNU Hurd , Linux , MenuetOS , NetBSD , OpenBSD , OpenIndiana , OpenSolaris</li>
+        <li>386BSD, FreeBSD, FreeDOS, GNU Hurd, Linux, MenuetOS, NetBSD, OpenBSD, OpenIndiana, OpenSolaris</li>
       </ul>
       <h6>Примеры свободных программ</h6>
       <ul class="small">

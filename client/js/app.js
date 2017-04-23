@@ -40,7 +40,7 @@ var app = angular.module(
       'ngSanitize', 'ngLocale',
       'ngAnimate', 'ngRoute', 'ngStorage', 'ngMessages',
       'pascalprecht.translate', 'tmh.dynamicLocale',
-      '720kb.socialshare'
+      '720kb.socialshare', '720kb.tooltips'
     ]
     );
 
@@ -56,10 +56,11 @@ app.config([
   '$locationProvider', '$routeProvider',
   '$localStorageProvider', '$sessionStorageProvider',
   '$translateProvider', 'tmhDynamicLocaleProvider',
+  'tooltipsConfProvider',
   'LOCALES',
   function($locationProvider, $routeProvider,
       $localStorageProvider, $sessionStorageProvider, $translateProvider,
-      tmhDynamicLocaleProvider, LOCALES) {
+      tmhDynamicLocaleProvider, tooltipsConfProvider, LOCALES) {
     //
     $routeProvider
         .when('/ask', {
@@ -160,6 +161,14 @@ app.config([
     }
     $translateProvider.useSanitizeValueStrategy('escape');
     $translateProvider.fallbackLanguage(['en_US', 'ru_RU']);
+
+    tooltipsConfProvider.configure({
+      'smart': true,
+      'size': 'medium',
+      'speed': 'fast',
+      'tooltipTemplateUrlCache': true
+      //etc...
+    });
   }
 ]);
 

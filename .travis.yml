@@ -1,8 +1,13 @@
-script:
-  - nvm install
-  - npm install
-  - npm test
 language: node_js
 node_js:
   - "7.6.0"
-
+before_script:
+  - npm install
+script:
+  - npm test
+branches:
+  only:
+    - master
+cache:
+  directories:
+  - node_modules

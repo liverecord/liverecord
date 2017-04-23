@@ -30,6 +30,12 @@ const passportHandler = require('./handlers/passport');
 // Initialize app config
 let frontLiveRecordConfig = {
   gaId: process.env.npm_package_config_analytics_ga_id,
+  facebookClientId: process.env.npm_package_config_facebook_client_id,
+  twitterClientId: process.env.npm_package_config_twitter_client_id,
+  windowsLiveClientId: process.env.npm_package_config_windowslive_client_id,
+  vkontakteClientId: process.env.npm_package_config_vkontakte_client_id,
+  githubClientId: process.env.npm_package_config_github_client_id,
+  googleClientId: process.env.npm_package_config_google_client_id,
   version: '1'
 };
 
@@ -140,6 +146,15 @@ mongooseConnection.once('open', function() {
 
   pushHandler.configure(webpush, frontLiveRecordConfig);
 
+  models.Parameters
+      .find({name: {$nin: ['vapidKeys']}})
+      .then((docs) => {
+        docs.forEach((item) => {
+          'use strict';
+          frontLiveRecordConfig[item.name] = item.value;
+        });
+      })
+      .catch(errorHandler);
   let sendOnlineCount = function() {
     models
         .User

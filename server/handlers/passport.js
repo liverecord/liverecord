@@ -114,7 +114,9 @@ function setup(passport, app) {
     app.use('/api/oauth/facebook',
         passport.authenticate(
             'facebook',
-            { scope: ['email', 'public_profile'] }
+            { scope: ['email', 'public_profile'],
+              successRedirect: '/'
+            }
         )
     );
   }

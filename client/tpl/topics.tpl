@@ -6,7 +6,7 @@
   <div ng-if="user">
     <p>
       {{'Select a topic' | translate}} {{'or' | translate}}
-      <a ng-href="/ask?category={{category}}">{{'New topic' | translate}}</a>.
+      <a ng-href="/ask?category={{category}}" ng-bind="'New topic' | translate"></a>.
     </p>
   </div>
 
