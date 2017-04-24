@@ -613,10 +613,28 @@ function expressRouter(req, res, next) {
                               __dirname + '/../public/dist/t/topic.view.tpl',
                               'utf8'
                           );
+
+                          /**
+                           *
+                           * @param {string} src
+                           * @param {string} needle
+                           * @param {string} substition
+                           */
+                          function tagReplace(src, needle, substition) {
+                            function escapeRegExp(str) {
+                              return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+                            }
+                            let escr = escapeRegExp(needle);
+                            console.log('escr:', escr);
+                            let rg = new RegExp(escr, 'mig');
+
+                            return src.replace(rg, needle + substition);
+                          }
                           topicData = topicData.replace(
                               '{{topic.title}}',
                               populatedTopic.title
                           );
+/*
                           topicData = topicData.replace(
                               /\{\{topic\.user\.slug}}/g,
                               populatedTopic.user.slug
@@ -625,10 +643,49 @@ function expressRouter(req, res, next) {
                               '{{topic.user.picture}}',
                               populatedTopic.user.picture
                           );
+                          *
                           topicData = topicData.replace(
-                              '{{topic.user.name}}',
+                              'ng-bind="::topic.user.name">',
+                              populatedTopic.user.name
+                          );*/
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind="::topic.user.slug">',
+                              populatedTopic.user.slug
+                          );
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind="::topic.user.picture">',
+                              populatedTopic.user.picture
+                          );
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind="::topic.user.name">',
                               populatedTopic.user.name
                           );
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind="::topic.updated|date:\'short\'">',
+                              populatedTopic.updated.toString()
+                          );
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind-html="topic.body">',
+                              populatedTopic.body
+                          );
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind="topic.title">',
+                              populatedTopic.title
+                          );
+
+                          topicData = tagReplace(topicData,
+                              'ng-bind="::topic.created | date:\'short\'">',
+                              populatedTopic.title
+                          );
+
+                          //
+
                           topicData = topicData.replace(
                               '{{topic.created | date:\'short\'}}',
                               populatedTopic.created.toDateString()

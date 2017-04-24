@@ -48,6 +48,7 @@ let paths = {
     'node_modules/angular-translate/dist/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
     'node_modules/angular-translate/dist/angular-translate-loader-url/angular-translate-loader-url.js',
     'node_modules/angular-dynamic-locale/dist/tmhDynamicLocale.js',
+    'node_modules/dompurify/src/purify.js',
     'client/js/app.js',
     'client/js/shared/**/*.js',
     'client/js/components/**/*.js',
@@ -55,9 +56,10 @@ let paths = {
   bootstrap: [],
   images: 'client/images/**/*',
   css: [
-    './client/styles/**.styl',
+    './client/styles/index.styl',
     './node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css',
     './node_modules/font-awesome/css/font-awesome.css',
+    './node_modules/angular-tooltips/dist/angular-tooltips.css',
     './client/styles/**.css'
   ],
   tpl: [
@@ -217,7 +219,8 @@ gulp.task('locales', function() {
 gulp.task('watch', function() {
       gulp.watch(paths.scripts, { interval: 500 }, ['clean-js', 'scripts-dev']);
       gulp.watch(paths.images, { interval: 5000 }, ['clean-img', 'images']);
-      gulp.watch(paths.css, { interval: 1000 }, ['clean-mycss', 'css']);
+      gulp.watch(
+          ['./client/styles/**.*'].concat(paths.css), { interval: 1000 }, ['clean-mycss', 'css']);
       gulp.watch(paths.tpl, { interval: 1000 }, ['clean-tpl', 'tpl', 'scripts-dev']);
       gulp.watch(paths.fonts, { interval: 5000 }, ['clean-fonts', 'fonts']);
       gulp.watch(paths.sounds, { interval: 5000 }, ['clean-sounds', 'sounds']);

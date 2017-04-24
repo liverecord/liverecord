@@ -14,7 +14,6 @@ const window = jsdom.jsdom('', {
 }
 ).defaultView;
 const DOMPurify = createDOMPurify(window);
-const DOMPurify2 = createDOMPurify(window);
 const hljs = require('highlight.js');
 
 const escapeHtml = require('escape-html');
@@ -104,41 +103,54 @@ module.exports = function(str, strict, wysiwyg) {
       return escapeHtml(s);
     }
 
-    // identify code
-    while (startIndex > -1) {
-      startIndex = lcStr.indexOf('<code', pos);
-      if (startIndex > -1) {
-        endIndex = lcStr.indexOf('</code>', startIndex);
-        if (endIndex > -1) {
-          // knife party
-          var codeEnd = lcStr.indexOf('>', startIndex);
-          newStr += str.substr(pos, codeEnd - pos + 1);
-          var strForEscaping = str.substr(codeEnd + 1, endIndex - codeEnd - 1);
-          if (strForEscaping) {
-            newStr += myEsc(strForEscaping);
+    if (wysiwyg) {
+      newStr = str;
+    } else {
+      // identify code
+      while (startIndex > -1) {
+        startIndex = lcStr.indexOf('<code', pos);
+        if (startIndex > -1) {
+          endIndex = lcStr.indexOf('</code>', startIndex);
+          if (endIndex > -1) {
+            // knife party
+            var codeEnd = lcStr.indexOf('>', startIndex);
+            newStr += str.substr(pos, codeEnd - pos + 1);
+            var strForEscaping = str.substr(codeEnd + 1, endIndex - codeEnd - 1);
+            if (strForEscaping) {
+              newStr += myEsc(strForEscaping);
+            }
+            newStr += '</code>';
+            pos = endIndex + 7;
+            console.log('pos', pos);
+          } else {
+            console.log('endIndex', endIndex);
+            // tag is not closed
+            newStr += '</code>';
+            break;
           }
-          newStr += '</code>';
-          pos = endIndex + 7;
-          console.log('pos', pos);
-        } else {
-          console.log('endIndex', endIndex);
-          // tag is not closed
-          newStr += '</code>';
-          break;
         }
       }
+      newStr += str.substr(pos, strLen - pos);
+
     }
-    newStr += str.substr(pos, strLen - pos);
 
     newStr = DOMPurify.sanitize(newStr, {
       ALLOWED_TAGS: [
         'a', 'b', 'strong', 'i', 'em', 'q', 'kbd', 'span', 'sub', 'sup', 's',
         'img', 'video',
         'ol', 'ul', 'li',
-        'p', 'blockquote', 'code', 'pre'
+        'p', 'br', 'blockquote', 'code', 'pre'
       ],
-      ADD_ATTR: [
-        'controls'
+
+      ALLOWED_ATTR: [
+        'lang',
+        'language',
+        'target',
+        'href',
+        'controls',
+        'class',
+        'alt',
+        'src'
       ]
     }
     ).trim();

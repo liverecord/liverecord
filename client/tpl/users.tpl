@@ -22,15 +22,8 @@
                 </div>
                 <div style="text-align: left;font-size: 0.8em;font-weight: 100;color: grey"><kbd>@{{::userInfo.slug}}</kbd></div>
                 <div style="width: 6em;text-align: left;font-size: 0.6em">
-                  <small>
-                  <span class="rank">
-                    <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 0}"></i>&nbsp;
-                    <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 1}"></i>&nbsp;
-                    <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 2}"></i>&nbsp;
-                    <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 3}"></i>&nbsp;
-                    <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 4}"></i>
-                  </span>
-                    </small>
+                  <lr-rank user="userInfo"></lr-rank>
+
                 </div>
               </div>
             </div>

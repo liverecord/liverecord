@@ -2,18 +2,17 @@
 
   <div class="flex-column" ng-show="$ctrl.onCall">
     <div class="video">
-
       <video id="remoteVideo" autoplay class="focused"></video>
     </div>
   </div>
 
   <div class="footer flex-row">
     <div class="flex-column fg-pad" ng-show="$ctrl.onCall">
-      <video id="localVideo" autoplay volume="0" ></video>
+      <video id="localVideo" autoplay volume="0" ng-poster="{{$ctrl.topic.user.picture}}"></video>
     </div>
 
     <div class="controls flex-row">
-      <div class="flex-column time" ng-show="$ctrl.onCall">{{$ctrl.callTime|date:'m:ss'}}</div>
+      <div class="flex-column time" ng-show="$ctrl.onCall" ng-bind="$ctrl.callTime|date:'m:ss'"></div>
       <div class="flex-column" ng-show="$ctrl.onCall">
         <a href="" ng-show="$ctrl.onCall" ng-click="$ctrl.muteAudio()">
           <i class="fa fa-fw fa-microphone" ng-show="$ctrl.audioIsEnabled"></i>
@@ -30,25 +29,25 @@
       </div>
       <div class="flex-column" ng-show="$ctrl.onCall">
         <a href="" ng-click="$ctrl.enableFullScreen()" >
-          <i class="fa fa-fw fa-expand"  ng-hide="$ctrl.fullScreenIsEnabled" title="{{'turn fullscreen mode on' | translate}}"></i>
-          <i class="fa fa-fw fa-compress"  ng-show="$ctrl.fullScreenIsEnabled" title="{{'turn fullscreen mode off' | translate}}"></i>
+          <i class="fa fa-fw fa-expand" ng-hide="$ctrl.fullScreenIsEnabled" title="{{'turn fullscreen mode on' | translate}}"></i>
+          <i class="fa fa-fw fa-compress" ng-show="$ctrl.fullScreenIsEnabled" title="{{'turn fullscreen mode off' | translate}}"></i>
         </a>
       </div>
       <div class="flex-row" ng-hide="$ctrl.onCall">
         <div class="intro">
-          {{'join the call'|translate}}
         </div>
-        <a ng-href="/users/{{::aclu.member}}" ng-repeat="member in $ctrl.topic.conference track by member._id"  title="{{::member.name}}">
+        <a ng-href="/users/{{::aclu.member}}" ng-repeat="member in $ctrl.topic.conference track by member._id" title="{{::member.name}}">
           <img ng-src="{{::member.picture}}" class="img-responsive" alt="{{::member.name}}">
         </a>
-        <p>{{$ctrl.tooltip}}</p>
+        <p ng-bind="$ctrl.tooltip"></p>
       </div>
       <div class="flex-row">
-        <a href="" ng-hide="$ctrl.onCall" ng-click="$ctrl.callIn()" class="button callin">
-          <i class="fa fa-fw fa-phone"></i>
-          {{'call in'|translate}}
+        <a href="" ng-hide="$ctrl.onCall" ng-click="$ctrl.callIn()" class=" callin"
+           tooltips
+           tooltip-template="{{'join the call'|translate}}">
+          <i class="fa fa-fw fa-2x fa-phone"></i>
         </a>
-        <a href="" ng-show="$ctrl.onCall" ng-click="$ctrl.hangUp()" class="button hangup">{{'hang up'|translate}}</a>
+        <a href="" ng-show="$ctrl.onCall" ng-click="$ctrl.hangUp()" class="button hangup" ng-bind="'hang up'|translate"></a>
       </div>
     </div>
     <div class="fg-pad">&nbsp;</div>

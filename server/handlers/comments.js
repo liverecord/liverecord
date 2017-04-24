@@ -27,7 +27,7 @@ function comments(socket, io, antiSpam, webpush) {
         );
 
         try {
-          comment.body = purify(comment.body);
+          comment.body = purify(comment.body, false, true);
         }
         catch (e) {
           comment.body = purify(comment.body, true);
@@ -106,6 +106,24 @@ function comments(socket, io, antiSpam, webpush) {
                                   userList.push(foundTopic.user);
                                   //console.log('userList', userList);
 
+                                  let html = '' + purify(
+                                          savedComment.body,
+                                          true
+                                      );
+
+                                  html = html
+                                          .substr(0, 255)
+                                          .trim() + '...';
+                                  html = '<p><b>' + socket.webUser.name +
+                                      '</b>:</p>' +
+                                  '<div style="white-space: pre-wrap;">' +
+                                      html +
+                                  '</div>' +
+                                  '<hr>' +
+                                  '<a href="' +
+                                  commentUrl +
+                                  '">Открыть тему</a>';
+
                                   models
                                       .User
                                       .find({
@@ -120,16 +138,11 @@ function comments(socket, io, antiSpam, webpush) {
                                         console.log('userList', users);
                                         //
                                         users.forEach(function(user) {
-                                          console.log('emaill', user.email)
+                                          //console.log('emaill', user.email)
                                           mailer({
                                                 to: user.email,
-                                                subject: 'Комментарий к теме ' + foundTopic.title,
-                                                html: '<div style="white-space: pre-wrap;">' + savedComment.body + '</div>' +
-                                                '<hr>' +
-                                                '<a href="' +
-                                                commentUrl +
-
-                                                '">Открыть тему</a>'
+                                                subject: foundTopic.title,
+                                                html: html
                                               }
                                           );
                                         });
@@ -200,11 +213,11 @@ function comments(socket, io, antiSpam, webpush) {
                               .then(function(users) {
                                 if (users) {
                                   users.map(function(curEl) {
-                                    if (curEl.updates == 0) {
+                                    if (curEl.updates === 0) {
                                       curEl.updates = 1;
                                     }
                                     foundTopic2.updates = curEl.updates;
-                                    console.log(chalk.cyan(JSON.stringify(curEl)));
+                                    //console.log(chalk.cyan(JSON.stringify(curEl)));
                                     if (curEl.user) {
                                       // broadcast event for everyone online
                                       io
@@ -228,7 +241,9 @@ function comments(socket, io, antiSpam, webpush) {
                                 body: purify(comment.body, true)
                               }
                           );
-                          push.notifyUsers(webpush, foundTopic, socket, pushPayload);
+                          push.notifyUsers(
+                              webpush, foundTopic, socket, pushPayload
+                          );
                           antiSpam.processComment(savedComment);
 
                         })
@@ -254,13 +269,17 @@ function comments(socket, io, antiSpam, webpush) {
   );
 
   socket.on('vote', function(voteData) {
-
+    // {path: 'user', select: 'name picture slug rank'}
         models.Comment
             .findOne({_id: voteData.comment._id})
-            .select('topic')
+           // .select('topic rating solution')
+            .populate({
+              path: 'topic', select: 'user slug category',
+            })
             .then(function(foundComment) {
                   'use strict';
-                  var rating = 0;
+                  var rating = 0, solution = foundComment.get('solution');
+                  console.log('solution', solution, foundComment)
                   switch (voteData.action) {
                     case 'up':
                       rating = 1;
@@ -268,6 +287,21 @@ function comments(socket, io, antiSpam, webpush) {
                     case 'down':
                       rating = -1;
                       break;
+                    case 'solution':
+                      console.log('socket.webUser', socket.webUser);
+                      // only topic owner can change correct answer
+                      if (foundComment.topic.user.toString() === socket.webUser._id.toString()) {
+                        foundComment.solution = ! solution;
+                        foundComment.save();
+
+                        const channel = 'topic:' +
+                            foundComment.topic.slug;
+                        const detailedComment = CommentStruct(
+                            foundComment.toObject()
+                        );
+                        io.emit(channel, detailedComment);
+                      }
+                      return;
                   }
                   models
                       .CommentVote

@@ -56,7 +56,7 @@ const UserSchema = new mongoose.Schema({
   socialNetworks: [
     {
       _id: {
-        type:String,
+        type: String,
         required: false
       },
       network: String
@@ -74,10 +74,10 @@ const UserSchema = new mongoose.Schema({
 );
 
 UserSchema.pre('save', function(next) {
-  var self = this, i = 0, originalSlug = this.slug;
+  let self = this, i = 0, originalSlug = this.slug;
 
   function lookupSlug() {
-    var cond = {'slug': self.slug};
+    let cond = {'slug': self.slug};
     if (self._id) {
       cond['_id'] = {$ne: self._id};
     }
@@ -106,7 +106,7 @@ UserSchema.methods.hasRole = function(role) {
 };
 
 UserSchema.methods.refreshRank = function() {
-  var self = this;
+  let self = this;
   async.parallel({
         // ищем количество тем
         topicCount: function(callback) {
@@ -142,7 +142,7 @@ UserSchema.methods.refreshRank = function() {
                 if (err) {
                   errorHandler(err);
                 }
-                var count = 1;
+                let count = 1;
                 if (r[0] && r[0]['total']) {
                   count = r[0]['total'];
                 }
@@ -161,7 +161,7 @@ UserSchema.methods.refreshRank = function() {
                 if (err) {
                   errorHandler(err);
                 }
-                var count = 1;
+                let count = 1;
                 if (r[0] && r[0]['total']) {
                   count = r[0]['total'];
                 }
@@ -171,23 +171,16 @@ UserSchema.methods.refreshRank = function() {
           );
         }
       },
-      // после того, как оба параллельных запроса завершены,
-      // запускаем эту функцию
+      // calculate the rating
+      // we should include in future votes for the topic and solutions picks
       function(err, details) {
         self.totals.comments = details.commentCount;
         self.totals.topics = details.topicCount;
-        var r = 0;
+        let r = 0;
         if (details.commentCount > 0 && details.commentMax > 1) {
-
-          //console.log('comments', details.commentCount, Math.log(details.commentCount), details.commentMax,  Math.log(details.commentMax))
-
-
           r += Math.log(details.commentCount) / Math.log(details.commentMax) * 3;
         }
         if (details.topicCount > 0 && details.topicMax > 1) {
-
-          //console.log('topics', details.topicCount, Math.log(details.topicCount), details.topicMax,  Math.log(details.topicMax))
-
           r += Math.log(details.topicCount) / Math.log(details.topicMax) * 2;
         }
         console.log(r);
@@ -205,7 +198,11 @@ UserSchema.index({slug: 1});
 UserSchema.index({rank: -1});
 UserSchema.index({online: -1});
 UserSchema.index({deleted: -1});
-
+// add text index to make users "searcheable"
+UserSchema.index(
+    {name: 'text', slug: 'text', about: 'text', email: 'text'},
+    {name: 'UserTextSearch', weights: {name: 100, about: 2, slug: 1, email: 1}}
+);
 /*
  * @param {String} hashObject.hash
  @param {String} hashObject.salt

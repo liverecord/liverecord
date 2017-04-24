@@ -37,7 +37,7 @@
       "dir": "files",
       "extensions": {
         "blacklist": "",
-        "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg"
+        "whitelist": "jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg,docs,xlsx,pptx,odt,odf"
       }
     },
     "oauth": {
@@ -69,6 +69,7 @@
   },
   "scripts": {
     "start": "node server/server.js",
+    "debug": "node debug server/server.js",
     "stress_test": "node tests/stress/db_flooding.js",
     "test": "./node_modules/karma/bin/karma start  --log-level debug tests/client.conf.js",
     "postinstall": "gulp build",
@@ -146,6 +147,7 @@
     "passport-vkontakte": "^0.3.2",
     "passport-windowslive": "^1.0.2",
     "perfect-scrollbar": "^0.6.16",
+    "platform": "^1.3.4",
     "raven": "^1.2.0",
     "run-sequence": "^1.2.2",
     "sharp": "^0.17.2",

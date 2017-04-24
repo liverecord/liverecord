@@ -11,14 +11,9 @@
       <div><small itemprop="alternateName">@{{::userInfo.slug}}</small></div>
       <div>
 
-        <div >
+        <div>
           {{'Rating' | translate}}:
-          <span class="rank">
-          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 0}"></i>&nbsp;
-          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 1}"></i>&nbsp;
-          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 2}"></i>&nbsp;
-          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 3}"></i>&nbsp;
-          <i class="fa fa-fw fa-stop" ng-class="{ranked: userInfo.rank > 4}"></i></span>
+          <lr-rank user="userInfo"></lr-rank>
         </div>
       </div>
       <div><p itemprop="description">{{::userInfo.about}}</p></div>

@@ -2,19 +2,40 @@
  * Created by zoonman on 2/25/17.
  */
 
-app.directive('contenteditable', function() {
+app.directive('contenteditable', ['$timeout', function($timeout) {
   return {
     require: 'ngModel',
     link: function(scope, elm, attrs, ctrl) {
+      // update value
+      var setViewValue = function() {
+        console.timeStamp('setViewValue');
+        ctrl.$setViewValue(elm.html());
+      };
       // update model
-      elm.on('blur', function() {
-            ctrl.$setViewValue(elm.html());
+      [
+        'change',
+        'blur',
+        'focus',
+        'click',
+        'mousedown',
+        'mouseup',
+        'paste',
+        'keydown',
+        'keypress',
+        'keyup'
+      ].map(function(eventName) {
+        elm.on(eventName, function(event) {
+          if (scope.$ctrl[eventName + 'Handler']) {
+            scope.$ctrl[eventName + 'Handler'](event);
           }
-      );
+          setViewValue();
+        });
+      });
+
 
       var refreshModel = function() {
-        ctrl.$setViewValue(elm.html());
-        window.setTimeout(refreshModel, 1000);
+        setViewValue();
+        $timeout(refreshModel, 500);
       };
 
       refreshModel();
@@ -22,11 +43,13 @@ app.directive('contenteditable', function() {
       // model -> view
       ctrl.$render = function() {
         elm.html(ctrl.$viewValue);
+        elm.on('click', function(evt) {
+          evt.preventDefault();
+        });
       };
-
       // load init value from DOM
-      ctrl.$setViewValue(elm.html());
+      setViewValue();
     }
   };
-});
+}]);
 

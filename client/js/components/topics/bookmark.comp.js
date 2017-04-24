@@ -5,7 +5,7 @@
 function topicBookmarkController($rootScope, $scope, socket) {
   var self = this;
 
-  self.show = false;
+  self.show = !! $rootScope.user;
 
   function topicObserver(newValue, oldValue, scope) {
     console.log('newValue', newValue);
@@ -28,15 +28,14 @@ function topicBookmarkController($rootScope, $scope, socket) {
       );
     }
   };
-
 }
 
-app.component('bookmark', {
+app.component('lrBookmark', {
       templateUrl: '../../../tpl/topic.bookmark.tpl',
       controller: topicBookmarkController,
-      controllerAs: 'wrtc',
       bindings: {
-        topic: '='
+        topic: '=',
+        user: '<',
       }
     }
 );

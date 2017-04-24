@@ -1,20 +1,26 @@
 @import "variables.styl"
 
+lr-rtc
+  display block
+  clear both
+  margin-top 0em
+
 div.call
   position relative
   transition all 0.1s
-  padding-left 1vw
-  padding-right 1vw
-  padding-top 0.5vh
-  padding-bottom 0.5vh
+  padding-left 0vw
+  padding-right 0vw
+  padding-top 0vh
+  padding-bottom 0vh
   color white
-  background-color lighten( desaturate($blueDark, 50%), 80%)
 
   &.active
     background-color lighten($greenBright, 10%)
 
   .button.callin
     background-color $greenBright
+    border-radius 3vh
+    padding 0.5em
 
   .button.hangup
     background-color $red

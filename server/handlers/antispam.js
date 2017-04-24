@@ -12,7 +12,7 @@ const CommentModel = require('../schema').Comment;
 natural.PorterStemmerRu.attach();
 
 const classifierName = 'BayesAntiSpam';
-var classifier;
+let classifier;
 
 function initFirstSpamClassifier(classifier) {
   classifier.stemmer = natural.PorterStemmerRu;
@@ -92,28 +92,28 @@ function registerSpamClassifierSaver(classifier) {
   );
 }
 
-ClassifierModel.findOne({classifier: classifierName}).then(function(doc) {
-  //console.log('edoc', doc);
-  if (doc) {
-    classifier = natural.BayesClassifier.restore(JSON.parse(doc.data));
-    registerSpamClassifierSaver(classifier);
-  } else {
-    classifier = new natural.BayesClassifier();
-    initFirstSpamClassifier(classifier);
-  }
+ClassifierModel
+    .findOne({classifier: classifierName})
+    .then(function(doc) {
+      //console.log('edoc', doc);
+      if (doc) {
+        classifier = natural.BayesClassifier.restore(JSON.parse(doc.data));
+        registerSpamClassifierSaver(classifier);
+      } else {
+        classifier = new natural.BayesClassifier();
+        initFirstSpamClassifier(classifier);
+      }
       module.exports.classifier = classifier;
+    })
+    .catch(function(e) {
+      console.log('e', e);
+      classifier = new natural.BayesClassifier();
+      initFirstSpamClassifier(classifier);
+      module.exports.classifier = classifier;
+    });
 
-    }
-).catch(function(e) {
-  console.log('e', e);
-  classifier = new natural.BayesClassifier();
-  initFirstSpamClassifier(classifier);
-  module.exports.classifier = classifier;
-});
-
-module.exports.getClassifications = function(text)
-{
-  var t;
+module.exports.getClassifications = function(text) {
+  let t;
   try {
     t = purify(text, true);
   }
@@ -155,13 +155,13 @@ module.exports.processComment = function(savedComment) {
 
   {
     //return fn({error: 'spam'});
-    mailer({
+    /*mailer({
           to: 'zoonman@gmail.com',
           subject: 'LQ Bayes',
           text: r,
           html: html
         }
-    );
+    );*/
   }
 
   return classifications;
