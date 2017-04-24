@@ -42,7 +42,7 @@ app.controller(
         const TAB_KEY_CODE = 9;
 
         //
-        var socketUploader;
+        //var socketUploader;
         $scope.sending = false;
         $scope.comments = [];
         $scope.typists = [];
@@ -418,9 +418,6 @@ app.controller(
           }
         };
 
-        $scope.uploadFiles = [];
-        $scope.uploadProgress = 0;
-
         window.addEventListener('resize', function() {
           PerfectScrollBar.setup('topic');
           updateTopicHeight();
@@ -428,13 +425,6 @@ app.controller(
 
         $scope.$on('$destroy', function(event) {
           socket.off('topic:' + $routeParams.topic);
-          if (socketUploader) {
-            uploader.destroy();
-            //uploader = null;
-            //socketUploader = null;
-          }
-
-
         });
 
         console.log('details controller loaded...');

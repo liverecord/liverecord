@@ -38,7 +38,7 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize) {
     {active: false, command: 'insertParagraph', fa: 'paragraph', hotKey: ''},
 
   ];
-
+  self.editorUploader = {progress : 0};
   var getContentDocument = function() {
     return document;
   };
@@ -205,12 +205,20 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize) {
 
       uploader = new SocketIOFileUpload(socket.self);
       // uploader.maxFileSize = 1024 * 1024 * 10;
-      //var fe = document.getElementById('upload_input');
-      //uploader.listenOnInput(fe);
-
+      //
+      //
+      $timeout(function() {
+        var fe = document.querySelector('#uploadEditorFileInput');
+        if (fe) {
+          uploader.listenOnInput(fe);
+        }
+      }, 200);
 
       var commentElement = getBodyElement();
-      uploader.listenOnDrop(commentElement);
+      if (commentElement) {
+        uploader.listenOnDrop(commentElement);
+      }
+
 
       var acceptObject = function(event) {
         console.log('acceptObject', event.dataTransfer.types)
@@ -297,44 +305,37 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize) {
       socket.on('file.uploaded', processUploadedFile);
 
       uploader.addEventListener('error', function(data) {
-            if (data.code === 1) {
-              alert('Используйте файлы не более 10 MB');
-            }
-            console.log('upload error', data);
-            $rootScope.$applyAsync();
-            $scope.uploadProgress = 0;
+        if (data.code === 1) {
+          alert('Используйте файлы не более 10 MB');
+        }
+        console.log('upload error', data);
+        self.editorUploader.progress = 0;
 
-          }
-      );
+      });
+
       uploader.addEventListener('start', function(event) {
-            $scope.uploadProgress = 0;
-
-            $rootScope.$applyAsync();
-          }
-      );
+        self.editorUploader.progress = 0;
+      });
 
       uploader.addEventListener('progress', function(event) {
-            console.log('upload progress', event)
-            if (event.file.size > 0) {
-              $scope.uploadProgress = event.bytesLoaded / event.file.size * 100;
-            }
-            $rootScope.$applyAsync();
-          }
-      );
+        if (event.file.size > 0) {
+          self.editorUploader.progress = (event.bytesLoaded / event.file.size * 100);
+          console.log('progress:', self.editorUploader.progress);
+          //$rootScope.$applyAsync();
+          $scope.$applyAsync();
+        }
+      });
+
       uploader.addEventListener('load', function(event) {
-            $scope.uploadProgress = 0;
-
-            $rootScope.$applyAsync();
-          }
-      );
+        self.editorUploader.progress = 0;
+      });
       uploader.addEventListener('complete', function(event) {
-            $rootScope.$applyAsync();
-          }
-      );
-
+        self.editorUploader.progress = 0;
+        $scope.$applyAsync();
+      });
     }
     catch (e) {
-      console.error(e);
+      console.log('error!', e);
     }
   };
 

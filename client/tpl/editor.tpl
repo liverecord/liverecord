@@ -16,13 +16,18 @@
         tooltip-template="{{'upload'|translate}}"
   >
     <i class="fa fa-fw fa-paperclip"></i>
-    <input type="file" id="upload_input" style="position: absolute;left: 0;top: 0;opacity: 0.001;width: 2em;">
+    <input type="file" id="uploadEditorFileInput" style="position: absolute;left: 0;top: 0;opacity: 0.001;width: 2em;">
   </span>
+  <span>
+  </span>
+  <!-- a class="format" style="float: right" >
 
-  <a class="format" style="float: right" ng-class="{active: enterKey}">
-  &#8629;
-  </a>
+
+    &#8629;
+  </a -->
 
 </div>
-
 <div class="editor" contenteditable="true" ng-model="$ctrl.html" placeholder="{{'Type here'|translate}}"></div>
+<div class="progress">
+  <div class="bar" ng-style="{width: $ctrl.editorUploadProgress+'%'}"></div>
+</div>
