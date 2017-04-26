@@ -87,31 +87,45 @@ app.controller(
         }
 
         function restoreFocus() {
-          setTimeout(
-              'document.querySelector(\'div.editor\').focus();',
+          $timeout(
+              function() {document.querySelector('div.editor').focus();},
               1
           );
         }
 
-        function updateTopicHeight() {
+        function scrollToAnchor(anchorId) {
+          var el = document.getElementById(anchorId);
+          if (el) {
+            el.scrollIntoView();
+          }
+        }
+
+        function actualUpdateTopicHeight() {
+          'use strict';
           var composeEl = document.querySelector('div.compose');
           var headerEl = document.querySelector('div.header');
           var topicCont = document.getElementById('topic');
           topicCont.style.height = (
-          window.innerHeight - composeEl.clientHeight - headerEl.clientHeight
-          ) + 'px';
+                  window.innerHeight - composeEl.clientHeight - headerEl.clientHeight
+              ) + 'px';
           console.log('topicCont.style.height', topicCont.style.height)
           if (topicCont && Ps) {
             if (topicCont.hasOwnProperty('scrollTopMax')) {
               topicCont.scrollTop = topicCont.scrollTopMax;
             } else {
-              var c = document.getElementById('commentsList');
-              if (c && c.lastElementChild) {
-                c.lastElementChild.scrollIntoView();
-              }
+              /*var c = document.getElementById('commentsList');
+               if (c && c.lastElementChild) {
+               c.lastElementChild.scrollIntoView();
+               }*/
+              scrollToAnchor('topicAnchor');
             }
             Ps.update(topicCont);
           }
+        }
+        function updateTopicHeight() {
+          actualUpdateTopicHeight();
+          // allow animation do it's business
+          $timeout(actualUpdateTopicHeight, 200);
         }
 
         function scrollToLatestComment() {
@@ -323,6 +337,7 @@ app.controller(
         $scope.switchAdvancedCompose = function() {
           $scope.advancedCompose = !$scope.advancedCompose;
           updateTopicHeight();
+          restoreFocus();
         };
 
         var lastKeyPress = 0;
