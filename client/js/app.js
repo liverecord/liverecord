@@ -83,26 +83,37 @@ app.config([
           controller: 'AdminController',
           templateUrl: '../tpl/admin.tpl'
         })
-        .when('/users/:slug', {
-          controller: 'UsersInfoController',
-          controllerAs: 'uctl',
-          templateUrl: '../tpl/users.info.tpl'
-        })
+
+
         .when('/help/:section', {
           controller: 'HelpController',
           controllerAs: 'uctl',
           templateUrl: '../tpl/help.tpl'
         })
-        .when('/users', {
-          controller: 'UsersOnlineController',
-          controllerAs: 'uctl',
-          templateUrl: '../tpl/users.tpl'
-        })
+
         .when('/users/password/restore', {
           controller: 'UsersPasswordRestoreCtrl',
-          controllerAs: 'uctl',
+          controllerAs: 'uprc',
           templateUrl: '../tpl/users.password.restore.tpl'
         })
+        .when('/users/signup', {
+          controller: 'UsersSignUpController',
+          controllerAs: 'usuc',
+          templateUrl: '../tpl/users.signup.tpl'
+        })
+        .when('/users/signin', {
+          controller: 'UsersSignInController',
+          templateUrl: '../tpl/users.signin.tpl'
+        })
+        .when('/users/:slug', {
+          controller: 'UsersInfoController',
+          templateUrl: '../tpl/users.info.tpl'
+        })
+        .when('/users', {
+          controller: 'UsersOnlineController',
+          templateUrl: '../tpl/users.tpl'
+        })
+
         .when('/:category/:topic', {
           controller: 'TopicDetailsCtrl',
           controllerAs: 'topic',

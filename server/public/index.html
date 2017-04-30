@@ -82,7 +82,8 @@
                         </div>
                     </div>
                     <div ng-hide="user" class="user flex-row">
-                        <a href="/" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs" ng-bind="'Join'|translate"></span></a>
+                        <a ng-href="/users/signin" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs" ng-bind="'Sign In'|translate"></span></a>
+                        <a ng-href="/users/signup" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs" ng-bind="'Sign Up'|translate"></span></a>
                     </div>
             </div>
         </div>

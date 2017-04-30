@@ -12,7 +12,7 @@
  */
 
 app.component('lrRank', {
-      templateUrl: '../../../tpl/users.rank.tpl',
+      templateUrl: '../../../tpl/users.rank.comp.tpl',
       bindings: {
         user: '<'
       }

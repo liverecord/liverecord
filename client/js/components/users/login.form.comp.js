@@ -72,7 +72,7 @@ function usersLoginController(socket,
 }
 
 app.component('usersLoginForm', {
-      templateUrl: '../../../tpl/users.login.tpl',
+      templateUrl: '../../../tpl/users.login.comp.tpl',
       controller: usersLoginController,
       bindings: {
         user: '='

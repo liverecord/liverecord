@@ -10,9 +10,8 @@
       </div>
       <div><small itemprop="alternateName">@{{::userInfo.slug}}</small></div>
       <div>
-
         <div>
-          {{'Rating' | translate}}:
+          <span ng-bind="'Rating' | translate"></span>:
           <lr-rank user="userInfo"></lr-rank>
         </div>
       </div>
@@ -22,7 +21,7 @@
       <div ng-show="user">
         <a class="button" ng-href="/ask?user={{::userInfo.slug}}">{{'Ask privately' | translate}}</a>
       </div>
-      <div ng-show="userInfo._id === user._id">
+      <div ng-show="user && userInfo._id === user._id">
         <a class="button" ng-href="/settings">{{'Settings' | translate}}</a>
       </div>
     </div>
