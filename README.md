@@ -7,6 +7,8 @@
 
 Spicy mix of chat and forum designed for intense communication.
 
+[Documentation](https://zoonman.github.io/liverecord/) | [Demo](https://www.linuxquestions.ru/)
+
 ## Setup
 
 There is 2 options of setup: 
