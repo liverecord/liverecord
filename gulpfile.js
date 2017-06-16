@@ -136,6 +136,8 @@ gulp.task('scripts', function() {
       let filter = Filter('**/*.coffee');
       // with sourcemaps all the way down
       return gulp.src(paths.scripts)
+          .pipe(plumber())
+
           .pipe(sourcemaps.init())
           .pipe(embedTemplates({skipTemplates: /\.html/ }))
           .pipe(ngAnnotate())

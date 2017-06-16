@@ -2,7 +2,7 @@
 
   <div class="flex-column" ng-show="$ctrl.onCall">
     <div class="video">
-      <video id="remoteVideo" autoplay class="focused"></video>
+      <video id="remoteVideo" autoplay class="focused" ng-dblclick="$ctrl.enableFullScreen()"></video>
     </div>
   </div>
 
@@ -12,7 +12,7 @@
     </div>
 
     <div class="controls flex-row">
-      <div class="flex-column time" ng-show="$ctrl.onCall" ng-bind="$ctrl.callTime|date:'m:ss'"></div>
+      <div class="flex-row time" ng-show="$ctrl.onCall" lr-duration="$ctrl.callTime"></div>
       <div class="flex-column" ng-show="$ctrl.onCall">
         <a href="" ng-show="$ctrl.onCall" ng-click="$ctrl.muteAudio()">
           <i class="fa fa-fw fa-microphone" ng-show="$ctrl.audioIsEnabled"></i>
