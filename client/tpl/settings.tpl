@@ -121,10 +121,17 @@
                  ><br>
         </div>
 
+        <div>
+          <label for="appTheme">{{'Theme'|translate}}</label>
+          <select name="appTheme" id="appTheme" ng-options="option.name for option in data.themes track by option.id"
+                  ng-model="$localStorage.applicationTheme" ng-change="updateTheme()">
+          </select>
+        </div>
+
         <hr size="1">
         <div>
           <label for="experimentalFunctions">{{'Experimental'|translate}}</label>
-          <input type="checkbox" ng-model="$localStorage.experimental" name="remember" id="experimentalFunctions"
+          <input type="checkbox" ng-model="$localStorage.experimental" name="remember" id="experimentalFunctions" ng-change="updateExperimental()"
                  ng-disabled="sending"><br>
           <small><b>{{'Experimental not for dummies'|translate}}!</b>
             {{'Experimental is not safe'|translate}}

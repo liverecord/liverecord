@@ -149,11 +149,11 @@ app.config([
     }
 
     $translateProvider.useMissingTranslationHandlerLog();
-    $translateProvider.useMessageFormatInterpolation();
     $translateProvider.useStaticFilesLoader({
       prefix: '/dist/l/lr-',
       suffix: '.json'
     });
+    $translateProvider.useMessageFormatInterpolation();
     tmhDynamicLocaleProvider.localeLocationPattern(
         '/dist/l/angular-locale_{{locale}}.js'
     );

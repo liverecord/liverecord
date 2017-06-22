@@ -18,11 +18,14 @@
       <div><p itemprop="description">{{::userInfo.about}}</p></div>
       <div ng-show="userInfo.totals.topics > 0"><p>{{'Total topics' | translate}}: {{::userInfo.totals.topics}}</p></div>
       <div ng-show="userInfo.totals.comments > 0"><p>{{'Total comments' | translate}}: {{::userInfo.totals.comments}}</p></div>
-      <div ng-show="user">
+      <div ng-show="user && userInfo._id !== user._id">
+        <p>
         <a class="button" ng-href="/ask?user={{::userInfo.slug}}">{{'Ask privately' | translate}}</a>
+        </p>
       </div>
       <div ng-show="user && userInfo._id === user._id">
-        <a class="button" ng-href="/settings">{{'Settings' | translate}}</a>
+        <p>
+        <a class="button" ng-href="/settings">{{'Settings' | translate}}</a></p>
       </div>
     </div>
     <div class="user-topics" ng-show="userInfo.details.topicList.length > 0">

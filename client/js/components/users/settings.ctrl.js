@@ -28,8 +28,11 @@ app.controller('SettingsController',
         };
 
         console.log('init SettingsCtrl');
-
-
+        //$scope.appTheme = $rootScope.appTheme;
+        $scope.data = {themes: [
+          {id: 'default-blue', name: 'Classic'},
+          {id: 'hacker', name: 'Hacker'}
+        ]};
         $scope.sending = false;
         $scope.message = '';
         $scope.profile = angular.copy($rootScope.user);
@@ -45,6 +48,14 @@ app.controller('SettingsController',
         });
 
         $rootScope.experimental = $localStorage.experimental;
+
+        $scope.updateTheme = function(device) {
+          $rootScope.applicationTheme = $localStorage.applicationTheme;
+        };
+
+        $scope.updateExperimental = function() {
+          $rootScope.experimental = $localStorage.experimental;
+        };
 
         $scope.updateDevice = function(device) {
           'use strict';

@@ -43,7 +43,7 @@
     </script>
     <script src="/dist/j/main.1.js" type="application/javascript" charset="UTF-8" async></script>
 </head>
-<body data-ng-controller="MainCtrl">
+<body data-ng-controller="MainCtrl" ng-class="applicationTheme.id">
     <div class="connecting " ng-hide="websocketAlive">
         <div class="flex-column center">
             <div class="lrLogo">
@@ -148,8 +148,8 @@
                        ng-click="bookmarks()" ng-class="{active: topicSwitch == 'bookmarks'}"><i class="fa fa-bookmark" aria-hidden="true" title="{{'Bookmarks'|translate}}"></i></a>
                 </div>
             </div>
-            <div class="view-panel flex-row" ng-view="">
-                <p ng-bind="'Hello'|translate"></p>
+            <div class="view-panel flex-row" ng-view>
+                <p></p>
             </div>
         </div>
     </div>

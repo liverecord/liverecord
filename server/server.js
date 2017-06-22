@@ -284,7 +284,16 @@ mongooseConnection.once('open', function() {
               socket.on(eventName, function(req) {
                 console.log(chalk.red(eventName), req);
                 if (req.topic) {
-                  socket.broadcast.to('topic:' + req.topic).emit(eventName, req);
+                  let roomName = 'topic:' + req.topic;
+                  if (eventName === 'video-init') {
+                    //
+                    io.of('/').in(roomName).clients(function(error, clients){
+                      if (error) throw error;
+                      console.log('video-init-pc', clients);
+                      socket.emit('video-init-pc', clients);
+                    });
+                  }
+                  socket.broadcast.to(roomName).emit(eventName, req);
                 }
               });
             });

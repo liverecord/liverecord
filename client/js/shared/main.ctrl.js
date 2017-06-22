@@ -42,10 +42,13 @@ app.controller('MainCtrl',
                 }
               },
               deviceId: Math.random().toString(36).substring(2, 15),
-              sendCommentsCtrl: 'Enter'
+              sendCommentsCtrl: 'Enter',
+              applicationTheme: {id: 'default-blue'}
             }
         );
         $rootScope.experimental = $localStorage.experimental;
+        $rootScope.applicationTheme = $localStorage.applicationTheme;
+
         $rootScope.$on('$translateChangeSuccess', function(event, data) {
           document.documentElement.setAttribute('lang', data.language);
           tmhDynamicLocale.set(data.language.toLowerCase().replace(/_/g, '-'));

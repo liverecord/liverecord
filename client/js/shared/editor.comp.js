@@ -8,9 +8,12 @@
  *
  * @param {object} $rootScope
  * @param {object} $scope
+ * @param {object} socket
+ * @param {object} $timeout
+ * @param {object} $sanitize
  */
 
-function editorController($rootScope, $scope, socket, $timeout, $sanitize) {
+function editorController($rootScope, $scope, socket, $timeout, $sanitize, $filter) {
   var self = this;
   self.toolbar = [
     {active: true,  command: 'bold', fa: 'bold', hotKey: 'Ctrl+B'},
@@ -365,8 +368,13 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize) {
             }
         ).trim();
       } else {
-        s = $sanitize(s);
+        s = $filter('linky')(s);
       }
+      getContentDocument().execCommand('insertHTML', false, s);
+    } else if (e.clipboardData.types.indexOf('text/plain') > -1) {
+      e.preventDefault();// prevent pasting
+      var s = e.clipboardData.getData('text/plain');
+      s = $filter('linky')(s);
       getContentDocument().execCommand('insertHTML', false, s);
     }
   };
