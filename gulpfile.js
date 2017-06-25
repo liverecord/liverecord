@@ -259,8 +259,8 @@ gulp.task('default',
         'images',
         'fonts',
         'sounds',
-        'currentDeployWrite',
-        'watch'
+        'currentDeployWrite'//,
+        //'watch'
     )
 );
 
