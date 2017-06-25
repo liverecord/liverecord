@@ -54,6 +54,14 @@ const CommentSchema = new mongoose.Schema(
           label: String,
           value: Number
         }
+      ],
+      attachments: [
+        {
+          type: String,
+          title: String,
+          link: String,
+          thumbnail_url: String,
+        }
       ]
     });
 CommentSchema.index({topic: 1});

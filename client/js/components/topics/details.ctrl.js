@@ -3,7 +3,7 @@
  */
 
 app.controller(
-    'TopicDetailsCtrl',
+    'TopicDetailsController',
     ['socket',
       '$anchorScroll',
       '$scope',

@@ -2,7 +2,7 @@
  * Created by zoonman on 12/12/16.
  */
 
-app.controller('MainCtrl',
+app.controller('MainController',
     ['$scope',
       'socket',
       '$window',

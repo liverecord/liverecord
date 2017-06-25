@@ -1,4 +1,54 @@
 /** Hacker theme stub */
-.hacker-theme
-  body
-    background-color #303E4D
+
+$hackerBg = #112111
+
+body.hacker
+  background-color complement($hackerBg)
+  color #cfcfcf
+  font-family FixedsysExcelsior301Regular, Fixedsys, DOS, Consolas, 'Courier New', Courier,  monospace
+
+  a
+    color greenyellow
+
+  :focus
+    outline dotted 1px $blueLight
+
+  .header
+    background-color lighten($hackerBg, 5)
+
+  .categories
+    vertical-gradient(darken($hackerBg, 5), lighten($hackerBg, 1))
+    .total-online
+      color alpha($greenDark, 50%)
+      a
+        color alpha($greenDark, 50%)
+        text-decoration-color alpha($greenDark, 10%)
+
+  .view-panel
+    background-color $hackerBg
+    blockquote
+      background-color lighten(complement($hackerBg), 73)
+
+  .topics-panel
+    background-color lighten($hackerBg, 70)
+    vertical-gradient(darken($hackerBg, 3), lighten($hackerBg, 2))
+    > .search-box
+      border-bottom solid 1px rgba(255,255,255,0.025)
+      box-shadow: 0 3px 5px -5px #000000;
+      input.search
+        background-color transparent
+        border none
+        color $darkGrey
+      a
+        color darken($darkGrey, 50%)
+
+      a+input.search:focus
+        color $lightGrey
+    > .topics
+      border-left solid 1px rgba(255,255,255,0.025)
+    > .topics-switch
+      height calc(3em + 1vh)
+      background-color #192520
+      border-left solid 1px rgba(255,255,255,0.025)
+      color $darkGrey
+      box-shadow 0 0 5px -2px #000000

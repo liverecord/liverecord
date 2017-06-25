@@ -3,7 +3,7 @@
  */
 
 
-app.controller('WelcomeCtrl',
+app.controller('WelcomeController',
     ['$scope',
       'socket',
       '$rootScope',
@@ -18,7 +18,7 @@ app.controller('WelcomeCtrl',
           PerfectScrollBar,
           $document) {
 
-        console.log('WelcomeCtrl...')
+        console.log('WelcomeController...')
 
         PerfectScrollBar.setup('topic');
 

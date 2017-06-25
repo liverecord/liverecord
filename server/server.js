@@ -287,10 +287,15 @@ mongooseConnection.once('open', function() {
                   let roomName = 'topic:' + req.topic;
                   if (eventName === 'video-init') {
                     //
-                    io.of('/').in(roomName).clients(function(error, clients){
+                    io.of('/').in(roomName).clients(function(error, clients) {
                       if (error) throw error;
                       console.log('video-init-pc', clients);
+                      var sp = clients.indexOf(socket.id);
+                      clients.splice(sp, 1);
+                      clients.unshift(socket.id); // call initiator always will be first
+                      console.log('video-init-pc-after-unshift', clients);
                       socket.emit('video-init-pc', clients);
+                      socket.broadcast.to(roomName).emit('video-init-pc', clients);
                     });
                   }
                   socket.broadcast.to(roomName).emit(eventName, req);

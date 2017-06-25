@@ -9,9 +9,10 @@
  * @param {object} $scope
  */
 
-function wrtcController($rootScope, $scope, socket, $timeout) {
+function wrtcController($rootScope, $q, socket, $timeout) {
   var self = this;
-  var sharedLocalStream;
+  var sharedLocalStream = null,
+    sharedLocalStreamPromise = null;
   var offerOptions = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
@@ -28,6 +29,7 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   self.audioIsEnabled = true;
   self.videoIsEnabled = true;
   self.fullScreenIsEnabled = false;
+  self.remoteStreams = {};
 
   function trace(arg) {
     var now = (window.performance.now() / 1000).toFixed(3);
@@ -35,8 +37,8 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   }
 
   //
-  var localPeerConnection,
-      remotePeerConnection,
+  var
+      peers = {},
       localVideo,
       remoteVideo,
       servers = {
@@ -87,13 +89,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     console.log(a);
   }
 
-  function gotLocalIceCandidate(evt) {
-    socket.emit('new-ice-candidate', {
-      topic: self.topic.slug,
-      candidate: evt.candidate
-    });
-    console.log('gotLocalIceCandidate', evt);
-  }
 
   var updateCallTimer = function() {
     if (self.onCall) {
@@ -104,20 +99,17 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
 
   function gotRemoteStream(evt) {
     console.log('gotRemoteStream', evt);
-    remoteVideo = document.querySelector('#remoteVideo');
-    //remoteVideo.srcObject = evt.stream;
-    remoteVideo.src = window.URL.createObjectURL(evt.stream);
+    self.remoteStreams[evt.stream.id] = window.URL.createObjectURL(evt.stream);
     self.onCall = true;
     self.callStarted = Date.now();
     updateCallTimer();
   }
 
   socket.on('new-ice-candidate', function(data) {
-    console.log('new-ice-candidate', data);
+    //console.log('new-ice-candidate', data);
+    if (socket.self.id !== data.to) return;
     if (data.topic === self.topic.slug) {
-      if (!localPeerConnection) {
-        makeTheCall(false);
-      }
+      var localPeerConnection = initPeer(data.from);
       if (data.candidate) {
         localPeerConnection.addIceCandidate(
             new RTCIceCandidate(data.candidate)
@@ -136,35 +128,93 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
     if (self.topic.slug !== data.topic) return;
     hangUp();
   });
+/*
+   function getVideoStream() {
+    return new Promise(function(resolve, reject) {
+      if (sharedLocalStream) {
+        console.log('sharedLocalStream is defined');
+        resolve(sharedLocalStream);
+      } else {
+        console.log('sharedLocalStream is null');
+        navigator
+            .mediaDevices
+            .getUserMedia(constraints)
+            .then(function(stream) {
+              console.log('got local video', stream);
+              sharedLocalStream = stream;
+              localVideo = document.querySelector('#localVideo');
+              localVideo.srcObject = stream;
+              localVideo.volume = 0;
+              resolve(sharedLocalStream);
+            })
+            .catch(reject);
+      }
+    });
+  };*/
 
-  function initPeer() {
-    localPeerConnection = new RTCPeerConnection(servers);
-    localPeerConnection.onicecandidate = gotLocalIceCandidate;
-    localPeerConnection.onaddstream = gotRemoteStream;
+  function getVideoStream() {
+    if (!sharedLocalStreamPromise) {
+      sharedLocalStreamPromise = navigator
+          .mediaDevices
+          .getUserMedia(constraints)
+          .catch(function(err) {
+            // clear the promise so we don't cache a rejected promise
+            sharedLocalStreamPromise = null;
+            throw err;
+          });
+    }
+    return sharedLocalStreamPromise;
   }
 
+  function initPeer(id) {
+    if (peers[id]) return peers[id];
+    var pc = new RTCPeerConnection(servers);
+    peers[id] = pc;
+    //
+    pc.onicecandidate = function(evt) {
+      socket.emit('new-ice-candidate', {
+        to: id,
+        from: socket.self.id,
+        topic: self.topic.slug,
+        candidate: evt.candidate
+      });
+      //console.log('gotLocalIceCandidate', evt);
+    };
+    pc.onaddstream = gotRemoteStream;
+    pc.oniceconnectionstatechange = function() {
+      console.log('oniceconnectionstatechange', id, pc.iceConnectionState);
+    };
+    pc.onsignalingstatechange = function() {
+      console.log('onsignalingstatechange', id, pc.signalingState);
+    };
+    pc.onicegatheringstatechange = function() {
+      console.log('onicegatheringstatechange', id, pc.iceGatheringState);
+    };
+    return pc;
+  }
+
+  function displayLocalStream(stream) {
+    sharedLocalStream = stream;
+    localVideo = document.querySelector('#localVideo');
+    localVideo.srcObject = stream;
+    localVideo.volume = 0;
+  }
   socket.on('video-offer', function(offer) {
     console.log('video-offer received', offer);
     if (self.topic.slug !== offer.topic) return;
-    if (!localPeerConnection) {
-      initPeer();
-    }
+    if (socket.self.id !== offer.to) return;
+    var localPeerConnection = initPeer(offer.from);
     self.onCall = true;
     localPeerConnection
         .setRemoteDescription(
             new RTCSessionDescription(offer.sdp)
         )
         .then(function() {
-          return navigator
-              .mediaDevices
-              .getUserMedia(constraints);
+          return getVideoStream();
         })
-        .then(function(evt) {
-          console.log('video-offer local video', evt);
-          sharedLocalStream = evt;
-          localVideo = document.querySelector('#localVideo');
-          localVideo.srcObject = evt;
-          localVideo.volume = 0;
+        .then(function(stream) {
+          console.log('video-offer local video', stream);
+          displayLocalStream(stream);
           return localPeerConnection.addStream(sharedLocalStream);
         })
         .then(function() {
@@ -180,8 +230,12 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
           socket.emit(
               'video-answer',
               {
+                to: offer.from,
+                from: socket.self.id,
                 topic: self.topic.slug,
-                sdp: localPeerConnection.localDescription});
+                sdp: localPeerConnection.localDescription
+              }
+          );
         })
         .catch(handleError);
   });
@@ -189,10 +243,11 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   socket.on('video-answer', function(answer) {
     console.log('video-answer received', answer);
     if (self.topic.slug !== answer.topic) return;
+    if (socket.self.id !== answer.to) return;
     self.onCall = true;
-    if (!localPeerConnection) {
-      initPeer();
-    }
+
+    var localPeerConnection = initPeer(answer.from);
+
     localPeerConnection
         .setRemoteDescription(
             new RTCSessionDescription(answer.sdp)
@@ -203,54 +258,64 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
         .catch(handleError);
   });
 
-  function makeTheCall(isCaller) {
-    hangUp();
-    if (!localPeerConnection) {
-      initPeer();
-    }
-    if (isCaller) {
-      self.onCall = true;
-      navigator
-          .mediaDevices
-          .getUserMedia(constraints)
-          .then(function(localStream) {
-
-            'use strict';
-            sharedLocalStream = localStream;
-            localVideo = document.querySelector('#localVideo');
-            localVideo.srcObject = sharedLocalStream;
-            localVideo.volume = 0;
-            localPeerConnection.addStream(sharedLocalStream);
-            localPeerConnection
-                .createOffer(offerOptions)
-                .then(function(offer) {
-                  l('createOffer negotiationneeded');
-                  return localPeerConnection.setLocalDescription(offer);
-                })
-                .then(function() {
-                  l('createOffer share localDescription');
-                  socket.emit(
-                      'video-offer',
-                      {
-                        topic: self.topic.slug,
-                        sdp: localPeerConnection.localDescription});
-                })
-                .catch(handleError);
-
-          })
-          .catch(handleError);
-    }
-
+  function makeOffer(id) {
+    var localPeerConnection = initPeer(id);
+    console.log('lpc', localPeerConnection);
+    localPeerConnection.addStream(sharedLocalStream);
+    localPeerConnection
+        .createOffer(offerOptions)
+        .then(function(offer) {
+          l('createOffer negotiationneeded');
+          return localPeerConnection.setLocalDescription(offer);
+        })
+        .then(function() {
+          l('createOffer share localDescription');
+          socket.emit(
+              'video-offer',
+              {
+                to: id,
+                from: socket.self.id,
+                topic: self.topic.slug,
+                sdp: localPeerConnection.localDescription
+              });
+        })
+        .catch(handleError);
   }
+
 
   var handleError = console.log;
 
+  socket.on('video-init-pc', function(roster) {
+    'use strict';
+    console.log('roster', roster, 'socket.id',  socket.self.id);
+    getVideoStream()
+        .then(function(localStream) {
+          'use strict';
+          displayLocalStream(localStream);
+          console.log('localStream', localStream);
+          var myPos = roster.indexOf(socket.self.id);
+          console.log('myPos', myPos);
+          if (myPos === -1) {
+            sharedLocalStream.stop();
+            return;
+          }
+          for (var id = 0; id < roster.length; id++) {
+            console.log('walking', id);
+            if (roster.hasOwnProperty(id) && id !== myPos && id > myPos) {
+              console.log('makeOffer id', id);
+              makeOffer(roster[id]);
+            }
+          }
+
+        })
+        .catch(handleError);
+  });
 
   self.callIn = function() {
+    hangUp();
     self.onCall = true;
     socket.emit('video-init', {topic: self.topic.slug});
     listenFullScreenState();
-    makeTheCall(true);
   };
 
   function enableFullScreen(el) {
@@ -279,11 +344,10 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
   }
 
   self.enableFullScreen = function() {
-    if (! self.fullScreenIsEnabled) {
-      var el = document.getElementById('callComponent');
-      enableFullScreen(el);
-    } else {
+    if (self.fullScreenIsEnabled) {
       disableFullScreen(document);
+    } else {
+      enableFullScreen(document.getElementById('callComponent'));
     }
   };
 
@@ -305,7 +369,6 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
         track.enabled = self.videoIsEnabled;
       });
     }
-
   };
 
   function hangUp() {
@@ -329,10 +392,15 @@ function wrtcController($rootScope, $scope, socket, $timeout) {
       });
       sharedLocalStream = null;
     }
-    if (localPeerConnection) {
-      localPeerConnection.close();
-      localPeerConnection = null;
+    for (var key in peers) {
+      if (peers.hasOwnProperty(key)) {
+        peers[key].close();
+        peers[key] = null;
+        delete peers[key];
+      }
     }
+    self.remoteStreams = {};
+    sharedLocalStreamPromise = null;
     if (self.fullScreenIsEnabled) {
       disableFullScreen(document);
     }

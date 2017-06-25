@@ -52,21 +52,23 @@ const TopicSchema = new mongoose.Schema({
 });
 
 TopicSchema.pre('save', function(next) {
-  var self = this, i = 0, originalSlug = this.slug;
+  let self = this, i = 0, originalSlug = this.slug;
+
   function lookupSlug() {
     mongoose
         .models['Topic']
         .count({'slug': self.slug}, function(err, count) {
-        if (count > 0) {
+          if (count > 0) {
             i++;
             self.slug = originalSlug + (i.toString());
             lookupSlug();
-        } else {
+          } else {
             // do stuff
             next();
-        }
+          }
         });
   }
+
   lookupSlug();
 });
 
@@ -75,15 +77,15 @@ TopicSchema.index({spam: -1});
 TopicSchema.index({slug: 1});
 // add fulltext index
 TopicSchema.index({
-    title: 'text',
-    body: 'text',
-    slug: 'text'
+  title: 'text',
+  body: 'text',
+  slug: 'text'
 }, {
-    name: 'fulltext_index',
-    weights: {
-        title: 10,
-        body: 2,
-        slug: 1
-    }
+  name: 'fulltext_index',
+  weights: {
+    title: 10,
+    body: 2,
+    slug: 1
+  }
 });
 module.exports = mongoose.model('Topic', TopicSchema);

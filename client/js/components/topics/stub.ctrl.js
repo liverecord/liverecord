@@ -3,7 +3,7 @@
  */
 
 app.controller(
-    'TopicStubCtrl',
+    'TopicStubController',
     ['socket',
      '$scope',
      'CategoriesFactory',

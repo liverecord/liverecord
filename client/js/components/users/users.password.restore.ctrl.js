@@ -2,7 +2,7 @@
  * Created by zoonman on 11/27/16.
  */
 
-app.controller('UsersPasswordRestoreCtrl',
+app.controller('UsersPasswordRestoreController',
     ['socket', '$scope', '$timeout', function(socket, $scope, $timeout) {
       //
       $scope.authData = {email: ''};

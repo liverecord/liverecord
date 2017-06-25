@@ -1,8 +1,10 @@
 <div class="call" ng-class="{active: $ctrl.onCall, fullscreen: $ctrl.fullScreenIsEnabled}" id="callComponent">
 
   <div class="flex-column" ng-show="$ctrl.onCall">
-    <div class="video">
-      <video id="remoteVideo" autoplay class="focused" ng-dblclick="$ctrl.enableFullScreen()"></video>
+    <div class="video" ng-repeat="stream in $ctrl.remoteStreams track by $index">
+      <p>{{$index}}</p>
+      <video id="remoteVideo" ng-src="{{stream}}" autoplay class="focused" ng-dblclick="$ctrl.enableFullScreen()"></video>
+
     </div>
   </div>
 

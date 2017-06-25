@@ -8,12 +8,16 @@ app.controller('UsersSignInController',
       'PerfectScrollBar',
       '$routeParams',
       '$document',
+      '$rootScope',
+      '$location',
       '$translate',
       function(socket,
           $scope,
           PerfectScrollBar,
           $routeParams,
           $document,
+          $rootScope,
+          $location,
           $translate) {
         //
         $document[0].title = 'Sign In';
@@ -21,6 +25,13 @@ app.controller('UsersSignInController',
           $document[0].title = translation;
         });
         PerfectScrollBar.setup('topic');
+
+        $scope.$watch('user', function(n, o) {
+          if ($scope.user && n) {
+            $location.path('/users/' + $scope.user.slug);
+          }
+        });
+
       }
     ]
 );

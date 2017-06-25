@@ -35,7 +35,7 @@ Array.prototype._idMerge = function(secondArray) {
 };
 
 var app = angular.module(
-    'app',
+    'liveRecord',
     [
       'ngSanitize', 'ngLocale',
       'ngAnimate', 'ngRoute', 'ngStorage', 'ngMessages',
@@ -92,7 +92,7 @@ app.config([
         })
 
         .when('/users/password/restore', {
-          controller: 'UsersPasswordRestoreCtrl',
+          controller: 'UsersPasswordRestoreController',
           controllerAs: 'uprc',
           templateUrl: '../tpl/users.password.restore.tpl'
         })
@@ -115,17 +115,17 @@ app.config([
         })
 
         .when('/:category/:topic', {
-          controller: 'TopicDetailsCtrl',
+          controller: 'TopicDetailsController',
           controllerAs: 'topic',
           templateUrl: '../tpl/topic.view.tpl'
         })
         .when('/:category', {
-          controller: 'TopicStubCtrl',
+          controller: 'TopicStubController',
           controllerAs: 'topicStub',
           templateUrl: '../tpl/topics.tpl'
         })
         .when('/', {
-          controller: 'WelcomeCtrl',
+          controller: 'WelcomeController',
           templateUrl: '../tpl/welcome.tpl'
         })
         .otherwise('/');

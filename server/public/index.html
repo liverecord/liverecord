@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" ng-app="app">
+<html lang="ru" ng-app="liveRecord">
 <head>
     <meta charset="UTF-8">
     <title></title>
@@ -43,7 +43,7 @@
     </script>
     <script src="/dist/j/main.1.js" type="application/javascript" charset="UTF-8" async></script>
 </head>
-<body data-ng-controller="MainCtrl" ng-class="applicationTheme.id">
+<body data-ng-controller="MainController" ng-class="applicationTheme.id">
     <div class="connecting " ng-hide="websocketAlive">
         <div class="flex-column center">
             <div class="lrLogo">
@@ -83,12 +83,13 @@
                     </div>
                     <div ng-hide="user" class="user flex-row">
                         <a ng-href="/users/signin" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs" ng-bind="'Sign In'|translate"></span></a>
+                        &nbsp;
                         <a ng-href="/users/signup" class="button"><i class="fa fa-sign-in visible-xs"></i><span class="hidden-xs" ng-bind="'Sign Up'|translate"></span></a>
                     </div>
             </div>
         </div>
         <div class="body flex-row">
-            <div class="categories" data-ng-controller="CategoriesCtrl">
+            <div class="categories" data-ng-controller="CategoriesController">
                 <div class="menu">
                     <div><a ng-href="/ask?category={{category}}" class="button" ng-show="user"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span class="hidden-xs">{{'New topic'|translate}}</span></a></div>
                     <ul class="menu">
@@ -108,7 +109,7 @@
                     <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs" ng-bind="'Settings'|translate"></span></a>
                 </div>
             </div>
-            <div class="topics-panel" data-ng-controller="TopicListCtrl">
+            <div class="topics-panel" data-ng-controller="TopicListController">
                 <div class="search-box">
                     <a ng-click="search()"><i class="fa fa-search"></i></a>
                     <input type="search" name="q" class="search" placeholder="{{'Search'|translate}}" ng-model="searchTerm">

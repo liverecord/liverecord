@@ -35,5 +35,24 @@ $screen-xs-max ?=            ($screen-sm-min - 1)
 $screen-sm-max ?=            ($screen-md-min - 1)
 $screen-md-max ?= ($screen-lg-min - 1)
 
-@import "themes/default-blue.styl"
-@import "themes/hacker.styl"
+$blueDark = #303E4D
+$blueRegular = #578FCC
+$blueLight = #81A5D4
+$orange = #EBA36F
+$greenLight = #97A346
+$greenDark = #808942
+$greenBright = #65c178
+
+
+$lightGrey = #D5D8DE
+$normalGrey = #BCC9CE
+$darkGrey = #8E949F
+$lightColor = #F7FAFC
+
+$red = #B2150A
+
+$categoriesTopColor = rgb(36, 50, 64)
+// $categoriesTopColor = rgb(36, 50, 64)
+$categoriesTopColor = darken($blueDark, 3)
+$categoriesBottomColor = rgb(49, 68, 87)
+$categoriesBottomColor = lighten($blueDark, 1)

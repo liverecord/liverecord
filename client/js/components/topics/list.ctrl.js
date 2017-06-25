@@ -3,7 +3,7 @@
  */
 
 app.controller(
-    'TopicListCtrl',
+    'TopicListController',
     [
       'socket',
       '$scope',
@@ -20,7 +20,7 @@ app.controller(
                              PerfectScrollBar,
                              $rootScope) {
 
-        console.log('init TopicListCtrl...')
+        console.log('init TopicListController...')
 
         const SECTION_NEW_TOPICS = 'newTopics';
         const SECTION_RECENTLY_VIEWED = 'recentlyViewed';
