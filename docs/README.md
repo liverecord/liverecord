@@ -26,6 +26,7 @@ First signed up user will become administrator automatically.
 ### Advanced installation
 
 This option will take more steps but will provide more flexibility. 
+This is recommended option for production deployment. 
 
 #### Prerequisites
 
@@ -52,12 +53,15 @@ npm install
 gulp build
 ```
 
-Now application is ready to start
+Now application is ready to start:
 
 ```
 npm start
 ```
 
+Please, navigate to [localhost:8914](http://localhost:8914/) to sign up.
+
 ### Development
 
-[Development](development.md)
+If you like to improve this project or 
+just hang around welcome to [Development](development.md) section.

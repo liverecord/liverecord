@@ -30,6 +30,22 @@ analytics.ga_id | none | Google Analytics property ID
 files.dir | files | Folder for files
 files.extensions.blacklist |  | Comma-separated list of blacklisted extensions
 files.extensions.whitelist | jpg,jpeg,png,gif,pdf,svg,zip,mp4,dmg | Comma-separated list of whitelisted extensions (we recommend to use it)
+oauth.facebook.client_id |   | Facebook App Id [More](https://developers.facebook.com/docs/apps/register) 
+oauth.facebook.client_secret |   | Facebook App Secret
+oauth.twitter.client_id |   | Twitter App Consumer Key [More](https://apps.twitter.com/) 
+oauth.twitter.client_secret |   | Twitter App Secret
+oauth.windowslive.client_id |   | Windows Live App Id [More](https://apps.dev.microsoft.com/) 
+oauth.windowslive.client_secret |   | Windows Live App Secret
+oauth.vkontakte.client_id |   | Vkontakte App Id [More](https://vk.com/apps?act=manage) 
+oauth.vkontakte.client_secret |   | Vkontakte App Secret
+oauth.github.client_id |   | GitHub App Id [More](https://github.com/settings/developers) 
+oauth.github.client_secret |   | GitHub App Secret
+oauth.google.client_id |   | Google Client ID [More](https://console.developers.google.com/) 
+oauth.google.client_secret |   | Google App Secret
+
+Please, take a look at `package.json` if you want to configure all available options.
+
+ 
 
 ## Start
     
