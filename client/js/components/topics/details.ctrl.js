@@ -165,17 +165,81 @@ app.controller(
           }, 50);
         }
 
+
+        function trust(item, prop) {
+          if (item[prop] && typeof item[prop] === 'string') {
+            item[prop] = $sce.trustAsHtml(item[prop] || '');
+          }
+        }
+
+        function trustAttachments(item) {
+          if (item.attachments && Array.isArray(item.attachments)) {
+            item.attachments.map(function(a) {
+              trust(a, 'html');
+            });
+          }
+        }
+
+        /**
+         *
+         * @param {array} scopeComments
+         * @param {array} newComments
+         */
+        function addComments(scopeComments, newComments) {
+          var coms = array_id_merge(
+              scopeComments,
+              newComments
+          );
+          coms.sort(function(a, b) {
+            var ad = new Date(a.updated), bd = new Date(b.updated);
+            return ad.getTime() > bd.getTime();
+          });
+
+          coms.map(function(i) {
+            trust(i, 'body');
+            trustAttachments(i);
+          });
+
+          var cntr = 0, hide = false;
+          coms.forEach(function(cv, index) {
+            var cd = new Date(cv.updated);
+
+            if (index > 0) {
+              // next element
+              var pd = new Date(coms[index - 1].updated);
+              if (cd.getTime() - pd.getTime() > 3600) {
+                cntr = 0;
+                hide = false;
+              }
+              if (cv.user._id === coms[index - 1].user._id) {
+                cntr++;
+                hide = true;
+                if (cntr > 3) {
+                  cntr = 0;
+                  hide = false;
+                }
+              } else {
+                cntr = 0;
+                hide = false;
+              }
+            } else {
+              cntr = 0;
+              hide = false;
+            }
+            cv.hide = hide;
+          });
+          return coms;
+        }
+
         socket.on('topic:' + $routeParams.topic, function(envelope) {
               console.log('topic:envelope', envelope);
 
               switch (envelope.type) {
                 case 'commentList':
-                  $scope.comments = $scope.comments.concat(envelope.data.docs);
-                  $scope.comments.map(function(i) {
-                    if (i.body && typeof i.body === 'string') {
-                      i.body = $sce.trustAsHtml(i.body || '');
-                    }
-                  });
+                  $scope.comments = addComments(
+                      $scope.comments,
+                      envelope.data.docs
+                  );
                   if (envelope.data.pages) {
                     $scope.pagination.total = envelope.data.total || 0;
                     $scope.pagination.pages = envelope.data.pages || 0;
@@ -203,10 +267,19 @@ app.controller(
                   PerfectScrollBar.setup('topic');
                   break;
                 case 'comment':
-                  envelope.data.body = $sce.trustAsHtml(
+                  /*envelope.data.body = $sce.trustAsHtml(
                       envelope.data.body || ''
+                  );*/
+                  //trust(envelope.data, 'body');
+                  //trustAttachments(envelope.data);
+
+                  //$scope.comments.unshift(envelope.data);
+
+                  $scope.comments = addComments(
+                      $scope.comments,
+                      [envelope.data]
                   );
-                  $scope.comments.unshift(envelope.data);
+
                   $timeout(function() {
                     if (envelope.data._id) {
                       $location.hash('comment_' + envelope.data._id, false);

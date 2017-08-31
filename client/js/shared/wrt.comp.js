@@ -6,7 +6,9 @@
  *
  *
  * @param {object} $rootScope
- * @param {object} $scope
+ * @param {object} $q
+ * @param {object} socket
+ * @param {object} $timeout
  */
 
 function wrtcController($rootScope, $q, socket, $timeout) {
@@ -160,6 +162,7 @@ function wrtcController($rootScope, $q, socket, $timeout) {
           .catch(function(err) {
             // clear the promise so we don't cache a rejected promise
             sharedLocalStreamPromise = null;
+            alert(err.message);
             throw err;
           });
     }

@@ -1,16 +1,14 @@
-/** Default dark theme stub */
-
 @import "../mixins.styl"
 
 $blueDark = #303E4D
-$blueRegular = #578FCC
+$baseThemeColor = #ff7f23
 $blueLight = #81A5D4
 $orange = #EBA36F
 $greenLight = #97A346
 $greenDark = #808942
 $greenBright = #65c178
 
-$baseThemeColor = #578FCC
+
 $lightGrey = #D5D8DE
 $normalGrey = #BCC9CE
 $darkGrey = #8E949F
@@ -24,33 +22,32 @@ $categoriesTopColor = darken($blueDark, 3)
 $categoriesBottomColor = rgb(49, 68, 87)
 $categoriesBottomColor = lighten($blueDark, 1)
 
-body.default-blue
-  background-color #F7FAFC
+
+body.orange
+  background-color #fff7ef
   color darken($blueDark, 25)
+  font-family -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
 
   a
-    color $blueRegular
+    color $baseThemeColor
 
   :focus
     outline dotted 1px $blueLight
 
-  button,
+
   .button,
-  input[type="submit"],
-  input[type="reset"]
-    background-color $blueRegular
-    border solid 1px $blueRegular
+  button,input[type=submit],input[type=reset]
+    background-color $baseThemeColor
+    border solid 1px $baseThemeColor
     color white
     box-shadow 1px 1px 1px -1px rgba(255,255,255,0.2) inset
 
   button\:active,
-  input[type=submit]:active,
-  input[type=reset]:active
+  input[type=submit]:active,input[type=reset]:active
     box-shadow 1px 1px 1px -1px rgba(0,0,0,0.2) inset
 
   button[disabled],input[type=submit][disabled],input[type=reset][disabled]
-    background-color desaturate($blueRegular, 20)
-
+    background-color desaturate($baseThemeColor, 20)
 
   input[type=text],
   input[type=password],
@@ -58,57 +55,59 @@ body.default-blue
   input[type=tel],
   input[type=number],
   textarea
-    border solid 1px $blueRegular
+    border solid 1px $baseThemeColor
+
+
+  >
+    .container
+    > .connecting
+      background-color alpha($blueDark, 0.9)
+      div.center
+        color $darkGrey
+        h1
+          color $orange
+        small
+          color $greenDark
 
   .header
-    background-color lighten($blueDark, 5)
+    background-color lighten($orange, 5)
 
-  .online
-    color $greenBright
-    font-size 0.6em
-    vertical-align: middle;
-
-  .color-secure
-    color $greenLight
-
-  .text-danger
-    color $red
+  .categories > .settings
+    border-top solid 1px rgba(255, 255, 255, 0.024)
+    color $darkGrey
+    &.ng-hide
+      opacity 0
+    a
+      color $darkGrey
 
   .categories
-    vertical-gradient(darken($blueDark, 5), darken($blueDark, 1))
-    .total-online
-      color alpha($greenDark, 50%)
-      a
-        color alpha($greenDark, 50%)
-        text-decoration-color alpha($greenDark, 10%)
-    .menu
-      .button
-        color white
     ul.menu
       li
         a
-          color lighten($blueDark, 40)
+          color #34281a
           border-left solid 0.0vw transparent
           &:hover
-            color lighten($blueRegular, 20)
+            color lighten($baseThemeColor, 20)
+
       li.active
         a
-          color lighten($blueDark, 51)
-          border-left solid 0.5vw $blueRegular
+          color $baseThemeColor
+          border-left solid 0.5vw $baseThemeColor
           padding-left 1.5vw
           background-color rgba(0,0,0,0.1)
-    > .settings
-        border-top solid 1px rgba(255, 255, 255, 0.024)
-        color $darkGrey
-        &.ng-hide
-          opacity 0
-        a
-          color $darkGrey
 
+
+  .menu
+    .button
+      opacity 0.8
+
+  .view-panel
+    blockquote
+      border-left: 5px solid #faf0e6
+    kbd
+      background-color rgba(0,0,0,0.025)
 
   .topics-panel
-    background-color lighten($blueDark, 70)
-    vertical-gradient($categoriesTopColor, $categoriesBottomColor)
     > .search-box
       border-bottom solid 1px rgba(255,255,255,0.025)
       box-shadow: 0 3px 5px -5px #000000;
@@ -118,60 +117,112 @@ body.default-blue
         color $darkGrey
       a
         color darken($darkGrey, 50%)
+
       a+input.search:focus
         color $lightGrey
+
     > .topics
       border-left solid 1px rgba(255,255,255,0.025)
 
     > .topics-switch
-      height calc(3em + 1vh)
-      background-color lighten($blueDark, 5)
-      border-left solid 1px rgba(255,255,255,0.025)
-      color $darkGrey
-      box-shadow 0 0 5px -2px #000000
-      a
-        color $darkGrey
-      a.active
-        color white
-        border-bottom solid 2px $blueLight
-        &::before
-          box-shadow 1px 1px 1px #fff
+        a
+          color $darkGrey
+        a.active
+          color white
+          border-bottom solid 2px $baseThemeColor
+          &::before
+            box-shadow 1px 1px 1px #fff
+
+    .topic-info
+      .fa-lock
+        color $greenLight
+    .topic-status
+      .counter
+        color $greenDark
+        background-color $blueDark
 
     .topic
       border-bottom solid 1px rgba(255,255,255,0.025)
       border-left solid 1px rgba(255,255,255,0)
+
+      a
+        color lighten($blueDark, 50)
+
       &.active
         background-color lighten($blueDark, 25)
         border-left solid 1px rgba(255,255,255,0.25)
-        position relative
         a
           color white
-          small
-            color darken($blueDark, 10)
-            &.tag
-              color lighten($blueDark, 50)
-      a
-        color lighten($blueDark, 50)
+
       small
         color darken($blueDark, 10)
         &.tag
           color lighten($blueDark, 50)
 
       &.ng-animate
-        transition:all
-        animation-iteration-count 1
-        animation-duration $slowAnimationDuration
+          transition:all
+          animation-iteration-count 1
+          animation-duration $slowAnimationDuration
       &.ng-enter
-        animation-name fadeInQuick
-        animation-timing-function ease-out
+          animation-name fadeInQuick
+          animation-timing-function ease-out
       &.ng-leave
-        animation-name fadeOutQuick
-        animation-timing-function ease-in
+          animation-name fadeOutQuick
+          animation-timing-function ease-in
+
+
+  @keyframes fadeInQuick
+    0%
+      height 0
+      opacity  0
+    20%
+      height calc(0.5em + 1vh + 1px)
+
+    50%
+      opacity 0.05
+
+    100%
+      height calc(1em + 2vh + 2px)
+      opacity 1
+
+  @keyframes fadeOutQuick
+    0%
+      height calc(1em + 2vh + 2px)
+      opacity 1
+    100%
+      height 0
+      opacity 0
+
+  @keyframes flyTopRightAndDisappear
+    0%
+      opacity 1
+      transform translate(0, 0)
+    59%
+      opacity 0
+      transform translate(2em, -2em)
+    60%
+      opacity 0
+      transform translate(-2em, 2em) scale(0)
+    100%
+      opacity 1
+      transform translate(0, 0) scale(1)
+
+
+  .topic-info
+    p
+      color darken($blueDark, 10)
+
+  .top-bar
+    .slogan
+      color $greenDark
+    .user
+      color $lightGrey
+
+    .button
+      background-color $baseThemeColor
+      color #fff
 
   .view-panel
-    background-color lighten($blueDark, 73)
-    blockquote
-      background-color lighten(complement($blueDark), 73)
     .topic-view
       > .topic
         .details
@@ -198,11 +249,9 @@ body.default-blue
           h1
             margin-bottom 1vh
             word-break break-word
-          .date
+          div.date
             color $normalGrey
             margin-bottom 2vh
-            a
-              color $normalGrey
 
       > .compose
         background-color white
@@ -226,7 +275,7 @@ body.default-blue
             animation-timing-function ease-out
 
         button[disabled]
-          color $lightGrey
+            color $lightGrey
         .text
           .progress
             height 0.5vh
@@ -250,7 +299,7 @@ body.default-blue
 
         .comment
           .date
-            color $normalGrey
+            color lighten($blueDark, 50)
             .time
               color alpha($blueDark, 0.2)
           &:hover
@@ -264,7 +313,7 @@ body.default-blue
 
           .comment-details
             .author
-              a.name
+              a
                 color $baseThemeColor
             .text
               color $blueDark
@@ -292,12 +341,9 @@ body.default-blue
               .button
                 &.spam
                   background-color red
-            .attachments
-              .attachment
-                background-color none
           &:hover
-            .text-feedback
-              opacity 1
+              .text-feedback
+                opacity 1
           &.me
             .text
               color lighten($blueDark, 20)
@@ -305,19 +351,15 @@ body.default-blue
             .text
               opacity 0.1
           &.solution
-            .content::before
+            .text::before
               content ""
               font-family FontAwesome
               color $greenDark
               background-color white
-            .content
+            .text
               background-color rgba(255, 255, 255, 0.5)
               border 1px solid alpha($greenDark, 50%)
 
-
-      &.private > .topic
-        .details
-          background-color alpha($greenLight, 5%)
 
     .ask-form
       select,textarea,input[type="text"],button
@@ -390,53 +432,113 @@ body.default-blue
         i.fa-check
           color $greenDark
 
+  .topic-view.private > .topic
+    .details
+      background-color alpha($greenLight, 5%)
+
+  .preview
+      background rgba(250,250,250,0.1)
+      border dashed 1px rgba(0,0,0,0.1)
+
+
+    .join
+      .welcoming
+        color $greenDark
+        text-shadow 0px 1px 1px white
+
+
   .signinform
     background-color lighten($blueDark, 70)
-
-
-  lr-editor
-    border solid 1px $normalGrey
-    background-color white
-
-    div.toolbar
-      border-bottom solid 1px $normalGrey
-      background-color rgba(0,0,0,0.05)
-      a.format
-        &.active
-          background-color alpha($normalGrey, 50% )
-          box-shadow: 0.1vh 0.1vh 0.2vh -0.1vh $normalGrey inset;
-      .fa
-        color $blueDark
-    div.editor
-      color $blueDark
-
-  .compose
-    lr-editor
-      border solid 0px $normalGrey
+    .message
+      color $orange
       background-color white
 
-      div.toolbar
-        background-color white
-        border-bottom solid 0px $normalGrey
 
-        .uploadEditorButton
-          position relative
+  .text-facebook
+    color $brandFacebook
+  .text-twitter
+    color $brandTwitter
+  .text-vk
+    color $brandVK
+  .text-windows
+    color $brandMicrosoft
+  .text-google
+    color $brandGoogle
+  .text-github
+    color $brandGithub
 
-        a.format
-          color $normalGrey
-          background-color white
-          .fa
-            color $darkGrey
-          &.active
-            color $blueRegular
-            box-shadow none
-            .fa
-              color $blueRegular
-          &:hover
-            color $blueRegular
-            .fa
-              color $blueRegular
+  .help-block
+    background-color lighten($orange, 20)
+    border solid 1px $lightGrey
 
-      div.editor
-        &.ng-untouched.ng-empty.ng-dirty::after
-          color $lightGrey
+
+  .online
+    color $greenBright
+
+  .color-secure
+    color $greenLight
+
+  .text-danger
+    color $red
+
+  .upload-container
+    background-color alpha($blueLight, 0.5)
+    div.center
+      color white
+
+
+  .categories
+    .total-online
+      color alpha($orange, 50%)
+      a
+        color alpha($orange, 50%)
+        text-decoration-color alpha($orange, 10%)
+    .menu
+      .button
+        color white
+
+  .view-panel
+    background-color lighten($orange, 73)
+    blockquote
+      background-color lighten(complement($orange), 73)
+
+  .topics-panel
+    background-color lighten($baseThemeColor, 42)
+    > .search-box
+      border-bottom solid 1px rgba(255,255,255,0.025)
+      box-shadow: 0 3px 5px -5px #000000;
+      input.search
+        background-color transparent
+        border none
+        color $darkGrey
+      a
+        color darken($darkGrey, 50%)
+
+      a+input.search:focus
+        color $lightGrey
+    > .topics
+      border-left solid 1px rgba(255,255,255,0.025)
+
+    > .topics-switch
+      height calc(3em + 1vh)
+      background-color #fff
+      border-left solid 1px rgba(255,255,255,0.025)
+      color $darkGrey
+      box-shadow 0 0 5px -2px #000000
+
+    .topic
+      border-bottom solid 1px rgba(255,255,255,0.025)
+      border-left solid 1px rgba(255,255,255,0)
+      &.active
+        background-color #ff7f23
+        border-left solid 1px rgba(255,255,255,0.25)
+        position relative
+        a
+          color white
+          small
+            color darken($orange, 10)
+            &.tag
+              color lighten($orange, 50)
+      a
+        color #080604
+

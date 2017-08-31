@@ -8,7 +8,7 @@ const uglify = require('gulp-uglify');
 const imagemin = require('gulp-imagemin');
 const sourcemaps = require('gulp-sourcemaps');
 const del = require('del');
-const cleanCSS = require('gulp-clean-css');
+const chalk = require('chalk');
 const stylus = require('gulp-stylus');
 const Filter = require('gulp-filter');
 const ngAnnotate = require('gulp-ng-annotate');
@@ -168,10 +168,10 @@ gulp.task('currentDeployWrite', function() {
 gulp.task('css', function() {
 
       let filter = Filter('**/*.styl', {restore: true});
-
       return gulp.src(paths.css)
           .pipe(filter)
           .pipe(plumber())
+          .pipe(sourcemaps.init())
           .pipe(stylus())
           .pipe(filter.restore)
           .pipe(replace({
@@ -187,6 +187,7 @@ gulp.task('css', function() {
           .pipe(postcss([autoprefixer({browsers: ['last 10 versions']})]))
           //.pipe(cleanCSS({compatibility: 'ie7', keepBreaks: true}))
           .pipe(concat('main.' + currentDeployId + '.css'))
+          .pipe(sourcemaps.write('.'))
           .pipe(gulp.dest('./server/public/dist/c'));
     }
 );
@@ -233,35 +234,44 @@ gulp.task('rebuild-js', function(callback) {
 
 // Rerun the task when a file changes
 gulp.task('watch', function() {
-      gulp.watch(paths.scripts, { interval: 500 }, ['rebuild-js']);
-      gulp.watch(paths.images, { interval: 5000 }, ['clean-img', 'images']);
+      gulp.run('build');
+      gulp.watch(paths.scripts, {interval: 1000}, ['rebuild-js']);
+      gulp.watch(paths.images, {interval: 5000}, ['clean-img', 'images']);
       gulp.watch(
-          ['./client/styles/*/**.*'].concat(paths.css),
-          { interval: 1000 },
+          [
+            './client/styles/*/**.*',
+            './client/styles/themes/*.*'
+          ].concat(paths.css),
+          {interval: 1000},
           ['rebuild-css']
       );
-      gulp.watch(paths.tpl, { interval: 1000 }, ['clean-tpl', 'tpl', 'scripts-dev']);
-      gulp.watch(paths.fonts, { interval: 5000 }, ['clean-fonts', 'fonts']);
-      gulp.watch(paths.sounds, { interval: 5000 }, ['clean-sounds', 'sounds']);
-      gulp.watch(paths.locales, { interval: 1000 }, ['clean-locales', 'locales']);
+      gulp.watch(paths.tpl, {interval: 1000}, ['clean-tpl', 'tpl', 'scripts-dev']);
+      gulp.watch(paths.fonts, {interval: 5000}, ['clean-fonts', 'fonts']);
+      gulp.watch(paths.sounds, {interval: 5000}, ['clean-sounds', 'sounds']);
+      gulp.watch(paths.locales, {interval: 1000}, ['clean-locales', 'locales']);
     }
 );
 
+gulp.task('buildInformer', function(callback) {
+  'use strict';
+  console.log(
+      'Use ' + chalk.green.bold('gulp watch') +
+      ' to watch & compile your files on the fly'
+  );
+  callback();
+});
+
 // The default task (called when you run `gulp` from cli)
 
-gulp.task('default',
-    runSequence(
-        'currentDeployInit',
-        'scripts-dev',
-        'tpl',
-        'locales',
-        'css',
-        'images',
-        'fonts',
-        'sounds',
-        'currentDeployWrite'//,
-        //'watch'
-    )
+gulp.task(
+    'default',
+    function(callback) {
+      runSequence(
+          'build',
+          'buildInformer',
+          callback
+      );
+    }
 );
 
 gulp.task('build', function(callback) {

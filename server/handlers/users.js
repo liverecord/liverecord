@@ -64,6 +64,32 @@ function userHandler(socket, io, errorHandler) {
                       fn(webUser);
                       foundUser.refreshRank();
                     });
+                /*
+                Find topics where we both left comments
+                or
+                Where I'm author and he is commenter
+
+                Topic.find({
+                      'user': foundUser._id,
+                      deleted: false,
+                      spam: false,
+                      private: false
+                    })
+                    .limit(100)
+                    .populate([{path: 'category'}])
+                    .then(function(list) {
+                      webUser.details = {topicList: list || []};
+                      fn(webUser);
+                      foundUser.refreshRank();
+                    });
+                */
+                Comment.aggregate([
+                  {$match: {    "spam" : false,
+                    'user':{$in: [socket.webUser._id, foundUser._id]} }},
+                  {$group: {_id: '$topic', rank: { $sum: 1 } }},
+                  {$sort: {rank: -1}}
+                ]);
+
           } else {
             fn({});
           }

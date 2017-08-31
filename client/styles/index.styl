@@ -6,6 +6,7 @@
 @import "responsive.styl"
 @import "locale_en_US.styl"
 @import "locale_ru_RU.styl"
+@import "normalize.styl"
 
 vertical-gradient(topColor, bottomColor)
   background topColor
@@ -14,17 +15,12 @@ vertical-gradient(topColor, bottomColor)
   background -moz-linear-gradient(topColor, bottomColor)
   background linear-gradient(topColor, bottomColor)
 
-@import "normalize.styl"
 
 body
   font-family -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
   box-sizing border-box
 
-a
-  color $blueRegular
 
-:focus
-  outline dotted 1px $blueLight
 
 button,input,textarea
   font-family inherit
@@ -33,9 +29,6 @@ button,input,textarea
   margin-right 0
 
 button,input[type=submit],input[type=reset]
-  background-color $blueRegular
-  border solid 1px $blueRegular
-  color white
   padding 0.25em 1em
   text-align center
   text-decoration none
@@ -43,13 +36,8 @@ button,input[type=submit],input[type=reset]
   text-overflow ellipsis
   margin 0.1em
   white-space nowrap
-  box-shadow 1px 1px 1px -1px rgba(255,255,255,0.2) inset
 
-button:active,input[type=submit]:active,input[type=reset]:active
-  box-shadow 1px 1px 1px -1px rgba(0,0,0,0.2) inset
 
-button[disabled],input[type=submit][disabled],input[type=reset][disabled]
-  background-color desaturate($blueRegular, 20)
 
 input[type=text],
 input[type=password],
@@ -57,7 +45,6 @@ input[type=email],
 input[type=tel],
 input[type=number],
 textarea
-  border solid 1px $blueRegular
   padding 0.3em 0.5em
   margin 0.1em
 
@@ -152,13 +139,11 @@ body > .container.websocketAlive .body
   line-height calc(3em + 1vh)
   vertical-align middle
   text-align center
-  color $darkGrey
   transition all $slowAnimationDuration ease
   &.ng-hide
     line-height 0
     opacity 0
   a
-    color $darkGrey
     text-decoration none
 
 .categories
@@ -174,7 +159,7 @@ body > .container.websocketAlive .body
         transition all ease $slowAnimationDuration
         display block
         min-height calc(1em + 1vh)
-        color rgb(143,161,180)
+        // color rgb(143,161,180)
         text-decoration none
         line-height calc(1em + 3vh)
         padding-left 2vw
@@ -182,22 +167,16 @@ body > .container.websocketAlive .body
         border-left solid 0.0vw transparent
         text-overflow ellipsis
         overflow hidden
-        &:hover
-          color lighten(#578FCC, 20)
 
     li.active
       a
-        color lighten(#578FCC, 30)
-        border-left solid 0.5vw #578FCC
         padding-left 1.5vw
-        background-color rgba(0,0,0,0.1)
-
 
 .button,
 input[type="submit"],
 input[type="reset"]
-  background-color $blueRegular
-  color white
+  // background-color $blueRegular
+  // color white
   padding 1vh 1vw
   text-align center
   text-decoration none
@@ -223,15 +202,15 @@ input[type="reset"]
 
 .view-panel 
   width $topicPanelWidth
+  overflow-wrap break-word
+
   > div
     width inherit
 
   blockquote
-    border-left: 5px solid #faf0e6
     padding 0 0.5vw
+    margin 0 0.1vw
 
-  kbd
-    background-color rgba(0,0,0,0.025)
 
 .topics-panel
   width: $topicsPanelWidth
@@ -248,17 +227,10 @@ input[type="reset"]
       width  calc(100% - 2em)
       background-color transparent
       border none
-      color $darkGrey
-    a
-      color darken($darkGrey, 50%)
-
-    a+input.search:focus
-      color $lightGrey
 
   > .topics
     height calc(96vh - 7.2em)
     overflow-y auto
-    border-left solid 1px rgba(255,255,255,0.025)
     margin-right 3px
     position relative
 
@@ -275,21 +247,17 @@ input[type="reset"]
 
       a
         padding 0 ($topicsPanelWidth/16)
-        color $darkGrey
+        // color $darkGrey
         height calc(3em + 1vh - 2px)
         display inline-block
       a.active
-        color white
-        border-bottom solid 2px $blueRegular
         &::before
           content ''
-          box-shadow 1px 1px 1px #fff
 
   .topic-info
     width $topicsPanelWidth
     display: block
     .fa-lock
-      color $greenLight
       font-size 0.8em
   .topic-status
     width 2vw
@@ -305,27 +273,19 @@ input[type="reset"]
       display block
       width 1em
       height 1em
-      border-radius .5em
-      color $greenDark
-      background-color $blueDark
+
       justify-content center
 
   .topic
-
     margin 0
     padding 0
-    border-bottom solid 1px rgba(255,255,255,0.025)
-    border-left solid 1px rgba(255,255,255,0)
     font-size 1em
-    /**/
-
 
     a
       display block
       padding 1vh 1vw
       padding-left 0
       min-height 1em
-      color lighten($blueDark, 50)
       word-break keep-all
       hyphens auto
       line-break auto
@@ -334,16 +294,8 @@ input[type="reset"]
       text-overflow ellipsis
 
     &.active
-      background-color lighten($blueDark, 25)
-      border-left solid 1px rgba(255,255,255,0.25)
       position relative
-      a
-        color white
 
-    small
-      color darken($blueDark, 10)
-      &.tag
-        color lighten($blueDark, 50)
 
     &.ng-animate
         transition:all
@@ -356,29 +308,6 @@ input[type="reset"]
         animation-name fadeOutQuick
         animation-timing-function ease-in
 
-/*
-
-  .animate-repeat.ng-move,
-.animate-repeat.ng-enter,
-.animate-repeat.ng-leave {
-  transition:all linear 0.5s;
-}
-
-.animate-repeat.ng-leave.ng-leave-active,
-.animate-repeat.ng-move,
-.animate-repeat.ng-enter {
-  opacity:0;
-  max-height:0;
-}
-
-.animate-repeat.ng-leave,
-.animate-repeat.ng-move.ng-move-active,
-.animate-repeat.ng-enter.ng-enter-active {
-  opacity:1;
-  max-height:30px;
-}
-
-  */
 
 .topic-panel
   width $topicPanelWidth
@@ -422,8 +351,6 @@ input[type="reset"]
 
 .topic-info
 
-  p
-    color darken($blueDark, 10)
 
 .topic-info h1
   margin-top 0
@@ -435,13 +362,10 @@ input[type="reset"]
     display block
     width 65vw
     line-height calc(3em + 1vh)
-    color $greenDark
-
 
   .user
     margin-top 0vh
     width 20vw
-    color $lightGrey
     img.avatar
       height 2.5em
     .name
@@ -454,8 +378,6 @@ input[type="reset"]
     padding-bottom 1vh
     padding-left 1vw
     padding-right 1vw
-    background-color $blueRegular
-    color #fff
     text-decoration none
     cursor pointer
 
@@ -484,11 +406,9 @@ input[type="reset"]
       transition height ease $slowAnimationDuration
       position: relative
 
-
       .details
         padding-top 1px
         padding-bottom 1px
-        background-color lighten($blueDark, 70)
         .topic-body
           line-height 1.618
           text-rendering optimizeLegibility
@@ -503,8 +423,7 @@ input[type="reset"]
           padding-left: 0
           padding-top: 1em
           line-height 3vh
-          border-top solid 1px lighten($blueDark, 60)
-          font-size: 0.8em;
+          font-size: 1em;
           img
             height 3vh
             margin-left 0
@@ -519,7 +438,7 @@ input[type="reset"]
               font-weight 600
             .date
               i.fa-pencil
-                color $lightGrey
+                // color $lightGrey
 
           .col.author
             margin-right 0
@@ -529,17 +448,17 @@ input[type="reset"]
                 float left
           .col.private
             height 2.5vh
-            color $greenLight
+            // color $greenLight
             padding 0.2vh 0.5vh
-            border-radius 2vh
+            // border-radius 2vh
             line-height 2vh
             font-size 1vh
             img
               height 2vh
               width 2vh
-              border-radius 1vh
+              // border-radius 1vh
               margin-left -1vh
-              border solid 0.1vh $lightColor
+              // border solid 0.1vh $lightColor
             .padlock + a > img
               margin-left -0.5vh
             div.padlock
@@ -547,7 +466,7 @@ input[type="reset"]
               height 2vh
               width 2vh
               border-radius 1vh
-              border solid 0.1vh  $lightColor
+              // border solid 0.1vh  $lightColor
               display inline-block
 
         pre
@@ -556,14 +475,14 @@ input[type="reset"]
           margin-bottom 1vh
           word-break break-word
         div.date
-          color $normalGrey
+          // color $normalGrey
           margin-bottom 2vh
 
     > .compose
       min-height calc(3em + 1vh)
       max-height calc(60vh)
       line-height calc(3em + 1vh)
-      background-color white
+      // background-color white
       box-shadow 0 0 5px -2px #000000
       overflow hidden
       width $topicPanelWidth
@@ -573,35 +492,32 @@ input[type="reset"]
       right 0
 
       button
-        border dotted 1px transparent
-        background-color white
         -webkit-appearance none
         cursor pointer
         width $topicPanelWidth * 0.065
         height calc(3em + 1vh)
         text-align center
-        color $lightGrey
       .controls
         width calc(4vh + 1vw)
         text-align center
         min-width 1.5em
         button
-          color $lightGrey
-          border solid 2px $lightGrey
+          // color $lightGrey
+          // border solid 2px $lightGrey
+          border-radius 1em
           width 1.5em
           height 1.5em
-          border-radius 1em
           text-align center
           padding 0
       .send
         width 3vw
         min-width 1em
         text-align center
-        border-left solid 0 $lightGrey
+        // border-left solid 0 $lightGrey
         button
           width 100%
           padding 0.25em 0
-          color $blueRegular
+          // color $blueRegular
           font-size 1em
           text-align center
           transition:all
@@ -616,7 +532,7 @@ input[type="reset"]
 
 
       button[disabled]
-          color $lightGrey
+          // color $lightGrey
       .text
         width calc(100% - 5vh - 5vw)
 
@@ -637,7 +553,7 @@ input[type="reset"]
           .bar
             width 0
             margin-top 0.1vh
-            background-color $greenDark
+            // background-color $greenDark
             height 0.25vh
             transition width ease $slowAnimationDuration
 
@@ -659,9 +575,6 @@ input[type="reset"]
         margin-top 1vh
         text-align center
         .show-old-comments
-          background-color transparent
-          color $normalGrey
-          border solid 1px $lightGrey
           border-radius 3px
           font-size 0.8em
           padding 0.5vh 1vw
@@ -674,81 +587,53 @@ input[type="reset"]
           display inline-block
           max-width 40vw
           cursor pointer
-          &:hover
-            color darken($normalGrey, 10)
-            border solid 1px $normalGrey
-            box-shadow 1px 1px 0px white inset
-          &:active
-            box-shadow 1px 1px 1px rgba(0,0,0,0.1) inset
-          &:focus
-            color darken($normalGrey, 10)
-            box-shadow 1px 1px 0px white inset
 
       .comment
-        margin-bottom 0vh
+        margin-bottom 0
         margin-top 1vh
-        padding 1vh 1vh 1vh 0vh
+        padding 1vh 1vh 1vh 0
         .text
           transition all $slowAnimationDuration
           overflow-wrap break-word
         .date
-          float right
-          width 3vw
           font-weight 100
-          text-align right
-          color lighten($blueDark, 50)
           overflow hidden
           .time
             font-size 0.6em
             text-decoration none
-            color alpha($blueDark, 0.2)
             transition color ease $fastAnimationDuration
 
-        &:hover
-          background-color rgba(0,0,0,0.01)
-
-          .date
-            .time
-              color alpha($blueDark, 50)
         .avatar
           width 4vh
           padding 0
 
           img
-            background-color $lightGrey
             height 3vh
             max-width 4vh
 
         .comment-details
           position relative
-          width calc(100% - 4vh - 3vw)
+          width calc(100% - 4vh)
           .author
             font-size 0.8em
             margin-bottom 1vh
             a
-              color $blueRegular
               text-decoration none
               font-weight 600
           .text
-            color $blueDark
             line-height 1.618
             text-rendering optimizeLegibility
             -webkit-font-smoothing antialiased
             img, video
               max-width 50vw
               max-height 80vh
-              box-shadow 0 0 1vw -0.5vw $blueDark
+              // box-shadow 0 0 1vw -0.5vw $blueDark
               display block
               margin 0.1vh auto
               &.alpha
                 box-shadow none
-            video
-              background-color $darkGrey
           .text-feedback
-            border solid 1px $lightGrey
-            border-radius 3px
-            background-color white
-            display block
+            display flex
             opacity 0
             position absolute
             right 0
@@ -760,24 +645,43 @@ input[type="reset"]
               padding 2px 3px
               line-height inherit
               cursor pointer
-              &:hover
-                color $blueDark
             span
               line-height inherit
-              color $greenDark
+              padding 2px 3px
+
             .fa
               line-height inherit
               opacity 0.5
             .fa-flag
               float right
           .text-moderation
-            border-bottom solid 0 $lightGrey
             display none
             .button
               padding 2px
               font-size 0.8em
-              &.spam
-                background-color red
+          .attachments
+            display flex
+            flex-direction row
+            flex-wrap wrap
+            align-items flex-start
+            justify-content space-around
+            align-content space-between
+            .attachment
+              display inline-block
+              flex auto
+              margin-bottom 1vh
+              margin-top 1vh
+              width 24%
+              align-self flex-start
+              font-size 0.8em
+              iframe, img
+                max-width  ($topicPanelWidth / 5.1)
+                max-height 20vh
+                height auto
+                background-color rgba(0,0,0,0.1)
+              a.link
+                font-size 0.8em
+
         &:hover
             .text-feedback
               opacity 1
@@ -795,19 +699,15 @@ input[type="reset"]
         &.up + .comment.lp
           margin-top -1vh
         &.solution
-          .text::before
+          .content::before
             content ""
             font-family FontAwesome
-            color $greenDark
             font-size 1.2em
             margin-left -1.25em
             margin-right 0.4em
             padding 0
-            background-color white
             border-radius 0.6em
-          .text
-            background-color rgba(255, 255, 255, 0.5)
-            border 1px solid alpha($greenDark, 50%)
+          .content
             padding 1em
 
     &.advancedcompose
@@ -844,26 +744,16 @@ input[type="reset"]
       border-radius 3px
     select,input[type="text"],textarea
       width 99%
-      border solid 1px $normalGrey
-      color $blueDark
-      background-color lighten($lightColor, 10)
       padding 1vh 1vw
       margin 0.5vh 0.5vw
 
     button
       margin 0.5vh 0.5vw
 
-      background-color $blueRegular
-      color $lightColor
-      border solid 1px $blueRegular
-
-    button[disabled]
-      background-color desaturate($blueRegular, 10%)
 
     .editor
       height calc(81.5vh - 14em)
     .private
-      background rgba(0,0,0,0.1)
       padding 1vh 1vw
       width 90%
       margin 0
@@ -873,8 +763,6 @@ input[type="reset"]
         padding 0.1vh 0.1vw
         margin 0
     .acl-list-box
-      border solid 1px $normalGrey
-      background-color lighten($lightColor, 10)
       width 99%
       margin 0.5vh 0.5vw
       border-radius 3px
@@ -890,7 +778,7 @@ input[type="reset"]
         margin-right 0.5vw
         margin-top 0.3vh
         margin-bottom 0.3vh
-        color $darkGrey
+        // color $darkGrey
         height $aclItemHeight
         line-height $aclItemHeight
         white-space nowrap
@@ -900,12 +788,9 @@ input[type="reset"]
         display inline-block
         max-width calc(9vw + 3em)
         margin-right 0.5vw
-        background-color lighten($normalGrey, 20)
-        color $darkGrey
         height $aclItemHeight
         line-height $aclItemHeight
         white-space nowrap
-        border solid 1px lighten($normalGrey, 15)
         border-radius $aclItemHalfHeight
         padding 2px
         margin-top 0.3vh
@@ -916,7 +801,6 @@ input[type="reset"]
           font-size 0.7em
           line-height $aclItemHeight
           height calc(1.2em + 1vh)
-          color $darkGrey
         span
           overflow hidden
           text-overflow ellipsis
@@ -928,7 +812,7 @@ input[type="reset"]
           width $aclItemHeight
           border-radius $aclItemHalfHeight
           display inline-block
-          background-color $normalGrey
+          // background-color $normalGrey
 
       $searchBoxWidth = 15em
       .search-box
@@ -938,12 +822,12 @@ input[type="reset"]
         margin-bottom 0.5vh
         position relative
         white-space nowrap
-        background-color lighten($normalGrey, 20)
+        // background-color lighten($normalGrey, 20)
         height calc(1.25em + 1vh)
         line-height calc(1.25em + 1vh)
         width $searchBoxWidth
         padding 0px
-        border solid 1px lighten($normalGrey, 10)
+        // border solid 1px lighten($normalGrey, 10)
         border-radius $aclItemHalfHeight
 
         input[type=text]
@@ -957,7 +841,7 @@ input[type="reset"]
           height inherit
           line-height inherit
           width ($searchBoxWidth - 3em)
-          border solid 1px transparent
+          // border solid 1px transparent
           border-bottom-left-radius $aclItemHalfHeight
           border-top-left-radius $aclItemHalfHeight
           z-index 2
@@ -984,8 +868,6 @@ input[type="reset"]
           position absolute
           top calc(0.6120em + 0.5vh);
           width $searchBoxWidth
-          background-color lighten($normalGrey, 20)
-          border solid 1px lighten($normalGrey, 10)
           border-top-color transparent
           border-bottom-left-radius $aclItemHalfHeight
           border-bottom-right-radius $aclItemHalfHeight
@@ -1062,9 +944,9 @@ input[type="reset"]
         color red
       i.fa-check
         color $greenDark
+
 .topic-view.private > .topic
   .details
-    background-color alpha($greenLight, 5%)
     h1
       margin-bottom 0.1vh
 
@@ -1128,7 +1010,6 @@ code,
 
 .signinform
   padding 1vh 2vw
-  background-color lighten($blueDark, 70)
   label
     display inline-block
     min-width 5em
@@ -1187,6 +1068,28 @@ lr-bookmark
 .text-danger
   color $red
 
+@import 'settings.styl'
+
+@import 'logo.styl'
+
+@import 'editor.styl'
+
+@import 'user.styl'
+
+@import 'googlecode.styl'
+
+@import 'rank.styl'
+
+@import 'call.styl'
+
+@import 'themes/default-blue.styl'
+
+@import 'themes/hacker.styl'
+
+@import 'themes/orange.styl'
+
+@import 'themes/winter.styl'
+
 body > .upload-container
   position fixed
   left 0
@@ -1206,18 +1109,19 @@ body > .upload-container
 body.upload-accept > .upload-container
   display flex
 
-
-@import 'settings.styl'
-@import 'logo.styl'
-@import 'editor.styl'
-@import 'user.styl'
-@import 'googlecode.styl'
-@import 'rank.styl'
-@import 'call.styl'
-
-@import 'themes/default-blue.styl'
-@import 'themes/hacker.styl'
-
 @-moz-document url-prefix()
   select
     text-indent -2px
+
+.clearfix::after
+  clear both
+  content "."
+  display block
+  font-size 0
+  height 0
+  line-height 0
+  visibility hidden
+
+attachment
+  display inline-block
+

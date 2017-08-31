@@ -28,7 +28,7 @@
         <div class="col author">
           <a itemprop="name" ng-href="/users/{{::topic.user.slug}}" ng-bind="::topic.user.name"></a>
           <span class="online" ng-show="topic.user.online" title="{{'Online'|translate}}"><i class="fa fa-circle"></i></span>
-          <br><lr-rank user="topic.user" style="float: left"></lr-rank>
+          <br><lr-rank user="topic.user" style="float: left" ng-cloak=""></lr-rank>
         </div>
         <div class="col" style="flex-grow: 1">
 
@@ -51,9 +51,9 @@
           <a ng-href="/edit/{{::topic.slug}}"><i class="fa fa-fw fa-2x fa-edit"></i></a>
         </div>
         <div class="col">
-          <a href="#" ng-cloak="" socialshare socialshare-provider="facebook" socialshare-text="{{topic.title}}"><i class="fa fa-fw fa-2x fa-facebook"></i></a>
-          <a href="#" ng-cloak="" socialshare socialshare-provider="twitter" socialshare-text="{{topic.title}}"><i class="fa fa-fw fa-2x fa-twitter"></i></a>
-          <a href="#" ng-cloak="" socialshare socialshare-provider="vk" socialshare-text="{{topic.title}}"><i class="fa fa-fw fa-2x fa-vk"></i></a>
+          <a href="https://www.addtoany.com/share?linkurl={{::topic.category.slug}}/{{::topic.slug}}"
+             target="_blank"
+             ng-cloak="" ><i class="fa fa-fw fa-2x fa-share-square-o"></i></a>
         </div>
       </div>
     </div>
@@ -66,15 +66,16 @@
         </a>
       </div>
       <div class="comments-list" ng-init="firstUser=''" id="commentsList">
+        <!-- (preparedComments = (comments | unique:'_id' | orderBy:'updated')) -->
         <div class="comment flex-row"
-             ng-repeat="comment in (preparedComments = (comments | unique:'_id' | orderBy:'updated'))  track by comment._id"
+             ng-repeat="comment in comments track by comment._id"
              id="comment_{{::comment._id}}"
              ng-class="{me: comment.user._id === user._id, lp: preparedComments[$index-1].user._id == comment.user._id, up: preparedComments[$index-1].user._id != comment.user._id, spam: comment.spam, moderated: comment.moderated, solution: comment.solution }"
              itemscope
              itemtype="http://schema.org/Comment"
         >
           <div class="avatar">
-            <div ng-hide="{{preparedComments[$index-1].user._id == comment.user._id}}">
+            <div ng-hide="{{::comment.hide}}">
               <a ng-href="/users/{{::comment.user.slug}}"><img ng-src="{{::comment.user.picture}}" class="img-responsive"
                 alt=""></a>
               <lr-rank user="comment.user"></lr-rank>
@@ -82,11 +83,22 @@
 
           </div>
           <div class="flex-column comment-details">
-            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="author" ng-hide="{{::(preparedComments[$index-1].user._id == comment.user._id)}}">
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="author" ng-hide="{{::(comments[$index-1].user._id == comment.user._id)}}">
               <a itemprop="name" ng-href="/users/{{::comment.user.slug}}" ng-bind="::comment.user.name"></a>
               <span class="online" ng-show="::comment.user.online" title="Онлайн"><i class="fa fa-circle"></i></span>
+              <span class="date">
+                <a class="time hidden-xs"
+                   name="comment_{{::comment._id}}"
+                   ng-href="#comment_{{::comment._id}}" target="_self"
+                   title="{{::comment.created | date: 'medium'}}" ng-bind="::comment.created | date:'shortTime'"></a>
+              </span>
             </div>
-            <div class="text" itemprop="text" ng-bind-html="::comment.body"></div>
+            <div class="content">
+              <div class="text" itemprop="text" ng-bind-html="::comment.body"></div>
+              <div class="attachments">
+                <attachment attachment="att" ng-repeat="att in comment.attachments"></attachment>
+              </div>
+            </div>
             <div class="text-feedback" ng-show="user">
               <a
                       ng-show="user._id === topic.user._id"
@@ -101,12 +113,6 @@
                  ng-repeat="btn in comment.classification track by btn._id"
                  class="moderator button {{::btn.label}}" title="{{::btn.value}}">{{::btn.label}}</a>
             </div>
-          </div>
-          <div class="date">
-            <a class="time hidden-xs"
-               name="comment_{{::comment._id}}"
-               ng-href="#comment_{{::comment._id}}" target="_self"
-                  title="{{::comment.created | date: 'medium'}}" ng-bind="::comment.created | date:'shortTime'"></a>
           </div>
         </div>
       </div>

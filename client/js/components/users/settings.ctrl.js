@@ -31,7 +31,9 @@ app.controller('SettingsController',
         //$scope.appTheme = $rootScope.appTheme;
         $scope.data = {themes: [
           {id: 'default-blue', name: 'Classic'},
-          {id: 'hacker', name: 'Hacker'}
+          {id: 'orange', name: 'Experimental'},
+          {id: 'hacker', name: 'Hacker'},
+          {id: 'winter', name: 'Winter is coming'}
         ]};
         $scope.sending = false;
         $scope.message = '';

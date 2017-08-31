@@ -53,14 +53,24 @@ app.constant('LOCALES', {
 });
 
 app.config([
-  '$locationProvider', '$routeProvider',
-  '$localStorageProvider', '$sessionStorageProvider',
-  '$translateProvider', 'tmhDynamicLocaleProvider',
+  '$locationProvider',
+  '$routeProvider',
+  '$localStorageProvider',
+  '$sessionStorageProvider',
+  '$translateProvider',
+  'tmhDynamicLocaleProvider',
+  '$compileProvider',
   'tooltipsConfProvider',
   'LOCALES',
-  function($locationProvider, $routeProvider,
-      $localStorageProvider, $sessionStorageProvider, $translateProvider,
-      tmhDynamicLocaleProvider, tooltipsConfProvider, LOCALES) {
+  function($locationProvider,
+      $routeProvider,
+      $localStorageProvider,
+      $sessionStorageProvider,
+      $translateProvider,
+      tmhDynamicLocaleProvider,
+      $compileProvider,
+      tooltipsConfProvider,
+      LOCALES) {
     //
     $routeProvider
         .when('/ask', {
@@ -180,6 +190,15 @@ app.config([
       'tooltipTemplateUrlCache': true
       //etc...
     });
+    $compileProvider.debugInfoEnabled(false);
+    $compileProvider.commentDirectivesEnabled(false);
+    $compileProvider.cssClassDirectivesEnabled(false);
+    if (window.liveRecordConfig && window.liveRecordConfig.mode) {
+      switch (window.liveRecordConfig.mode) {
+        case 'production':
+          break;
+      }
+    }
   }
 ]);
 

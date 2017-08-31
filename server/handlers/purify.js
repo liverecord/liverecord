@@ -35,58 +35,27 @@ DOMPurify.addHook('afterSanitizeAttributes', function(node) {
 );
 
 DOMPurify.addHook('uponSanitizeElement', function(node, data) {
-      console.log('afterSanitizeElements');
-      console.log('node', node.nodeName);
-      console.log('outerHTML', node.outerHTML);
+      //console.log('afterSanitizeElements');
+      //console.log('node', node.nodeName);
+      //console.log('outerHTML', node.outerHTML);
       if (data.tagName === 'code') {
         try {
           hljs.highlightBlock(node);
         }
         catch (e) {
-          console.log(e);
+          console.log('highlightBlock', e);
         }
 
-      }
-      if (data.tagName === 'script') {
-        //node.innerHTML = '<code>' + node.innerHTML + '</code>';
       }
     }
 );
 
-var document = window.document;
-var getElementsByTagName = document.getElementsByTagName;
-var DOMParser = window.DOMParser;
-
-var _initDocument = function(dirty) {
-  /* Create a HTML document using DOMParser */
-  var doc, body;
-  try {
-    doc = new DOMParser().parseFromString(dirty, 'text/html');
-  }
-  catch (e) {
-  }
-
-  /* Some browsers throw, some browsers return null for the code above
-   DOMParser with text/html support is only in very recent browsers.
-   See #159 why the check here is extra-thorough */
-  if (!doc || !doc.documentElement) {
-    doc = window.document.implementation.createHTMLDocument('');
-    body = doc.body;
-    body.parentNode.removeChild(body.parentNode.firstElementChild);
-    body.outerHTML = dirty;
-  }
-
-  /* Work on whole document or just its body */
-  if (typeof doc.getElementsByTagName === 'function') {
-    return doc.getElementsByTagName('body')[0];
-  }
-  return getElementsByTagName.call(doc, 'body')[0];
-};
-
 module.exports = function(str, strict, wysiwyg) {
   wysiwyg = wysiwyg || false;
   if (strict) {
-    return DOMPurify.sanitize(str, {
+    return DOMPurify.sanitize(
+        str,
+        {
           ALLOWED_TAGS: []
         }
     ).trim();
@@ -113,15 +82,16 @@ module.exports = function(str, strict, wysiwyg) {
           endIndex = lcStr.indexOf('</code>', startIndex);
           if (endIndex > -1) {
             // knife party
-            var codeEnd = lcStr.indexOf('>', startIndex);
+            let codeEnd = lcStr.indexOf('>', startIndex);
             newStr += str.substr(pos, codeEnd - pos + 1);
-            var strForEscaping = str.substr(codeEnd + 1, endIndex - codeEnd - 1);
+            let strForEscaping = str
+                .substr(codeEnd + 1, endIndex - codeEnd - 1);
             if (strForEscaping) {
               newStr += myEsc(strForEscaping);
             }
             newStr += '</code>';
             pos = endIndex + 7;
-            console.log('pos', pos);
+            //console.log('pos', pos);
           } else {
             console.log('endIndex', endIndex);
             // tag is not closed

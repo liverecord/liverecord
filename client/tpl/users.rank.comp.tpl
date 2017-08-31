@@ -1,4 +1,4 @@
-<div class="rank">
+<div class="rank" ng-cloak="">
   <i class="fa fa-fw fa-stop" ng-class="{ranked: $ctrl.user.rank > 0}"></i>
   <i class="fa fa-fw fa-stop" ng-class="{ranked: $ctrl.user.rank > 1}"></i>
   <i class="fa fa-fw fa-stop" ng-class="{ranked: $ctrl.user.rank > 2}"></i>

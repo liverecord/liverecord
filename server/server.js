@@ -122,7 +122,7 @@ app.use(SocketIOFileUploadSrv.router);
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.npm_package_config_mongodb_uri);
+mongoose.connect(process.env.npm_package_config_mongodb_uri, {  useMongoClient: true,});
 
 let mongooseConnection = mongoose.connection;
 mongooseConnection.on('error',
@@ -231,6 +231,7 @@ mongooseConnection.once('open', function() {
                           'gender',
                           'rank',
                           'devices',
+                          'online',
                           'settings'
                         ]
                     );

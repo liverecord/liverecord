@@ -2,8 +2,11 @@
  * Created by zoonman on 12/10/16.
  */
 const xtend = require('xtend');
-const jp = require('jsonpath');
 const chalk = require('chalk');
+const oembed = require('oembed');
+const UrlClass = require('url');
+
+const async = require('async');
 const models = require('../schema');
 const Topic = models.Topic;
 const CommentStruct = require('./envelope').comment;
@@ -13,6 +16,205 @@ const purify = require('./purify');
 const mailer = require('./mailer');
 const errorHandler = require('./errors');
 const push = require('./push');
+const getUrls = require('./geturls');
+const Metaphor = require('metaphor');
+
+function addAttachments(comment, callback) {
+  let urls = getUrls(comment.body);
+  console.log('urls', urls);
+  const engine = new Metaphor.Engine();
+
+  var retrievals = {};
+  urls.forEach(function(url) {
+    retrievals[url] = function(retrievalDone) {
+      /*oembed.fetch(url, {maxwidth: 1920}, function(err, oinfo) {
+        if (err) {
+          retrievalDone(null, null);
+        } else {
+          retrievalDone(null, oinfo);
+        }
+      });*/
+
+      engine.describe(url, function(oinfo) {
+        console.log('Metaphor', oinfo);
+        retrievalDone(null, oinfo);
+
+      });
+    };
+  });
+  if (urls.length > 0) {
+
+    /*
+    var engine = new Metaphor.Engine();
+    let url = urls[0];
+
+    engine.describe(url, function(oinfo) {
+      console.log('Metaphor', oinfo);
+      //retrievalDone(null, oinfo);
+
+    });
+ let url = urls[0];
+      oembed.fetch(url, { maxwidth: 1920 },
+          function(err, info) {
+            let o = {};
+            o[url] = info;
+            callback(null, o);
+          }
+      ); */
+    async.parallel(retrievals, callback);
+  } else {
+    callback(null, {});
+  }
+}
+
+function updateHandler(err, data) {
+  if (err) {
+    return errorHandler(err);
+  }
+}
+
+function updateTopicAndFanOut(socket, foundTopic, savedComment) {
+  models.TopicFanOut.update(
+      {
+        topic: foundTopic._id,
+        user: socket.webUser._id
+      },
+      {
+        $set: {
+          updates: 0,
+          updated: savedComment.created,
+          commented: true
+        }
+      },
+      {upsert: true}
+  ).exec(updateHandler);
+  models.TopicFanOut.update(
+      {
+        topic: foundTopic._id,
+        user: {$ne: socket.webUser._id}
+      },
+      {
+        $inc: {
+          updates: 1
+        },
+        $set: {
+          updated: savedComment.created
+        }
+      }
+  ).exec(updateHandler);
+
+  models.Topic.update(
+      {
+        topic: foundTopic._id
+      },
+      {
+        $set: {
+          updated: savedComment.created
+        }
+      }
+  ).exec(updateHandler);
+
+}
+
+function broadcastToDiscussionParticipants(io, socket, foundTopic, webTopic) {
+  //
+  models
+      .TopicFanOut
+      .find({
+        topic: foundTopic._id,
+        user: {$ne: socket.webUser._id}
+      })
+      .populate({
+        path: 'user',
+        match: { online: true },
+        select: '_id'
+      })
+      .lean()
+      .then(function(users) {
+        if (users) {
+          users.map(function(curEl) {
+            if (curEl.updates === 0) {
+              curEl.updates = 1;
+            }
+            webTopic.updates = curEl.updates;
+            //console.log(chalk.cyan(JSON.stringify(curEl)));
+            if (curEl.user) {
+              // broadcast event for everyone online
+              io
+                  .to('user:' + curEl.user._id)
+                  .emit(
+                      'topics',
+                      TopicListStruct([webTopic])
+                  );
+            }
+          });
+        }
+      })
+      .catch(errorHandler);
+}
+
+function sendEmailNotifications(socket, savedComment, foundTopic, commentUrl) {
+  models
+      .Comment
+      .distinct('user',
+          {topic: savedComment.topic},
+          function(err, userList) {
+            if (err) {
+              return errorHandler(err);
+            }
+
+            if (userList) {
+              userList.push(foundTopic.user);
+              //console.log('userList', userList);
+
+              let html = '' + purify(
+                  savedComment.body,
+                  true
+              );
+
+              html = html
+                  .substr(0, 255)
+                  .trim() + '...';
+              html = '<p><b>' + socket.webUser.name +
+                  '</b>:</p>' +
+                  '<div style="white-space: pre-wrap;">' +
+                  html +
+                  '</div>' +
+                  '<hr>' +
+                  '<a href="' +
+                  commentUrl +
+                  '">Открыть тему</a>';
+
+              models
+                  .User
+                  .find({
+                        _id: {$in: userList},
+                        online: false,
+                        deleted: false,
+                        'settings.notifications.email': true
+                      }
+                  )
+                  .lean()
+                  .then(function(users) {
+                        console.log('userList', users);
+                        //
+                        users.forEach(function(user) {
+                          //console.log('emaill', user.email)
+                          mailer({
+                                to: user.email,
+                                subject: foundTopic.title,
+                                html: html
+                              }
+                          );
+                        });
+                      },
+                      errorHandler
+                  );
+            }
+          }
+      );
+
+}
 
 function comments(socket, io, antiSpam, webpush) {
 
@@ -35,222 +237,159 @@ function comments(socket, io, antiSpam, webpush) {
 
         if (comment.body.length > 0) {
 
-          Topic
-              .findOne({_id: comment.topic._id})
-              .populate([
-                    {path: 'category', options: {lean: true}}
-                  ]
-              )
-              .then(function(foundTopic) {
+          addAttachments(comment, function(err, embeddingResults) {
 
-                    console.log('foundTopic::', foundTopic)
+            console.log('err embeddingResults', err);
+            console.log('embeddingResults', embeddingResults);
 
-                    comment.classification = antiSpam.getClassifications(
-                        comment.body
-                    );
+            comment.attachments = [];
+            /*
+  */
+            if (embeddingResults) {
 
-                    comment.spam = false;
+              for (let link in embeddingResults) {
+                if (embeddingResults.hasOwnProperty(link) &&
+                    embeddingResults[link]) {
+                  //
+                  let info = embeddingResults[link];
+                  let thumbnailUrl = '';
+                  let html = '';
+                  let description = '';
+                  let title = 'View';
+                  if (info.image && info.image.url) {
+                    thumbnailUrl = info.image.url;
+                  }
+                  if (info.embed && info.embed.html) {
+                    html = info.embed.html;
+                  }
+                  if (info.site_name) {
+                    title = info.site_name;
+                  }
+                  if (info.title) {
+                    title = info.title;
+                  }
+                  if (info.description) {
+                    description = info.description;
+                  }
+                  var attachment = {
+                    type: info.type + '',
+                    title: title,
+                    link: link,
+                    description: description,
+                    thumbnailUrl: thumbnailUrl,
+                    html: html
+                  };
+                  comment.attachments.push(attachment);
+                }
+              }
+            }
 
-                    var newComment = new models.Comment(comment);
 
-                    newComment.user = socket.webUser;
+            console.log('comment', comment);
 
-                    newComment
-                        .save()
-                        .then(function(savedComment) {
 
-                          fn(CommentStruct(savedComment));
+            Topic
+                .findOne({_id: comment.topic._id})
+                .populate([
+                      {path: 'category', options: {lean: true}}
+                    ]
+                )
+                .then(function(foundTopic) {
 
-                          var channel = 'topics:' +
-                              foundTopic.category.slug;
+                      console.log('foundTopic::', foundTopic)
 
-                          var pComment = savedComment.toObject();
-                          pComment['user'] = socket.webUser;
+                      comment.classification = antiSpam.getClassifications(
+                          comment.body
+                      );
 
-                          console.log(' socket.webUser', socket.webUser);
-                          console.log('pComment', savedComment.toObject());
+                      comment.spam = false;
+                      comment.user = socket.webUser;
 
-                          const detailedComment = CommentStruct(pComment);
-                          io.emit(channel, detailedComment);
+                  console.log('ready comment', comment);
 
-                          var foundTopic2 = foundTopic.toObject();
-                          foundTopic2.updated = savedComment.created;
-                          foundTopic2.updates = +(foundTopic2.user._id != savedComment.user._id);
-                          io.emit(
-                              channel,
-                              TopicListStruct([foundTopic2])
-                          );
 
-                          io.emit(
-                              'topic:' + foundTopic.slug,
-                              detailedComment
-                          );
-                          var commentUrl =
-                              process.env.npm_package_config_server_protocol +
-                              '://' +
-                              process.env.npm_package_config_server_name +
-                              '/' + foundTopic.category.slug +
-                              '/' +
-                              foundTopic.slug +
-                              '#comment_' + savedComment._id;
-                          models
-                              .Comment
-                              .distinct('user',
-                              {topic: savedComment.topic},
-                              function(err, userList) {
-                                if (err) {
-                                  return errorHandler(err);
+                  var newComment = new models.Comment(comment);
+                  console.log('ready newComment', newComment);
+                      //newComment.user = socket.webUser._id;
+
+                      newComment
+                          .save()
+                          .then(function(savedComment) {
+
+                            fn(CommentStruct(savedComment));
+
+                            var channel = 'topics:' +
+                                foundTopic.category.slug;
+
+                            var pComment = savedComment.toObject();
+                            pComment['user'] = socket.webUser;
+
+                            console.log(' socket.webUser', socket.webUser);
+                            console.log('pComment', savedComment.toObject());
+
+                            const detailedComment = CommentStruct(pComment);
+                            io.emit(channel, detailedComment);
+
+                            var simpleTopic = foundTopic.toObject();
+                            simpleTopic.updated = savedComment.created;
+                            simpleTopic.updates = +(simpleTopic.user._id != savedComment.user._id);
+                            io.emit(
+                                channel,
+                                TopicListStruct([simpleTopic])
+                            );
+
+                            io.emit(
+                                'topic:' + foundTopic.slug,
+                                detailedComment
+                            );
+                            var commentUrl =
+                                process.env.npm_package_config_server_protocol +
+                                '://' +
+                                process.env.npm_package_config_server_name +
+                                '/' + foundTopic.category.slug +
+                                '/' +
+                                foundTopic.slug +
+                                '#comment_' + savedComment._id;
+
+
+                            sendEmailNotifications(
+                                socket,
+                                savedComment,
+                                foundTopic,
+                                commentUrl
+                            );
+                            updateTopicAndFanOut(
+                                socket,
+                                foundTopic,
+                                savedComment
+                            );
+                            broadcastToDiscussionParticipants(
+                                io,
+                                socket,
+                                foundTopic,
+                                simpleTopic
+                            );
+
+                            const pushPayload = JSON.stringify({
+                                  action: 'subscribe',
+                                  title: socket.webUser.name +
+                                  ' комментирует ' + foundTopic.title,
+                                  id: savedComment._id,
+                                  link: commentUrl,
+                                  image: socket.webUser.picture,
+                                  body: purify(comment.body, true)
                                 }
+                            );
+                            push.notifyUsers(
+                                webpush, foundTopic, socket, pushPayload
+                            );
+                            antiSpam.processComment(savedComment);
 
-                                if (userList) {
-                                  userList.push(foundTopic.user);
-                                  //console.log('userList', userList);
-
-                                  let html = '' + purify(
-                                          savedComment.body,
-                                          true
-                                      );
-
-                                  html = html
-                                          .substr(0, 255)
-                                          .trim() + '...';
-                                  html = '<p><b>' + socket.webUser.name +
-                                      '</b>:</p>' +
-                                  '<div style="white-space: pre-wrap;">' +
-                                      html +
-                                  '</div>' +
-                                  '<hr>' +
-                                  '<a href="' +
-                                  commentUrl +
-                                  '">Открыть тему</a>';
-
-                                  models
-                                      .User
-                                      .find({
-                                            _id: {$in: userList},
-                                            online: false,
-                                            deleted: false,
-                                            'settings.notifications.email': true
-                                          }
-                                      )
-                                      .lean()
-                                      .then(function(users) {
-                                        console.log('userList', users);
-                                        //
-                                        users.forEach(function(user) {
-                                          //console.log('emaill', user.email)
-                                          mailer({
-                                                to: user.email,
-                                                subject: foundTopic.title,
-                                                html: html
-                                              }
-                                          );
-                                        });
-                                      },
-                                      errorHandler
-                                      );
-                                }
-                              }
-                          );
-
-                          function updateHandler(err, data) {
-                            if (err) {
-                              return errorHandler(err);
-                            }
-                          }
-                          models.TopicFanOut.update(
-                              {
-                                topic: foundTopic._id,
-                                user: socket.webUser._id
-                              },
-                              {
-                                $set: {
-                                  updates: 0,
-                                  updated: savedComment.created,
-                                  commented: true
-                                }
-                              },
-                              {upsert: true}
-                          ).exec(updateHandler);
-                          models.TopicFanOut.update(
-                              {
-                                topic: foundTopic._id,
-                                user: {$ne: socket.webUser._id}
-                              },
-                              {
-                                $inc: {
-                                  updates: 1
-                                },
-                                $set: {
-                                  updated: savedComment.created
-                                }
-                              }
-                          ).exec(updateHandler);
-
-                          models.Topic.update(
-                              {
-                                topic: foundTopic._id
-                              },
-                              {
-                                $set: {
-                                  updated: savedComment.created
-                                }
-                              }
-                          ).exec(updateHandler);
-                          //
-                          models
-                              .TopicFanOut
-                              .find({
-                                topic: foundTopic._id,
-                                user: {$ne: socket.webUser._id}
-                              })
-                              .populate({
-                                path: 'user',
-                                match: { online: true },
-                                select: '_id'
-                              })
-                              .lean()
-                              .then(function(users) {
-                                if (users) {
-                                  users.map(function(curEl) {
-                                    if (curEl.updates === 0) {
-                                      curEl.updates = 1;
-                                    }
-                                    foundTopic2.updates = curEl.updates;
-                                    //console.log(chalk.cyan(JSON.stringify(curEl)));
-                                    if (curEl.user) {
-                                      // broadcast event for everyone online
-                                      io
-                                          .to('user:' + curEl.user._id)
-                                          .emit(
-                                              'topics',
-                                              TopicListStruct([foundTopic2])
-                                      );
-                                    }
-                                  });
-                                }
-                              })
-                              .catch(errorHandler);
-                          const pushPayload = JSON.stringify({
-                                action: 'subscribe',
-                                title: socket.webUser.name +
-                                ' комментирует ' + foundTopic.title,
-                                id: savedComment._id,
-                                link: commentUrl,
-                                image: socket.webUser.picture,
-                                body: purify(comment.body, true)
-                              }
-                          );
-                          push.notifyUsers(
-                              webpush, foundTopic, socket, pushPayload
-                          );
-                          antiSpam.processComment(savedComment);
-
-                        })
-                        .catch(errorHandler);
-              })
-              .catch(errorHandler);
-
+                          })
+                          .catch(errorHandler);
+                })
+                .catch(errorHandler);
+          });
         } else {
           fn({error: 'too_short'});
         }

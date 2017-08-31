@@ -5,14 +5,10 @@ lr-editor
 
   border-radius 3px
   display block
-  border solid 1px $normalGrey
-  background-color white
   margin 0.5vh 0.5vw
   width 99%
 
   div.toolbar
-    border-bottom solid 1px $normalGrey
-    background-color rgba(0,0,0,0.05)
     border-radius: 2px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -21,21 +17,12 @@ lr-editor
       display inline-block
       cursor pointer
       margin 0.1vh
-      /* box-shadow: 0.1vh 0.1vh 0.2vh -0.1vh white inset; */
       border-radius: 0.2vh;
-
-      &.active
-        background-color alpha($normalGrey, 50% )
-        box-shadow: 0.1vh 0.1vh 0.2vh -0.1vh $normalGrey inset;
-
-    .fa
-      color $blueDark
 
   div.editor
     display block
     min-height 1em
     padding 1vh 1vw
-    color $blueDark
     border-radius 3px
     overflow auto
 
@@ -45,13 +32,10 @@ lr-editor
       height auto
       width auto
 
-
 .compose
   lr-editor
     border-radius 3px
     display block
-    border solid 0px $normalGrey
-    background-color white
     margin 0
     width 99%
 
@@ -61,8 +45,6 @@ lr-editor
       line-height: calc(3em - 0.5vh);
       height 0
       overflow hidden
-      background-color white
-      border-bottom solid 0px $normalGrey
 
       .uploadEditorButton
         position relative
@@ -70,19 +52,6 @@ lr-editor
       a.format
         padding 0.1vh 0.25vw
         margin 0 0
-        color $normalGrey
-        background-color white
-        .fa
-          color $darkGrey
-        &.active
-          color $blueRegular
-          box-shadow none
-          .fa
-            color $blueRegular
-        &:hover
-          color $blueRegular
-          .fa
-            color $blueRegular
 
       :first-child
         margin-left 0
@@ -98,7 +67,6 @@ lr-editor
       transition height $slowAnimationDuration
       &.ng-untouched.ng-empty.ng-dirty::after
         content attr(placeholder) " "
-        color $lightGrey
 
 .compose.open
   lr-editor

@@ -29,6 +29,12 @@
       </div>
     </div>
     <div class="user-topics" ng-show="userInfo.details.topicList.length > 0">
+      <h3>{{'Our topics'| translate}}</h3>
+      <div ng-repeat="topic in userInfo.details.discussionsList track by topic._id" class="topic">
+        <p><a ng-href="/{{::topic.category.slug}}/{{::topic.slug}}">{{::topic.title}}</a></p>
+      </div>
+    </div>
+    <div class="user-topics" ng-show="userInfo.details.topicList.length > 0">
       <h3>{{'User\'s topics'| translate}}</h3>
       <div ng-repeat="topic in userInfo.details.topicList track by topic._id" class="topic">
         <p><a ng-href="/{{::topic.category.slug}}/{{::topic.slug}}">{{::topic.title}}</a></p>

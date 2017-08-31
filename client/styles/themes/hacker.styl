@@ -1,16 +1,48 @@
 /** Hacker theme stub */
 
-$hackerBg = #112111
+$c1 = #93A1A1
+$c2 = #002b36
+$c3 = #073642
+$c4 = #2aa198
+$c5 = #b58900
+
+$hackerBg = #002b36
+
+$baseThemeColor = #073642
+
 
 body.hacker
   background-color complement($hackerBg)
-  color #cfcfcf
+  color $c1
 
   a
-    color greenyellow
+    color #2aa198
 
   :focus
     outline dotted 1px $blueLight
+
+  .button,
+  button,input[type=submit],input[type=reset]
+    background-color darken($c5, 15)
+    //border solid 1px darken($baseThemeColor, 25)
+    color white
+    box-shadow 1px 1px 1px -1px rgba(255,255,255,0.2) inset
+
+  button\:active,
+  input[type=submit]:active,input[type=reset]:active
+    box-shadow 1px 1px 1px -1px rgba(0,0,0,0.2) inset
+
+  button[disabled],input[type=submit][disabled],input[type=reset][disabled]
+    background-color desaturate($baseThemeColor, 20)
+
+  input[type=text],
+  input[type=password],
+  input[type=email],
+  input[type=tel],
+  input[type=number],
+  textarea
+    border solid 1px $c5
+    background-color transparent
 
   .header
     background-color lighten($hackerBg, 5)
@@ -22,11 +54,240 @@ body.hacker
       a
         color alpha($greenDark, 50%)
         text-decoration-color alpha($greenDark, 10%)
+    ul.menu
+      li
+        a
+          color  lighten($baseThemeColor, 10)
+          border-left solid 0.0vw transparent
+          &:hover
+            color lighten($baseThemeColor, 20)
+
+      li.active
+        a
+          color  lighten($baseThemeColor, 20)
+          border-left solid 0.5vw  lighten($baseThemeColor, 20)
+          padding-left 1.5vw
+          background-color rgba(0,0,0,0.1)
 
   .view-panel
     background-color $hackerBg
     blockquote
       background-color lighten(complement($hackerBg), 73)
+    .topic-view
+      > .topic
+        .details
+          background-color lighten($baseThemeColor, 1)
+          .topic-body
+            text-rendering optimizeLegibility
+            -webkit-font-smoothing antialiased
+          .topic-authoring
+            border-top solid 1px lighten($baseThemeColor, 6)
+            .col
+              a
+              .date
+                i.fa-pencil
+                  color $lightGrey
+            .col.private
+              color $greenLight
+              img
+                border solid 0.1vh $lightColor
+              div.padlock
+                border solid 0.1vh  $lightColor
+          pre
+            overflow auto
+          h1
+            margin-bottom 1vh
+            word-break break-word
+          .date
+            color $normalGrey
+            margin-bottom 2vh
+            a
+              color $normalGrey
+
+      > .compose
+        background-color transparent
+        box-shadow 0 0 5px -2px #000000
+
+        button
+          border dotted 1px transparent
+          background-color $baseThemeColor
+          -webkit-appearance none
+          color $lightGrey
+        .controls
+          button
+            color $lightGrey
+            border solid 2px $lightGrey
+        .send
+          border-left solid 0 $lightGrey
+          button
+            color $baseThemeColor
+          button.sending
+            animation-name flyTopRightAndDisappear
+            animation-timing-function ease-out
+
+        button[disabled]
+          color $lightGrey
+        .text
+          .progress
+            height 0.5vh
+            .bar
+              background-color $greenDark
+      .comments
+        .pagination
+          .show-old-comments
+            background-color transparent
+            color $normalGrey
+            border solid 1px $lightGrey
+            &:hover
+              color darken($normalGrey, 10)
+              border solid 1px $normalGrey
+              box-shadow 1px 1px 0px white inset
+            &:active
+              box-shadow 1px 1px 1px rgba(0,0,0,0.1) inset
+            &:focus
+              color darken($normalGrey, 10)
+              box-shadow 1px 1px 0px white inset
+
+        .comment
+          .date
+            color $normalGrey
+            .time
+              color alpha($blueDark, 0.2)
+          &:hover
+            background-color rgba(0,0,0,0.01)
+            .date
+              .time
+                color alpha($blueDark, 50)
+          .avatar
+            img
+              background-color $lightGrey
+
+          .comment-details
+            .author
+              a.name
+                color $baseThemeColor
+            .text
+              color #93A1A1
+              line-height 1.618
+              text-rendering optimizeLegibility
+              -webkit-font-smoothing antialiased
+              img, video
+                box-shadow 0 0 1vw -0.5vw $blueDark
+                &.alpha
+                  box-shadow none
+              video
+                background-color $darkGrey
+            .text-feedback
+              border solid 1px $lightGrey
+              background-color white
+              a
+                &:hover
+                  color $blueDark
+              span
+                color $greenDark
+              .fa-flag
+                float right
+            .text-moderation
+              border-bottom solid 0 $lightGrey
+              .button
+                &.spam
+                  background-color red
+            .attachments
+              .attachment
+                background-color none
+          &:hover
+            .text-feedback
+              opacity 1
+          &.me
+            .text
+              color lighten($blueDark, 20)
+          &.spam
+            .text
+              opacity 0.1
+          &.solution
+            .content::before
+              content ""
+              font-family FontAwesome
+              color $greenDark
+              background-color white
+            .content
+              background-color rgba(255, 255, 255, 0.05)
+              border 1px solid alpha($greenDark, 50%)
+
+      &.private > .topic
+        .details
+          background-color alpha($greenLight, 5%)
+
+    .ask-form
+      select,textarea,input[type="text"],button
+        box-sizing border-box
+        -webkit-appearance none
+        -moz-appearance none
+        font-family inherit
+      select,input[type="text"],textarea
+        border solid 1px $c5
+        color $lightColor
+        background-color lighten($baseThemeColor, 1)
+
+      button
+        background-color $baseThemeColor
+        color $lightColor
+        border solid 1px $baseThemeColor
+
+      button[disabled]
+        background-color desaturate($baseThemeColor, 10%)
+
+      .private
+        background rgba(0,0,0,0.1)
+      .acl-list-box
+        border solid 1px $c5
+        background-color lighten($baseThemeColor, 1)
+
+        $aclItemHeight = calc(1em + 1vh)
+        $aclItemHalfHeight = calc(0.75em + 1vh)
+        .tip
+          color $darkGrey
+
+        .item
+          background-color darken($baseThemeColor, 20)
+          color $darkGrey
+          border solid 1px $c5
+
+          .name
+            color $darkGrey
+
+          img
+            background-color $normalGrey
+
+        $searchBoxWidth = 15em
+        .search-box
+          background-color lighten($baseThemeColor, 20)
+          border solid 1px $c5
+
+          input[type=text]
+            background-color transparent
+            border solid 1px transparent
+          .search-box-dropdown
+            background-color lighten($baseThemeColor, 20)
+            border solid 1px $c5
+            border-top-color transparent
+            .search-box-item
+              color $darkGrey
+              &:hover
+                background-color $blueDark
+                .name
+                  color white
+              .name
+                color $darkGrey
+              img
+                background-color $normalGrey
+
+
+      form
+        i.fa-times
+          color red
+        i.fa-check
+          color $greenDark
 
   .topics-panel
     background-color lighten($hackerBg, 70)
@@ -47,8 +308,58 @@ body.hacker
       border-left solid 1px rgba(255,255,255,0.025)
     > .topics-switch
       height calc(3em + 1vh)
-      background-color #192520
+      //background-color $baseThemeColor
       border-left solid 1px rgba(255,255,255,0.025)
       color $darkGrey
       box-shadow 0 0 5px -2px #000000
 
+  .topic-view.private > .topic
+    .details
+      background-color alpha($greenLight, 5%)
+
+  lr-editor
+    border solid 1px $c5
+    background-color $baseThemeColor
+
+    div.toolbar
+      border-bottom solid 1px $c5
+      background-color rgba(0,0,0,0.05)
+      a.format
+        &.active
+          background-color alpha($normalGrey, 50% )
+          box-shadow: 0.1vh 0.1vh 0.2vh -0.1vh $normalGrey inset;
+      .fa
+        color $blueDark
+    div.editor
+      color $lightGrey
+
+  .compose
+    lr-editor
+      border solid 0 $c5
+      background-color darken($hackerBg, 1)
+
+      div.toolbar
+        background-color $hackerBg
+        border-bottom solid 0px $c5
+
+        .uploadEditorButton
+          position relative
+
+        a.format
+          color $normalGrey
+          background-color transparent
+          .fa
+            color $darkGrey
+          &.active
+            color $blueRegular
+            box-shadow none
+            .fa
+              color $blueRegular
+          &:hover
+            color $blueRegular
+            .fa
+              color $blueRegular
+
+      div.editor
+        &.ng-untouched.ng-empty.ng-dirty::after
+          color white

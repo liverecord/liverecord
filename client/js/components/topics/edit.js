@@ -152,20 +152,29 @@ app.controller(
           });
         };
         $scope.showSearchResults = false;
+        $scope.updateSearchResults = function(results) {
+          $scope.searchResults = results.filter(function(item) {
+            return $scope.topic.acl.indexOf(item) === -1;
+          });
+          $scope.showSearchResults = !! $scope.searchResults.length;
+        };
         $scope.runSearch = function() {
 
-          if ($localStorage['userSearch'] && $localStorage['userSearch'][$scope.lookupEmail]) {
+          if ($localStorage['userSearch'] &&
+              $localStorage['userSearch'][$scope.lookupEmail]) {
+
             var results = $localStorage['userSearch'][$scope.lookupEmail];
-            $scope.searchResults = results || [];
-            $scope.showSearchResults = !! $scope.searchResults.length;
+            $scope.updateSearchResults(results || []);
             $timeout(function() {
               $scope.showSearchResults = !! $scope.searchResults.length;
             }, 100);
           } else {
             socket.emit('user.search', $scope.lookupEmail, function(results) {
               'use strict';
-              $scope.searchResults = results;
-              if (!$localStorage['userSearch']) $localStorage['userSearch'] = {};
+              $scope.updateSearchResults(results);
+              if (!$localStorage['userSearch']) {
+                $localStorage['userSearch'] = {};
+              }
               $localStorage['userSearch'][$scope.lookupEmail] = results;
               $scope.showSearchResults = !! results.length;
               $timeout(function() {
@@ -186,6 +195,7 @@ app.controller(
             evt.preventDefault();
             evt.cancelBubble = true;
           }
+          $scope.updateSearchResults($scope.searchResults || []);
         };
         $scope.lookupAndAddToAcl = function() {
           'use strict';

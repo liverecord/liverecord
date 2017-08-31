@@ -57,10 +57,12 @@ const CommentSchema = new mongoose.Schema(
       ],
       attachments: [
         {
-          type: String,
+          type: {type: String},
           title: String,
+          description: String,
           link: String,
-          thumbnail_url: String,
+          thumbnailUrl: String,
+          html: String
         }
       ]
     });
