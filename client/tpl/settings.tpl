@@ -117,8 +117,15 @@
         </div>
         <div>
           <label for="audioNotice">{{'Sounds'|translate}}</label>
-          <input type="checkbox" ng-model="$localStorage.notifications.newComment.audio" name="audioNotice" id="audioNotice"
-                 ><br>
+          <input type="checkbox"
+                 ng-model="$localStorage.notifications.newComment.audio"
+                 name="audioNotice" id="audioNotice">
+          <label for="audioNoticeVolume">{{'Volume'|translate}}</label>
+          <input type="range" step="any" min="0" max="1"
+                 name="audioNoticeVolume" id="audioNoticeVolume"
+                 ng-model="$localStorage.notifications.newComment.volume">
+
+          <br>
         </div>
 
         <div>
@@ -139,6 +146,8 @@
         </div>
         <div ng-show="experimental">
           <h2>{{'Notifications'|translate}}</h2>
+
+
           <table width="100%">
             <thead>
             <tr><th>{{'Push'|translate}}</th><th>{{'Browser'|translate}}</th><th>{{'Ip'|translate}}</th></tr>
@@ -154,7 +163,7 @@
     </div>
 
 
-    <p>В разработке</p>
+    <p ng-show="user.roles.has('admin')">***</p>
 
 
   </div>

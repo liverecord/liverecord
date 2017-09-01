@@ -170,7 +170,7 @@ app.config([
     var language = window.navigator.userLanguage || window.navigator.language;
     var langLength = language.length, localeFound = false;
     for (var probingLocale in LOCALES.locales) {
-      if (language == probingLocale.substr(0, langLength) &&
+      if (language === probingLocale.substr(0, langLength) &&
           LOCALES.locales.hasOwnProperty(probingLocale)) {
         $translateProvider.preferredLanguage(probingLocale);
         localeFound = true;

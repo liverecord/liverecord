@@ -28,7 +28,7 @@ app.controller('SettingsController',
         };
 
         console.log('init SettingsCtrl');
-        //$scope.appTheme = $rootScope.appTheme;
+
         $scope.data = {themes: [
           {id: 'default-blue', name: 'Classic'},
           {id: 'orange', name: 'Experimental'},

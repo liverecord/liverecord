@@ -33,12 +33,14 @@ app.controller('MainController',
             return notificationIndex;
           }
         };
+
         $localStorage.$default({
               rememberMe: true,
               experimental: false,
               notifications: {
                 newComment: {
-                  audio: true
+                  audio: true,
+                  volume: 0.1
                 }
               },
               deviceId: Math.random().toString(36).substring(2, 15),
@@ -48,6 +50,7 @@ app.controller('MainController',
         );
         $rootScope.experimental = $localStorage.experimental;
         $rootScope.applicationTheme = $localStorage.applicationTheme;
+        $rootScope.notificationsVolume = $localStorage.notifications.newComment.volume;
 
         $rootScope.$on('$translateChangeSuccess', function(event, data) {
           document.documentElement.setAttribute('lang', data.language);

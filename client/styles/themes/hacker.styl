@@ -10,7 +10,6 @@ $hackerBg = #002b36
 
 $baseThemeColor = #073642
 
-
 body.hacker
   background-color complement($hackerBg)
   color $c1
@@ -106,27 +105,35 @@ body.hacker
 
       > .compose
         background-color transparent
-        box-shadow 0 0 5px -2px #000000
+        box-shadow 0 -1px 2px -2px #000000
 
         button
           border dotted 1px transparent
           background-color $baseThemeColor
           -webkit-appearance none
-          color $lightGrey
+          color $c4
         .controls
           button
-            color $lightGrey
-            border solid 2px $lightGrey
+            color $c4
+            border solid 2px $c4
         .send
           border-left solid 0 $lightGrey
+          box-shadow none
           button
-            color $baseThemeColor
+            color $c4
+            box-shadow none
+            background transparent
           button.sending
             animation-name flyTopRightAndDisappear
             animation-timing-function ease-out
+        lr-editor
+          background transparent
+          .editor
+            background darken($baseThemeColor, 5)
+            padding 0 0.5vw
 
         button[disabled]
-          color $lightGrey
+          color $darkGrey
         .text
           .progress
             height 0.5vh
@@ -281,7 +288,6 @@ body.hacker
                 color $darkGrey
               img
                 background-color $normalGrey
-
 
       form
         i.fa-times

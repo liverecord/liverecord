@@ -262,6 +262,12 @@ function comments(socket, io, antiSpam, webpush) {
                   if (info.embed && info.embed.html) {
                     html = info.embed.html;
                   }
+                  if (!thumbnailUrl && info.embed && info.embed.type &&  info.embed.type === 'photo') {
+                    thumbnailUrl = info.embed.url;
+                  }
+                  if (!thumbnailUrl && info.icon && info.icon.any) {
+                    thumbnailUrl = info.icon.any;
+                  }
                   if (info.site_name) {
                     title = info.site_name;
                   }
