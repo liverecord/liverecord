@@ -71,7 +71,7 @@
     "start": "node server/server.js",
     "debug": "node debug server/server.js",
     "stress_test": "node tests/stress/db_flooding.js",
-    "test": "./node_modules/karma/bin/karma start  --log-level debug tests/client.conf.js",
+    "test": "./node_modules/karma/bin/karma start --single-run --log-level debug tests/client.conf.js",
     "postinstall": "gulp build",
     "dev": "NODE_ENV=development npm start & npm run watch",
     "docker": "NODE_ENV=development npm start & npm run watch",
