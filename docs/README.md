@@ -1,9 +1,9 @@
 # LiveRecord
 
-[![GitHub release](https://img.shields.io/github/release/zoonman/liverecord.svg)](https://github.com/zoonman/liverecord)
-[![Build Status](https://travis-ci.org/zoonman/liverecord.svg?branch=master)](https://travis-ci.org/zoonman/ruliq)
-[![Github All Releases](https://img.shields.io/github/downloads/zoonman/liverecord/total.svg)](https://github.com/zoonman/liverecord)
-[![David](https://img.shields.io/david/zoonman/liverecord.svg)](https://github.com/zoonman/liverecord)
+[![GitHub release](https://img.shields.io/github/release/liverecord/liverecord.svg)](https://github.com/liverecord/liverecord)
+[![Build Status](https://travis-ci.org/liverecord/liverecord.svg?branch=master)](https://travis-ci.org/liverecord/liverecord)
+[![Github All Releases](https://img.shields.io/github/downloads/liverecord/liverecord/total.svg)](https://github.com/liverecord/liverecord)
+[![David](https://img.shields.io/david/liverecord/liverecord.svg)](https://github.com/liverecord/liverecord)
 
 Realtime forum designed for intense communication.
 
