@@ -6,6 +6,9 @@
 [![David](https://img.shields.io/david/liverecord/liverecord.svg)](https://github.com/liverecord/liverecord)
 [![GitHub contributors](https://img.shields.io/github/contributors/liverecord/liverecord.svg)](http://github.com/liverecord/liverecord)
 
+[**English**](README.md) | [**Русский**](README.ru.md)
+
+
 Spicy mix of chat and forum designed for intense communication. 
 Can be used as your community support site, forum, online consulting service, FAQ.
 
