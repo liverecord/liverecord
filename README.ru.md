@@ -1,10 +1,10 @@
 # LiveRecord
 
-[![GitHub release](https://img.shields.io/github/release/liverecord/liverecord.svg)](https://github.com/liverecord/liverecord)
-[![Build Status](https://travis-ci.org/liverecord/liverecord.svg?branch=master)](https://travis-ci.org/liverecord/liverecord)
-[![Github All Releases](https://img.shields.io/github/downloads/liverecord/liverecord/total.svg)](https://github.com/liverecord/liverecord)
-[![David](https://img.shields.io/david/liverecord/liverecord.svg)](https://github.com/liverecord/liverecord)
-[![GitHub contributors](https://img.shields.io/github/contributors/liverecord/liverecord.svg)](http://github.com/liverecord/liverecord)
+[![Актуальная версия](https://img.shields.io/github/release/liverecord/liverecord.svg)](https://github.com/liverecord/liverecord/releases/latest)
+[![Статус сборки](https://travis-ci.org/liverecord/liverecord.svg?branch=master)](https://travis-ci.org/liverecord/liverecord)
+[![Все релизы](https://img.shields.io/github/downloads/liverecord/liverecord/total.svg)](https://github.com/liverecord/liverecord/releases)
+[![Состояние зависимостей](https://img.shields.io/david/liverecord/liverecord.svg)](https://david-dm.org/liverecord/liverecord)
+[![Разработчики](https://img.shields.io/github/contributors/liverecord/liverecord.svg)](http://github.com/liverecord/liverecord/graphs/contributors)
 
 [English](README.md) | [**Русский**](README.ru.md)
 
