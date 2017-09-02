@@ -1,7 +1,7 @@
 {
   "name": "liverecord",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "author": "Philipp Tkachev <philipp@zoonman.com>",
   "config": {
     "mongodb": {
