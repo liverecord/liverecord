@@ -102,8 +102,9 @@
                     <div class="text-center total-online">
                         <a href="/users" ng-bind="'online'| translate : {x : totalConnections }"></a>
                         <br>
+                        <a href="/admin/" ng-show="user.roles.indexOf('admin') > -1">{{'Administration' | translate}}</a>
                         <br>
-                    <a href="https://liverecord.github.io/liverecord/" class="powered" rel="nofollow">{{'powered by' | translate}} LiveRecord<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a>
+                        <a href="https://liverecord.github.io/liverecord/" class="powered" rel="nofollow">{{'powered by' | translate}} LiveRecord<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a>
                     </div>
                 </div>
                 <div class="settings" ng-show="user">

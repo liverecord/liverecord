@@ -93,14 +93,24 @@ app.config([
           controller: 'AdminController',
           templateUrl: '../tpl/admin.tpl'
         })
-
+        .when('/admin/parameters', {
+          controller: 'AdminParametersController',
+          templateUrl: '../tpl/admin.parameters.tpl'
+        })
+        .when('/admin/console', {
+          controller: 'AdminConsoleController',
+          templateUrl: '../tpl/admin.console.tpl'
+        })
+        .when('/admin/cms', {
+          controller: 'AdminCmsController',
+          templateUrl: '../tpl/admin.cms.tpl'
+        })
 
         .when('/help/:section', {
           controller: 'HelpController',
           controllerAs: 'uctl',
           templateUrl: '../tpl/help.tpl'
         })
-
         .when('/users/password/restore', {
           controller: 'UsersPasswordRestoreController',
           controllerAs: 'uprc',
@@ -123,7 +133,10 @@ app.config([
           controller: 'UsersOnlineController',
           templateUrl: '../tpl/users.tpl'
         })
-
+        .when('/page/:path*', {
+          controller: 'PageController',
+          templateUrl: '../tpl/page.tpl'
+        })
         .when('/:category/:topic', {
           controller: 'TopicDetailsController',
           controllerAs: 'topic',
@@ -135,10 +148,10 @@ app.config([
           templateUrl: '../tpl/topics.tpl'
         })
         .when('/', {
-          controller: 'WelcomeController',
-          templateUrl: '../tpl/welcome.tpl'
+          controller: 'PageController',
+          templateUrl: '../tpl/page.tpl'
         })
-        .otherwise('/');
+        .otherwise('/page/welcome');
 
     $locationProvider.html5Mode({
       enabled: true,

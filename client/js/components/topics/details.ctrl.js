@@ -105,27 +105,37 @@ app.controller(
           var composeEl = document.querySelector('div.compose');
           var headerEl = document.querySelector('div.header');
           var topicCont = document.getElementById('topic');
-          topicCont.style.height = (
-                  window.innerHeight - composeEl.clientHeight - headerEl.clientHeight
-              ) + 'px';
-          console.log('topicCont.style.height', topicCont.style.height)
-          if (topicCont && Ps) {
-            if (topicCont.hasOwnProperty('scrollTopMax')) {
-              topicCont.scrollTop = topicCont.scrollTopMax;
-            } else {
-              /*var c = document.getElementById('commentsList');
-               if (c && c.lastElementChild) {
-               c.lastElementChild.scrollIntoView();
-               }*/
-              scrollToAnchor('topicAnchor');
+          if (topicCont && composeEl) {
+            topicCont.style.height = (
+                window.innerHeight - composeEl.clientHeight - headerEl.clientHeight
+            ) + 'px';
+            console.log('topicCont.style.height', topicCont.style.height)
+            if (topicCont && Ps) {
+              if (topicCont.hasOwnProperty('scrollTopMax')) {
+                topicCont.scrollTop = topicCont.scrollTopMax;
+              } else {
+                /*var c = document.getElementById('commentsList');
+                 if (c && c.lastElementChild) {
+                 c.lastElementChild.scrollIntoView();
+                 }*/
+                scrollToAnchor('topicAnchor');
+              }
+              Ps.update(topicCont);
             }
-            Ps.update(topicCont);
           }
         }
         function updateTopicHeight() {
           actualUpdateTopicHeight();
           // allow animation do it's business
           $timeout(actualUpdateTopicHeight, 200);
+        }
+
+        function scrollElementIntoView(elId) {
+          var el = document
+              .getElementById(elId);
+          if (el) {
+            el.scrollIntoView();
+          }
         }
 
         function scrollToLatestComment() {
@@ -149,9 +159,7 @@ app.controller(
                       i === 0
                   ) {
                     commentId = $scope.comments[i]._id;
-                    document
-                        .getElementById('comment_' + commentId)
-                        .scrollIntoView();
+                    scrollElementIntoView('comment_' + commentId);
                     $scope.initialCommentsLoad = false;
                     break;
                   }
@@ -159,9 +167,7 @@ app.controller(
                 }
               }
             }
-            document
-                .getElementById('topic_list_id_' + $scope.topic._id)
-                .scrollIntoView();
+            scrollElementIntoView('topic_list_id_' + $scope.topic._id);
           }, 50);
         }
 

@@ -5,7 +5,7 @@ const session = require('express-session');
 const socketioJwt = require('socketio-jwt');
 const jwt = require('jsonwebtoken');
 const pick = require('object.pick');
-const gravatar = require('gravatar');
+const page = require('./handlers/page');
 const pw = require('credential')();
 const question = require('./handlers/question');
 const comments = require('./handlers/comments');
@@ -179,6 +179,7 @@ mongooseConnection.once('open', function() {
         loginHandler.socketHandler(socket);
         topics.socketHandler(socket, errorHandler);
         userHandlers.socketHandler(socket, io, errorHandler);
+        page.socketHandler(socket, errorHandler);
 
         let uploader = new SocketIOFileUploadSrv();
         uploader.dir = filesUploadDirectory;
