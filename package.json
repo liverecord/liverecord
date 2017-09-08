@@ -2,7 +2,30 @@
   "name": "liverecord",
   "version": "0.0.1",
   "private": false,
-  "author": "Philipp Tkachev <philipp@zoonman.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liverecord/liverecord.git"
+  },
+  "license": "MIT",
+  "description": "Realtime communication platform. Can be used as your community support site, forum, online consulting service, FAQ.",
+  "keywords": [
+    "realtime",
+    "chat",
+    "forum",
+    "conference",
+    "faq",
+    "cms",
+    "calls",
+    "socket.io"
+  ],
+  "homepage": "https://liverecord.github.io/liverecord/",
+  "contributors": [
+    {"name": "Bull Nunney", "url": "https://github.com/bigtallbill"},
+    {"name": "Philipp Tkachev", "url": "http://www.zoonman.com", "email": "philipp@zoonman.com"}
+  ],
+  "bugs": {
+    "url": "https://github.com/liverecord/liverecord/issues"
+  },
   "config": {
     "mongodb": {
       "uri": "mongodb://127.0.0.1:27017/liveRecord"
@@ -96,7 +119,7 @@
     "async": "^2.1.5",
     "autoprefixer": "^6.7.7",
     "bootstrap-styl": "^5.0.8",
-    "chalk": "^1.1.3",
+    "chalk": "^2.0.0",
     "credential": "^2.0.0",
     "death": "^1.1.0",
     "del": "^2.2.2",
@@ -141,7 +164,7 @@
     "object.pick": "^1.2.0",
     "object.pluck": "^0.1.2",
     "oembed": "^0.1.2",
-    "passport": "^0.3.2",
+    "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-github2": "^0.1.10",
     "passport-google-oauth": "^1.0.0",
@@ -154,9 +177,9 @@
     "raven": "^1.2.0",
     "run-sequence": "^1.2.2",
     "sharp": "^0.17.2",
-    "socket.io": "^1.7.3",
-    "socket.io-emitter": "^2.0.0",
-    "socket.io-redis": "^4.0.0",
+    "socket.io": "^2.0.3",
+    "socket.io-emitter": "^3.1.0",
+    "socket.io-redis": "^5.2.0",
     "socketio-file-upload": "^0.6.0",
     "socketio-jwt": "^4.5.0",
     "socketio-jwt-auth": "0.0.5",
