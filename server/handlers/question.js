@@ -13,7 +13,7 @@ const hljs = require('highlight.js');
 const mailer = require('./mailer');
 
 
-function updateSubscriptions(savedTopic) {
+function updateSubscriptions(savedTopic, socket) {
   models.TopicFanOut.update(
       {
         topic: savedTopic._id,
@@ -123,7 +123,7 @@ function question(socket, io, errorHandler) {
                   const details = [
                     {path: 'category'}
                   ];
-                  updateSubscriptions(savedTopic);
+                  updateSubscriptions(savedTopic, socket);
                 }
               }
           );
