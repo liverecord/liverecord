@@ -1,6 +1,6 @@
 # Node.JS LTS
 FROM ubuntu:latest
-LABEL maintainer "zoonman@gmail.com"
+LABEL maintainer "philipp@zoonman.com"
 
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -qy build-essential libssl-dev git man curl bash python apt-utils
