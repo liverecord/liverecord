@@ -244,7 +244,9 @@ mongooseConnection.once('open', function() {
                     socket.join('user:' + webUser._id);
                     socket.webUser = webUser;
                     // now have a user context and can work
-                    Raven.setContext({user: webUser});
+                    if (process.env.npm_package_config_sentry_dsn) {
+                      Raven.setContext({user: webUser});
+                    }
                     // handlers
                     comments(socket, io, antiSpam, webpush);
                     question(socket, io, errorHandler);
@@ -324,7 +326,11 @@ mongooseConnection.once('open', function() {
             );
           }
           catch (e) {
-            Raven.captureException(e);
+            if (process.env.npm_package_config_sentry_dsn) {
+              Raven.captureException(e);
+            } else {
+              console.log(chalk.red('Error'), e);
+            }
           }
       });
       app.get('/:category/:topic', topics.expressRouter);

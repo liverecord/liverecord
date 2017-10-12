@@ -6,7 +6,6 @@ const async = require('async');
 const xtend = require('xtend');
 const models = require('../schema');
 const lrEnvelopes = require('./envelope');
-const purify = require('./purify');
 const staticHandlers = require('./static');
 
 const TopicListStruct = lrEnvelopes.topicList;

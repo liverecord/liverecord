@@ -17,11 +17,15 @@ const emptyPage = {
 function socketHandler(socket, errorHandler) {
   socket.on('page', function(pageReq, pageCallback) {
     console.log('page', pageReq);
-
+    let materializedPath = '';
+    if (pageReq.hasOwnProperty('path')) {
+      materializedPath = pageReq.path;
+    } else {
+      materializedPath = pageReq
+    }
     models
         .Page
-        .findOne({materializedPath: pageReq})
-        .lean()
+        .findOne({materializedPath: '/' + materializedPath})
         .then((page) => {
           if (null === page) {
             pageCallback(null, emptyPage);
@@ -31,7 +35,7 @@ function socketHandler(socket, errorHandler) {
         })
         .catch((err) => {
           pageCallback(null, emptyPage);
-          errorHandler(err);
+          console.log('page', materializedPath, 'not found');
         });
   });
 

@@ -95,9 +95,9 @@ function sendResponse(res, html, code, contentType) {
 function expressRouter(req, res, next) {
   let modifyBodyFunction = function(inputStr) {
     return modifyBody(inputStr, {
-      title: 'Форум про Линукс и свободные программы',
-      description: 'Общайся легко и свободно на нашем живом форуме.',
-      keywords: ['Linux, СПО, форум, чат, обсуждения, дискуссии'],
+      title: '',
+      description: '',
+      keywords: [''],
       frontLiveRecordConfig: req.app.get('frontLiveRecordConfig')
     });
   };

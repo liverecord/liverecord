@@ -3,7 +3,7 @@
  */
 
 app.controller(
-    'AdminCmsController',
+    'AdminCategoriesController',
     ['socket',
       '$scope',
       '$routeParams',
@@ -54,9 +54,6 @@ app.controller(
             console.log('page.save', pageData);
             $scope.page = pageData;
             $scope.sendButtonActive = true;
-
-            $scope.showPageEditForm = false;
-            $scope.editing = false;
           });
         };
 
