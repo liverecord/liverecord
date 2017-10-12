@@ -74,9 +74,12 @@ if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
   );
 } else {
   // use Raven to capture errors on production
-  Raven.config(process.env.npm_package_config_sentry_dsn).install();
-  app.use(Raven.requestHandler());
+  if (process.env.npm_package_config_sentry_dsn) {
+    Raven.config(process.env.npm_package_config_sentry_dsn).install();
+    app.use(Raven.requestHandler());
+  }
 }
+
 //
 reloadConfiguration();
 
