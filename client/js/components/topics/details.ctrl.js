@@ -432,7 +432,7 @@ app.controller(
           switch (event.keyCode) {
             case ENTER_KEY_CODE:
               if ((event.ctrlKey || event.metaKey ||
-                  ($localStorage.sendCommentsCtrl == 'Enter' && !event.shiftKey)) &&
+                  ($localStorage.sendCommentsCtrl === 'Enter' && !event.shiftKey)) &&
                   $scope.sendButtonActive) {
                 //
                 $scope.sendComment();
