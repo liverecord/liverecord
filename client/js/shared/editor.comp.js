@@ -70,7 +70,7 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize, $filt
 
   // @todo refactor to something more reliable
   self.listenKeyStrokes = function($evt) {
-    console.log('self.listenKeyStrokes', $evt)
+    // console.log('self.listenKeyStrokes', $evt)
     if ($evt.ctrlKey || $evt.metaKey) {
       switch ($evt.key) {
         case 'b':

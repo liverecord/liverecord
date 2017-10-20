@@ -20,8 +20,15 @@
   ],
   "homepage": "https://liverecord.github.io/liverecord/",
   "contributors": [
-    {"name": "Bull Nunney", "url": "https://github.com/bigtallbill"},
-    {"name": "Philipp Tkachev", "url": "http://www.zoonman.com", "email": "philipp@zoonman.com"}
+    {
+      "name": "Bull Nunney",
+      "url": "https://github.com/bigtallbill"
+    },
+    {
+      "name": "Philipp Tkachev",
+      "url": "http://www.zoonman.com",
+      "email": "philipp@zoonman.com"
+    }
   ],
   "bugs": {
     "url": "https://github.com/liverecord/liverecord/issues"
@@ -92,13 +99,13 @@
   },
   "scripts": {
     "start": "node server/server.js",
-    "debug": "node debug server/server.js",
+    "debug": "node $NODE_DEBUG_OPTION server/server.js",
     "stress_test": "node tests/stress/db_flooding.js",
     "test": "./node_modules/karma/bin/karma start --single-run --log-level debug tests/client.conf.js",
     "postinstall": "gulp build",
     "dev": "NODE_ENV=development npm start & npm run watch",
     "docker": "NODE_ENV=development npm start & npm run watch",
-    "watch": "gulp"
+    "watch": "gulp watch"
   },
   "dependencies": {
     "angular": "^1.6.3",
@@ -182,11 +189,11 @@
     "socket.io-redis": "^5.2.0",
     "socketio-file-upload": "^0.6.0",
     "socketio-jwt": "^4.5.0",
-    "socketio-jwt-auth": "0.0.5",
+    "socketio-jwt-auth": "0.0.6",
     "sticky-session": "^1.1.2",
     "ucfirst": "^1.0.0",
     "validator": "^7.0.0",
-    "web-push": "^3.2.2",
+    "web-push": "^3.2.4",
     "webrtc-adapter": "^3.2.0"
   },
   "devDependencies": {

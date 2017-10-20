@@ -3,7 +3,7 @@
  */
 
 const xtend = require('xtend');
-const fs = require('fs');
+const ltrim = require('ltrim');
 const models = require('../schema');
 
 const emptyPage = {
@@ -25,7 +25,7 @@ function socketHandler(socket, errorHandler) {
     }
     models
         .Page
-        .findOne({materializedPath: '/' + materializedPath})
+        .findOne({materializedPath: '/' + ltrim(materializedPath, '/')})
         .then((page) => {
           if (null === page) {
             pageCallback(null, emptyPage);
@@ -87,6 +87,34 @@ function socketHandler(socket, errorHandler) {
         }
       }
   );
+
+  socket.on('page.delete', function(_id, socketCallback) {
+        if (socket.webUser &&
+            socket.webUser.roles &&
+            socket.webUser.roles.indexOf('admin') > -1) {
+
+          if (_id) {
+            models
+            .Page
+            .findByIdAndRemove(
+                _id
+            )
+            .then(r => {
+              'use strict';
+              socketCallback(r);
+            })
+            .catch(err => {
+              'use strict';
+              socketCallback({status: 'error'});
+              errorHandler(err);
+            });
+          } else {
+            socketCallback({status: 'error'});
+          }
+        }
+      }
+  );
+
 }
 
 module.exports.socketHandler = socketHandler;

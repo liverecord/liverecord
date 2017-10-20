@@ -15,6 +15,9 @@
         <button ng-click="editPage(item.materializedPath)">
           <i class="fa fa-edit"></i>
         </button>
+        <button ng-click="deletePage(item._id)">
+          <i class="fa fa-remove"></i>
+        </button>
       </div>
     </div>
 
@@ -27,26 +30,31 @@
           </h3>
           <form ng-submit="savePage()" name="addNewPageForm">
             <div class="flex-row">
+              <label for="pageTitle">{{'Page title'|translate}}</label>
               <input id="pageTitle" name="title" type="text" data-ng-model="page.title" placeholder="{{'Page title'|translate}}" required>
               <i class="fa fa-fw fa-times" ng-show="addNewPageForm.title.$invalid"></i>
               <i class="fa fa-fw fa-check" ng-show="addNewPageForm.title.$valid"></i>
             </div>
             <div class="flex-row">
+              <label for="pageDescription">{{'Page description'|translate}}</label>
               <input id="pageDescription" name="description" type="text" data-ng-model="page.description" placeholder="{{'Page description'|translate}}">
               <i class="fa fa-fw fa-times" ng-show="addNewPageForm.description.$invalid"></i>
               <i class="fa fa-fw fa-check" ng-show="addNewPageForm.description.$valid"></i>
             </div>
             <div class="flex-row">
+              <label for="pageName">{{'Page name'|translate}}</label>
               <input id="pageName" name="name" type="text" data-ng-model="page.name" placeholder="{{'Page name'|translate}}" required>
               <i class="fa fa-fw fa-times" ng-show="addNewPageForm.name.$invalid"></i>
               <i class="fa fa-fw fa-check" ng-show="addNewPageForm.name.$valid"></i>
             </div>
             <div class="flex-row">
+              <label for="pageSlug">{{'Page slug'|translate}}</label>
               <input id="pageSlug" name="slug" type="text" data-ng-model="page.slug" placeholder="{{'Page slug'|translate}}" required>
               <i class="fa fa-fw fa-times" ng-show="addNewPageForm.slug.$invalid"></i>
               <i class="fa fa-fw fa-check" ng-show="addNewPageForm.slug.$valid"></i>
             </div>
             <div class="flex-row">
+              <label for="pageMenu">{{'Page menu'|translate}}</label>
               <input id="pageMenu" name="menu" type="text" data-ng-model="page.menu" placeholder="{{'Page menu'|translate}}">
               <i class="fa fa-fw fa-times" ng-show="addNewPageForm.menu.$invalid"></i>
               <i class="fa fa-fw fa-check" ng-show="addNewPageForm.menu.$valid"></i>

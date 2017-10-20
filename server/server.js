@@ -3,10 +3,10 @@ const death = require('death');
 const express = require('express');
 const session = require('express-session');
 const socketioJwt = require('socketio-jwt');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 const pick = require('object.pick');
 const page = require('./handlers/page');
-const pw = require('credential')();
+//const pw = require('credential')();
 const question = require('./handlers/question');
 const comments = require('./handlers/comments');
 const loginHandler = require('./handlers/login');
@@ -18,9 +18,6 @@ const uploadHandler = require('./handlers/upload');
 const errorHandler = require('./handlers/errors');
 const pushHandler = require('./handlers/push');
 const staticHandlers = require('./handlers/static');
-const sharp = require('sharp');
-const path = require('path');
-const xtend = require('xtend');
 const fs = require('fs');
 const webpush = require('web-push');
 const chalk = require('chalk');
@@ -84,7 +81,8 @@ if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
 reloadConfiguration();
 
 //
-server.listen(process.env.npm_package_config_server_port,
+server.listen(
+    process.env.npm_package_config_server_port,
     process.env.npm_package_config_server_host
 );
 //
@@ -121,35 +119,38 @@ app.get('/', staticHandlers.expressRouter);
 app.use('/', express.static(__dirname + '/public'));
 app.use(SocketIOFileUploadSrv.router);
 
-
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.npm_package_config_mongodb_uri, {  useMongoClient: true,});
+mongoose.connect(
+    process.env.npm_package_config_mongodb_uri,
+    {useMongoClient: true}
+    );
 
 let mongooseConnection = mongoose.connection;
-mongooseConnection.on('error',
+mongooseConnection.on(
+    'error',
     console.error.bind(console, chalk.red('connection error:'))
 );
 
 let threadConnections = 0;
 
 mongooseConnection.once('open', function() {
-  // we're connected!
-  let models = require('./schema');
+      // we're connected!
+      let models = require('./schema');
 
+      //app.use(passport.session());
+      passportHandler(passport, app);
 
-  //app.use(passport.session());
-  passportHandler(passport, app);
+      const antiSpam = require('./handlers/antispam');
+      const siteMap = require('./handlers/sitemap');
+      app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
+      app.get('/sitemap.xml', siteMap.router);
 
-  const antiSpam = require('./handlers/antispam');
-  const siteMap = require('./handlers/sitemap');
-  app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
-  app.get('/sitemap.xml', siteMap.router);
+      pushHandler.configure(webpush, frontLiveRecordConfig);
 
-  pushHandler.configure(webpush, frontLiveRecordConfig);
-
-  models.Parameters
+      models
+      .Parameters
       .find({name: {$nin: ['vapidKeys']}})
       .then((docs) => {
         docs.forEach((item) => {
@@ -158,20 +159,18 @@ mongooseConnection.once('open', function() {
         });
       })
       .catch(errorHandler);
-  let sendOnlineCount = function() {
-    models
+      let sendOnlineCount = function() {
+        models
         .User
         .count({online: true, deleted: false})
         .then(function(count) {
               io.volatile.emit('connections', count || 0);
-            }
-        )
+            })
         .catch(errorHandler);
-  };
+      };
 
-  // declare io handling
-  io
-      .on('connection', function(socket) {
+      // declare io handling
+      io.on('connection', function(socket) {
 
         threadConnections++;
         console.log(
@@ -187,7 +186,8 @@ mongooseConnection.once('open', function() {
         let uploader = new SocketIOFileUploadSrv();
         uploader.dir = filesUploadDirectory;
 
-        uploadHandler(socket,
+        uploadHandler(
+            socket,
             uploader,
             filesUploadDirectory,
             filesPublicDirectory,
@@ -208,130 +208,138 @@ mongooseConnection.once('open', function() {
           required: false, // authorization is always not required
           timeout: 5000    // 5 seconds to send the authentication message
         })(socket);
-      })
-      .on('authenticated', function(socket) {
-          //console.log('authenticated', socket.decoded_token._id);
-          setTimeout(function() {
-                sendOnlineCount();
-              }, 1000
-          );
-          try {
-            if (!socket.decoded_token) {
-              return;
-            }
-            models
-                .User
-                .findById(socket.decoded_token._id)
-                .then(function(currentUser) {
-                  if (currentUser) {
-                    let webUser = pick(currentUser,
-                        ['_id',
-                          'name',
-                          'email',
-                          'picture',
-                          'slug',
-                          'roles',
-                          'about',
-                          'gender',
-                          'rank',
-                          'devices',
-                          'online',
-                          'settings'
-                        ]
-                    );
-                    // inform user
-                    socket.emit('user', webUser);
-                    socket.join('user:' + webUser._id);
-                    socket.webUser = webUser;
-                    // now have a user context and can work
-                    if (process.env.npm_package_config_sentry_dsn) {
-                      Raven.setContext({user: webUser});
-                    }
-                    // handlers
-                    comments(socket, io, antiSpam, webpush);
-                    question(socket, io, errorHandler);
-                    bookmarks(socket, errorHandler);
-                    pushHandler.socketHandler(
-                        webpush,
-                        socket
-                    );
+      }).on('authenticated', function(socket) {
+        //console.log('authenticated', socket.decoded_token._id);
+        setTimeout(function() {
+              sendOnlineCount();
+            }, 1000
+        );
+        try {
+          if (!socket.decoded_token) {
+            return;
+          }
+          models
+          .User
+          .findById(socket.decoded_token._id)
+          .then(function(currentUser) {
+                    if (currentUser) {
+                      let webUser = pick(currentUser.toObject(),
+                          [
+                            '_id',
+                            'name',
+                            'email',
+                            'picture',
+                            'slug',
+                            'roles',
+                            'about',
+                            'gender',
+                            'rank',
+                            'devices',
+                            'online',
+                            'settings'
+                          ]
+                      );
+                      // inform user
+                      socket.emit('user', webUser);
+                      socket.join('user:' + webUser._id);
+                      socket.webUser = webUser;
+                      // now have a user context and can work
+                      if (process.env.npm_package_config_sentry_dsn) {
+                        Raven.setContext({user: webUser});
+                      }
+                      // handlers
+                      comments(socket, io, antiSpam, webpush);
+                      question(socket, io, errorHandler);
+                      bookmarks(socket, errorHandler);
+                      pushHandler.socketHandler(
+                          webpush,
+                          socket
+                      );
 
-                    models.User.update(
-                        {_id: currentUser._id},
-                        {$set: {online: true, updated: Date.now()}},
-                        function(err, res) {
-                          if (err) {
-                            return errorHandler(err);
+                      models.User.update(
+                          {_id: currentUser._id},
+                          {$set: {online: true, updated: Date.now()}},
+                          function(err, res) {
+                            if (err) {
+                              return errorHandler(err);
+                            }
                           }
+                      );
+                      socket.on('command', function(req) {
+                        console.log(req);
+                        if (socket.webUser &&
+                            socket.webUser.roles &&
+                            socket.webUser.roles.indexOf('admin') > -1) {
+                          io.emit('command', req);
                         }
-                    );
-                    socket.on('command', function(req) {
-                      console.log(req);
-                      if (socket.webUser &&
-                          socket.webUser.roles.indexOf('admin') > -1) {
-                        io.emit('command', req);
-                      }
-                    });
+                      });
+                    }
                   }
-                }
-                ).catch(function(reason) {
-                  if (reason) {
-                    return errorHandler(reason);
-                  }
-                }
-            );
+              )
+          .catch(errorHandler);
 
-            [
-              'video-init',
-              'video-offer',
-              'video-answer',
-              'video-hangup',
-              'new-ice-candidate'
-            ].map(function(eventName) {
-              socket.on(eventName, function(req) {
-                console.log(chalk.red(eventName), req);
-                if (req.topic) {
-                  let roomName = 'topic:' + req.topic;
-                  if (eventName === 'video-init') {
-                    //
-                    io.of('/').in(roomName).clients(function(error, clients) {
-                      if (error) throw error;
-                      console.log('video-init-pc', clients);
-                      var sp = clients.indexOf(socket.id);
-                      clients.splice(sp, 1);
-                      clients.unshift(socket.id); // call initiator always will be first
-                      console.log('video-init-pc-after-unshift', clients);
-                      socket.emit('video-init-pc', clients);
-                      socket.broadcast.to(roomName).emit('video-init-pc', clients);
-                    });
-                  }
-                  socket.broadcast.to(roomName).emit(eventName, req);
+          [
+            'video-init',
+            'video-offer',
+            'video-answer',
+            'video-hangup',
+            'new-ice-candidate'
+          ].map(function(eventName) {
+            socket.on(eventName, function(req) {
+              console.log(chalk.red(eventName), req);
+              if (req.topic) {
+                let roomName = 'topic:' + req.topic;
+                if (eventName === 'video-init') {
+                  //
+                  io.of('/').in(roomName).clients(function(error, clients) {
+                    if (error) throw error;
+                    console.log('video-init-pc', clients);
+                    var sp = clients.indexOf(socket.id);
+                    clients.splice(sp, 1);
+                    clients.unshift(socket.id); // call initiator always will be first
+                    console.log('video-init-pc-after-unshift', clients);
+                    socket.emit('video-init-pc', clients);
+                    socket.broadcast.to(roomName).emit('video-init-pc', clients);
+                  });
                 }
-              });
+                socket.broadcast.to(roomName).emit(eventName, req);
+              }
             });
+          });
 
-            socket.on('disconnect', function(s) {
-                  if (socket.webUser && socket.webUser._id) {
-                    models.User.update({_id: socket.webUser._id},
-                        {'$set': {online: false, updated: Date.now()}}
-                    ).exec(function(err, other) {
-                      if (err) {
-                        return errorHandler(err);
-                      }
-                      //
-                    });
-                  }
-                  console.log(chalk.blue('Disconnected'), s);
+          socket.on('disconnect', function(s) {
+                let onlineUserId = null, userIsStillOnline = false;
+                if (socket.webUser && socket.webUser._id) {
+                  onlineUserId = socket.webUser._id;
                 }
-            );
+                for (let onlineSocketId in io.of('/').connected) {
+                  if (io.of('/').connected.hasOwnProperty(onlineSocketId)) {
+                    let onlineSocket = io.of('/').connected[onlineSocketId];
+                    // console.log(onlineSocket);
+                    if (onlineSocket.webUser &&
+                        onlineSocket.webUser._id &&
+                        onlineSocket.webUser._id === onlineUserId) {
+                      userIsStillOnline = true;
+                    }
+                  }
+                }
+                if (onlineUserId && userIsStillOnline) {
+                  models.User.update(
+                      {_id: onlineUserId},
+                      {'$set': {online: false, updated: Date.now()}}
+                  ).exec(errorHandler);
+                }
+                console.log(chalk.blue('Disconnected'), s);
+              }
+          );
+        }
+        catch (e) {
+          if (process.env.npm_package_config_sentry_dsn) {
+            Raven.captureException(e);
+          } else {
+            console.log(chalk.red('Error'), e);
           }
-          catch (e) {
-            if (process.env.npm_package_config_sentry_dsn) {
-              Raven.captureException(e);
-            } else {
-              console.log(chalk.red('Error'), e);
-            }
-          }
+        }
       });
       app.get('/:category/:topic', topics.expressRouter);
       app.get('*', staticHandlers.expressRouter);

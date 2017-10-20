@@ -39,8 +39,9 @@ app.controller(
         $scope.editPage = function(pageId) {
           $scope.showPageEditForm = true;
           $scope.editing = true;
+          console.log(pageId);
           if (pageId) {
-            socket.emit('page', {_id: pageId }, function(err, pageData) {
+            socket.emit('page', {path: pageId }, function(err, pageData) {
               $scope.page = pageData;
             });
           } else {
@@ -57,23 +58,30 @@ app.controller(
 
             $scope.showPageEditForm = false;
             $scope.editing = false;
+            $scope.loadPages();
           });
         };
 
         $scope.deletePage = function(pageId) {
-          $scope.showPageEditForm = false;
-          socket.emit('page.delete', pageId, function(pageData) {
-            // remove page
-            $scope.sendButtonActive = true;
-          });
+          if (window.confirm('Are you sure?')) {
+            $scope.showPageEditForm = false;
+            socket.emit('page.delete', pageId, function(pageData) {
+              // remove page
+              $scope.sendButtonActive = true;
+              $scope.loadPages();
+            });
+          }
+          $scope.loadPages();
         };
 
         $scope.pages = [];
-        socket.emit('page.list', {}, function(result) {
-          $scope.pages = result;
-          PerfectScrollBar.setup('topic');
-        });
-
+        $scope.loadPages = function() {
+          socket.emit('page.list', {}, function(result) {
+            $scope.pages = result;
+            PerfectScrollBar.setup('topic');
+          });
+        };
+        $scope.loadPages();
         window.addEventListener('resize', function() {
           PerfectScrollBar.setup('topic');
         });

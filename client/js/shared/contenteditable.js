@@ -8,7 +8,7 @@ app.directive('contenteditable', ['$timeout', function($timeout) {
     link: function(scope, elm, attrs, ctrl) {
       // update value
       var setViewValue = function() {
-        console.timeStamp('setViewValue');
+        // console.timeStamp('setViewValue');
         ctrl.$setViewValue(elm.html());
       };
       // update model
