@@ -5,59 +5,46 @@
       <a href="/admin/">Admin</a>
     </nav>
     
-    <h1>Categories</h1>
 
-    <div class="show-tree" ng-hide="showPageEditForm">
-      <p>Pages</p>
-      <button class="button" ng-click="editPage()">Add Page</button>
-      <div ng-repeat="item in pages track by item._id">
-        {{item.materializedPath}}
-        <button ng-click="editPage(item.materializedPath)">
+    <div class="show-tree" ng-hide="showCategoryEditForm">
+      <h3>Categories</h3>
+      <button class="button" ng-click="editCategory()">Add Category</button>
+      <div ng-repeat="item in categories track by item._id">
+        {{item.name}}
+        <button ng-click="editCategory(item._id)">
           <i class="fa fa-edit"></i>
         </button>
       </div>
     </div>
 
-    <div class="edit-form" ng-show="showPageEditForm">
+    <div class="edit-form" ng-show="showCategoryEditForm">
       <div class="flex-column ask-form">
         <div ng-cloak="" ng-click="docClick()">
           <h3>
-            <span ng-hide="editing" ng-bind="'Create new page'|translate"></span>
-            <span ng-show="editing"><span ng-bind="'Edit page'|translate"></span> <q ng-bind="page.title"></q></span>
+            <span ng-hide="editing" ng-bind="'Create new category'|translate"></span>
+            <span ng-show="editing"><span ng-bind="'Edit category'|translate"></span> <q ng-bind="category.name"></q></span>
           </h3>
-          <form ng-submit="savePage()" name="addNewPageForm">
+          <form ng-submit="saveCategory()" name="addNewCategoryForm">
             <div class="flex-row">
-              <input id="pageTitle" name="title" type="text" data-ng-model="page.title" placeholder="{{'Page title'|translate}}" required>
-              <i class="fa fa-fw fa-times" ng-show="addNewPageForm.title.$invalid"></i>
-              <i class="fa fa-fw fa-check" ng-show="addNewPageForm.title.$valid"></i>
+              <input id="categoryName" name="name" type="text"
+                     data-ng-model="category.name" placeholder="{{'Category name'|translate}}" required>
+              <i class="fa fa-fw fa-times" ng-show="addNewCategoryForm.name.$invalid"></i>
+              <i class="fa fa-fw fa-check" ng-show="addNewCategoryForm.name.$valid"></i>
             </div>
             <div class="flex-row">
-              <input id="pageDescription" name="description" type="text" data-ng-model="page.description" placeholder="{{'Page description'|translate}}">
-              <i class="fa fa-fw fa-times" ng-show="addNewPageForm.description.$invalid"></i>
-              <i class="fa fa-fw fa-check" ng-show="addNewPageForm.description.$valid"></i>
+              <lr-editor html="category.description"></lr-editor>
             </div>
             <div class="flex-row">
-              <input id="pageName" name="name" type="text" data-ng-model="page.name" placeholder="{{'Page name'|translate}}" required>
-              <i class="fa fa-fw fa-times" ng-show="addNewPageForm.name.$invalid"></i>
-              <i class="fa fa-fw fa-check" ng-show="addNewPageForm.name.$valid"></i>
-            </div>
-            <div class="flex-row">
-              <input id="pageSlug" name="slug" type="text" data-ng-model="page.slug" placeholder="{{'Page slug'|translate}}" required>
-              <i class="fa fa-fw fa-times" ng-show="addNewPageForm.slug.$invalid"></i>
-              <i class="fa fa-fw fa-check" ng-show="addNewPageForm.slug.$valid"></i>
-            </div>
-            <div class="flex-row">
-              <input id="pageMenu" name="menu" type="text" data-ng-model="page.menu" placeholder="{{'Page menu'|translate}}">
-              <i class="fa fa-fw fa-times" ng-show="addNewPageForm.menu.$invalid"></i>
-              <i class="fa fa-fw fa-check" ng-show="addNewPageForm.menu.$valid"></i>
-            </div>
+              <button ng-disabled="!sendButtonActive || addNewCategoryForm.$invalid">
+                <span ng-hide="editing" ng-bind="'Create'|translate"></span>
+                <span ng-show="editing" ng-bind="'Save'|translate"></span>
+              </button>
+              <div style="flex-grow: 2">
+              </div>
+              <input id="categoryOrder" name="name" size="5"
+                     step="1"
+                     type="number" min="0" max="1000" data-ng-model="category.order" placeholder="#" required>
 
-            <div class="flex-row">
-              <lr-editor html="page.body"></lr-editor>
-            </div>
-            <div class="flex-row">
-              <button ng-disabled="!sendButtonActive || addNewPageForm.$invalid"><span ng-hide="editing" ng-bind="'Create'|translate"></span>
-                <span ng-show="editing" ng-bind="'Save'|translate"></span></button>
             </div>
           </form>
         </div>

@@ -6,9 +6,9 @@ app.factory('CategoriesFactory', ['$q', 'socket', function($q, socket) {
       var service = {
         categories: [],
         activeCategory: null,
-        load: function() {
+        load: function(f) {
           var deferred = $q.defer();
-          if (service.categories.length == 0) {
+          if (service.categories.length == 0 || f) {
             socket.emit('categories', {}, function(data) {
                   service.categories = data;
                   console.log(data);

@@ -58,7 +58,7 @@
             </div>
             <div class="center" ng-cloak=""><small>sending signal into space...</small></div>
             <noscript>
-                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">Javascript required!</p>
+                <p style="color: red;background-color: white;padding: 1em;font-size: 1.4em">Enable JavaScript!</p>
             </noscript>
         </div>
     </div>
@@ -69,9 +69,9 @@
     </div>
     <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
-            <div class="logo"><a href="/"><span class="hidden-xs">LiveRecord</span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
+            <div class="logo"><a href="/"><span class="hidden-xs" ng-bind="appConfig.siteName"></span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
             <div class="top-bar flex-row">
-                <div class="slogan" ng-bind="slogan"></div>
+                <div class="slogan" ng-bind="appConfig.siteSlogan"></div>
                     <div ng-show="user" class="user flex">
                         <div class="avatar"><img ng-src="{{user.picture}}" alt="" class="responsive avatar"></div>
                         <div class="profile">

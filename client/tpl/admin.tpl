@@ -3,6 +3,7 @@
 
     <nav>
       <a href="/admin/">Admin</a>
+      <a href="/admin/categories/">Categories</a>
       <a href="/admin/cms/">Pages</a>
       <a href="/admin/console/">Console</a>
       <a href="/admin/comments/">Comments</a>

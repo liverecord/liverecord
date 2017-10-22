@@ -139,6 +139,11 @@
   "Page description":"Description",
   "Page title":"Title",
   "Page menu":"Menu name",
+  "Category name":"Category",
+  "Category description":"Category",
+  "Edit category":"Edit category",
+  "#":"#",
+  "Create new category":"",
   "":"",
   "_":""
 }

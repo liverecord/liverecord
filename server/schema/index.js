@@ -1,7 +1,6 @@
 /**
  * Created by zoonman on 11/5/16.
  */
-
 const fs = require('fs');
 
 fs.readdirSync(__dirname).forEach(function(file) {

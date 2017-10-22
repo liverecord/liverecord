@@ -144,10 +144,12 @@ mongooseConnection.once('open', function() {
 
       const antiSpam = require('./handlers/antispam');
       const siteMap = require('./handlers/sitemap');
+      const setup = require('./handlers/setup');
       app.get('/admin/teach/comments/:comment/:label', antiSpam.router);
       app.get('/sitemap.xml', siteMap.router);
 
       pushHandler.configure(webpush, frontLiveRecordConfig);
+      setup.configure(frontLiveRecordConfig);
 
       models
       .Parameters

@@ -105,6 +105,10 @@ app.config([
           controller: 'AdminCmsController',
           templateUrl: '../tpl/admin.cms.tpl'
         })
+        .when('/admin/categories', {
+          controller: 'AdminCategoriesController',
+          templateUrl: '../tpl/admin.categories.tpl'
+        })
 
         .when('/help/:section', {
           controller: 'HelpController',

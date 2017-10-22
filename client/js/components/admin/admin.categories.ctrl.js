@@ -9,67 +9,79 @@ app.controller(
       '$routeParams',
       '$timeout',
       'PerfectScrollBar',
-      '$localStorage',
       '$document',
+      'CategoriesFactory',
       function(socket,
           $scope,
           $routeParams,
           $timeout,
           PerfectScrollBar,
-          $localStorage,
-          $document) {
+          $document,
+          CategoriesFactory) {
 
         //
 
-        function returnEmptyPage() {
+        function returnEmptyCategory() {
           return {
-            title: '',
             description: '',
             name: '',
-            menu: '',
-            body: '',
+            order: 100,
             slug: ''
           };
         }
-        $scope.page = returnEmptyPage();
-        $scope.showPageEditForm = false;
+        $scope.category = returnEmptyCategory();
+        $scope.showCategoryEditForm = false;
         $scope.editing = false;
         $scope.sendButtonActive = true;
 
-        $scope.editPage = function(pageId) {
-          $scope.showPageEditForm = true;
+        $scope.editCategory = function(categoryId) {
+          $scope.showCategoryEditForm = true;
           $scope.editing = true;
-          if (pageId) {
-            socket.emit('page', {_id: pageId }, function(err, pageData) {
-              $scope.page = pageData;
-            });
+          if (categoryId) {
+            for (let cat of $scope.categories) {
+              if (categoryId === cat._id) {
+                $scope.category = cat;
+              }
+            }
           } else {
-            $scope.page = returnEmptyPage();
+            $scope.category = returnEmptyCategory();
           }
         };
 
-        $scope.savePage = function() {
+        $scope.saveCategory = function() {
           $scope.sendButtonActive = false;
-          socket.emit('page.save', $scope.page, function(pageData) {
-            console.log('page.save', pageData);
-            $scope.page = pageData;
+          socket.emit('category.save', $scope.category, function(categoryData) {
+            console.log('category.save', categoryData);
+            $scope.category = categoryData;
             $scope.sendButtonActive = true;
+            $scope.showCategoryEditForm = false;
+            $scope.loadCategories();
+
           });
         };
 
-        $scope.deletePage = function(pageId) {
-          $scope.showPageEditForm = false;
-          socket.emit('page.delete', pageId, function(pageData) {
-            // remove page
+        $scope.deleteCategory = function(categoryId) {
+          $scope.showCategoryEditForm = false;
+          socket.emit('category.delete', categoryId, function(categoryData) {
+            // remove category
             $scope.sendButtonActive = true;
+            $scope.loadCategories();
+
           });
         };
 
-        $scope.pages = [];
-        socket.emit('page.list', {}, function(result) {
-          $scope.pages = result;
-          PerfectScrollBar.setup('topic');
-        });
+        $scope.categories = [];
+        
+
+        $scope.loadCategories = function() {
+          socket.emit('categories', {}, function(result) {
+            $scope.categories = result;
+            $rootScope.categories = result;
+            PerfectScrollBar.setup('topic');
+          });
+          CategoriesFactory.load(1);
+        };
+        $scope.loadCategories();
 
         window.addEventListener('resize', function() {
           PerfectScrollBar.setup('topic');
