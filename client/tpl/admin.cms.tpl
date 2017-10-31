@@ -10,15 +10,27 @@
     <div class="show-tree" ng-hide="showPageEditForm">
       <p>Pages</p>
       <button class="button" ng-click="editPage()">Add Page</button>
-      <div ng-repeat="item in pages track by item._id">
-        {{item.materializedPath}}
-        <button ng-click="editPage(item.materializedPath)">
-          <i class="fa fa-edit"></i>
-        </button>
-        <button ng-click="deletePage(item._id)">
-          <i class="fa fa-remove"></i>
-        </button>
-      </div>
+      <table width="100%">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Path</th>
+          <th>Slug</th>
+          <th colspan="3">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in pages track by item._id">
+            <td>{{item.name}}</td>
+            <td>{{item.mp}}</td>
+            <td>{{item.slug}}</td>
+            <td><a ng-click="editPage(item._id)"><i class="fa fa-edit"></i></a></td>
+            <td><a ng-href="/page/{{item.mp}}"><i class="fa fa-eye"></i></a></td>
+            <td><a ng-click="deletePage(item._id)"><i class="fa fa-trash"></i></a></td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
 
     <div class="edit-form" ng-show="showPageEditForm">

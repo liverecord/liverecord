@@ -11,21 +11,26 @@ const emptyPage = {
   description: '',
   name: 'Not found',
   menu: '',
+  slug: '',
+  path: '',
+  mp: '',
   body: 'Requested URL was not found',
 };
 
 function socketHandler(socket, errorHandler) {
   socket.on('page', function(pageReq, pageCallback) {
     console.log('page', pageReq);
-    let materializedPath = '';
-    if (pageReq.hasOwnProperty('path')) {
-      materializedPath = pageReq.path;
+    let condition = {};
+    if (pageReq.path) {
+      condition['mp'] = pageReq.path;
+    } else if (pageReq._id) {
+      condition['_id'] = pageReq._id;
     } else {
-      materializedPath = pageReq
+      condition['mp'] = pageReq;
     }
     models
         .Page
-        .findOne({materializedPath: '/' + ltrim(materializedPath, '/')})
+        .findOne(condition)
         .then((page) => {
           if (null === page) {
             pageCallback(null, emptyPage);
@@ -35,7 +40,7 @@ function socketHandler(socket, errorHandler) {
         })
         .catch((err) => {
           pageCallback(null, emptyPage);
-          console.log('page', materializedPath, 'not found');
+          errorHandler(err);
         });
   });
 
@@ -49,15 +54,33 @@ function socketHandler(socket, errorHandler) {
         .catch(errorHandler);
   });
 
-  socket.on('page.save', function(data, socketCallback) {
-    if (socket.webUser &&
+  function isAdmin(socket) {
+    return (socket.webUser &&
         socket.webUser.roles &&
-        socket.webUser.roles.indexOf('admin') > -1) {
+        socket.webUser.roles.indexOf('admin') > -1);
+  }
+
+  socket.on('page.delete', function(data, socketCallback) {
+    if (isAdmin(socket)) {
+      models
+          .Page
+          .findByIdAndRemove(data)
+          .then(r => {
+            'use strict';
+            socketCallback(true);
+          })
+          .catch(errorHandler);
+    }
+  });
+
+  socket.on('page.save', function(data, socketCallback) {
+    if (isAdmin(socket)) {
           data = xtend(
               emptyPage,
               data
           );
           if (data._id) {
+            data.mp = '';
             models
                 .Page
                 .findByIdAndUpdate(
@@ -79,6 +102,7 @@ function socketHandler(socket, errorHandler) {
               'use strict';
               if (err) {
                 socketCallback(emptyPage);
+                console.log(err);
               } else {
                 socketCallback(pgo.toObject());
               }
@@ -87,34 +111,6 @@ function socketHandler(socket, errorHandler) {
         }
       }
   );
-
-  socket.on('page.delete', function(_id, socketCallback) {
-        if (socket.webUser &&
-            socket.webUser.roles &&
-            socket.webUser.roles.indexOf('admin') > -1) {
-
-          if (_id) {
-            models
-            .Page
-            .findByIdAndRemove(
-                _id
-            )
-            .then(r => {
-              'use strict';
-              socketCallback(r);
-            })
-            .catch(err => {
-              'use strict';
-              socketCallback({status: 'error'});
-              errorHandler(err);
-            });
-          } else {
-            socketCallback({status: 'error'});
-          }
-        }
-      }
-  );
-
 }
 
 module.exports.socketHandler = socketHandler;

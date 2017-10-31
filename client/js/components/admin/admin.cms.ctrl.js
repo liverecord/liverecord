@@ -20,7 +20,6 @@ app.controller(
           $document) {
 
         //
-
         function returnEmptyPage() {
           return {
             title: '',
@@ -41,7 +40,7 @@ app.controller(
           $scope.editing = true;
           console.log(pageId);
           if (pageId) {
-            socket.emit('page', {path: pageId }, function(err, pageData) {
+            socket.emit('page', {_id: pageId }, function(err, pageData) {
               $scope.page = pageData;
             });
           } else {

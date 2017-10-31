@@ -12,7 +12,8 @@ app.controller('PageController',
       '$document',
       '$routeParams',
 
-      function($scope,
+      function(
+          $scope,
           socket,
           $rootScope,
           $window,
@@ -21,14 +22,15 @@ app.controller('PageController',
           $routeParams
           ) {
 
-        console.log('PageController...')
+        console.log('PageController...');
+        $scope.path = $routeParams.path || 'welcome';
 
         PerfectScrollBar.setup('topic');
         socket.emit(
             'page',
             {path: $routeParams.path || 'welcome'},
             function(err, data) {
-              console.log('page:' , data, err)
+              // console.log('page:' , data, err)
               $scope.page = data;
               $document[0].title = data.title;
             });
