@@ -18,6 +18,8 @@ or lawyers, or shopping consultants.
  
 [Demo](https://www.linuxquestions.ru/english/about-this-project)
 
+[![Demo](https://www.linuxquestions.ru/files/f/0fb/Screen%20Shot%202017-11-05%20at%2023.30.24.png)](https://www.linuxquestions.ru/english/about-this-project)
+
 ## Features
 
  - live discussions on topics, like Slack or Discord
@@ -30,7 +32,8 @@ or lawyers, or shopping consultants.
 
 ## Documentation 
 
-[Documentation](https://liverecord.github.io/liverecord/)
+[*Documentation*](https://liverecord.github.io/liverecord/)
+
 
 
 ### Setup
