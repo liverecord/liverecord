@@ -193,7 +193,7 @@
     "sticky-session": "^1.1.2",
     "ucfirst": "^1.0.0",
     "validator": "^7.0.0",
-    "vinyl-fs": "^0.3.0",
+    "vinyl-fs": "^2.4.4",
     "web-push": "^3.2.4",
     "webrtc-adapter": "^3.2.0"
   },
