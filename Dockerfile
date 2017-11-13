@@ -43,7 +43,7 @@ COPY gulpfile.js /usr/src/app/
 
 RUN apk --no-cache add --virtual native-deps \
   g++ gcc libgcc libstdc++ linux-headers \
-  vips-dev fftw-dev autoconf nasm gifsicle libjpeg-turbo-utils optipng \
+  vips-dev fftw-dev autoconf automake nasm gifsicle libjpeg-turbo-utils optipng \
   openssl-dev make python \
   --repository https://dl-3.alpinelinux.org/alpine/edge/testing/ && \
   npm install --quiet node-gyp -g &&\
