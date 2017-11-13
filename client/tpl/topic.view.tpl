@@ -51,7 +51,7 @@
           <a ng-href="/edit/{{::topic.slug}}"><i class="fa fa-fw fa-2x fa-edit"></i></a>
         </div>
         <div class="col">
-          <a href="https://www.addtoany.com/share?linkurl={{::topic.category.slug}}/{{::topic.slug}}"
+          <a href="https://www.addtoany.com/share?linkurl={{::topic.absoluteUrl}}"
              target="_blank"
              ng-cloak="" ><i class="fa fa-fw fa-2x fa-share-square-o"></i></a>
         </div>

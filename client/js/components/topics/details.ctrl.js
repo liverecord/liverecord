@@ -323,6 +323,7 @@ app.controller(
                   ntopic.body = $sce.trustAsHtml(ntopic.body ||
                   '');
                   $scope.topic = ntopic;
+                  $scope.topic.absoluteUrl = window.location;
                   PerfectScrollBar.setup('topic');
                   $rootScope.messages = array_id_merge($rootScope.messages,
                       [envelope.data],
