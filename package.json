@@ -165,6 +165,7 @@
     "metaphor": "^3.8.3",
     "mongoose": "^4.13.5",
     "mongoose-paginate": "^5.0.3",
+    "messageformat": "^1.0.2",
     "natural": "^0.5.0",
     "ngstorage": "^0.3.11",
     "nodemailer": "^4.4.0",
@@ -196,7 +197,7 @@
     "uglify-es": "^3.2.0",
     "validator": "^7.0.0",
     "vinyl-fs": "^2.4.4",
-    "xtend" : "^4.0.1",
+    "xtend": "^4.0.1",
     "web-push": "^3.2.5",
     "webrtc-adapter": "^3.2.0"
   },
