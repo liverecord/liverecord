@@ -189,6 +189,7 @@
     "socket.io": "^2.0.4",
     "socket.io-emitter": "^3.1.1",
     "socket.io-redis": "^5.2.0",
+    "socket.io-client": "2.0.4",
     "socketio-file-upload": "^0.6.0",
     "socketio-jwt": "^4.5.0",
     "socketio-jwt-auth": "0.0.6",
