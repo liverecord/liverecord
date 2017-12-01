@@ -104,8 +104,9 @@
                         <br>
                         <a href="/admin/" ng-show="user.roles.indexOf('admin') > -1">{{'Administration' | translate}}</a>
                         <br>
-                        <a href="https://liverecord.github.io/liverecord/" class="powered" rel="nofollow">{{'powered by' | translate}} LiveRecord<sup><i>&beta;&epsilon;&tau;&alpha;</i></sup></a>
-                    </div>
+                        <a class="github-button" href="https://github.com/liverecord/liverecord" data-show-count="true" aria-label="Star liverecord/liverecord on GitHub">
+                            <img src="https://img.shields.io/github/stars/liverecord/liverecord.svg?style=flat&label=Git%20Stars" alt="Stars">
+                        </a>                    </div>
                 </div>
                 <div class="settings" ng-show="user">
                     <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs" ng-bind="'Settings'|translate"></span></a>

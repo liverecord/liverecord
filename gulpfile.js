@@ -5,6 +5,11 @@ const gulp = require('gulp');
 
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
+
+var uglifyes = require('uglify-es');
+var composer = require('gulp-uglify/composer');
+var minify = composer(uglifyes, console);
+
 const imagemin = require('gulp-imagemin');
 const sourcemaps = require('gulp-sourcemaps');
 const del = require('del');
@@ -15,6 +20,7 @@ const ngAnnotate = require('gulp-ng-annotate');
 const embedTemplates = require('gulp-angular-embed-templates');
 const autoprefixer = require('autoprefixer');
 const postcss = require('gulp-postcss');
+const pump = require('pump');
 
 const fs = require('fs');
 
@@ -130,19 +136,22 @@ gulp.task('scripts-dev', function() {
     }
 );
 
-gulp.task('scripts', function() {
+gulp.task('scripts', function(cb) {
+
       // Minify and copy all JavaScript (except vendor scripts)
       let filter = Filter('**/*.coffee');
-      // with sourcemaps all the way down
-      return gulp.src(paths.scripts)
-          .pipe(plumber())
-          .pipe(sourcemaps.init())
-          .pipe(embedTemplates({skipTemplates: /\.html/ }))
-          .pipe(ngAnnotate())
-          .pipe(uglify({mangle: false}))
-          .pipe(concat('main.' + currentDeployId + '.js'))
-          .pipe(sourcemaps.write('./'))
-          .pipe(gulp.dest('server/public/dist/j'));
+
+      pump([
+        gulp.src(paths.scripts),
+        plumber(),
+        sourcemaps.init(),
+        embedTemplates({skipTemplates: /\.html/}),
+        ngAnnotate(),
+        minify({mangle: false, ie8: false}),
+        concat('main.' + currentDeployId + '.js'),
+        sourcemaps.write('./'),
+        gulp.dest('server/public/dist/j')
+      ], cb);
     }
 );
 

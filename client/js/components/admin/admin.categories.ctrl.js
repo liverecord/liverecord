@@ -37,8 +37,9 @@ app.controller(
         $scope.editCategory = function(categoryId) {
           $scope.showCategoryEditForm = true;
           $scope.editing = true;
+          var cat;
           if (categoryId) {
-            for (let cat of $scope.categories) {
+            for (cat of $scope.categories) {
               if (categoryId === cat._id) {
                 $scope.category = cat;
               }
