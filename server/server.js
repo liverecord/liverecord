@@ -317,21 +317,23 @@ mongooseConnection.once('open', function() {
                 for (let onlineSocketId in io.of('/').connected) {
                   if (io.of('/').connected.hasOwnProperty(onlineSocketId)) {
                     let onlineSocket = io.of('/').connected[onlineSocketId];
-                    // console.log(onlineSocket);
                     if (onlineSocket.webUser &&
                         onlineSocket.webUser._id &&
-                        onlineSocket.webUser._id === onlineUserId) {
+                        onlineSocket.webUser._id.toString() == onlineUserId) {
                       userIsStillOnline = true;
                     }
                   }
                 }
-                if (onlineUserId && userIsStillOnline) {
+                if (onlineUserId) {
                   models.User.update(
                       {_id: onlineUserId},
-                      {'$set': {online: false, updated: Date.now()}}
-                  ).exec(errorHandler);
+                      {'$set': {online: userIsStillOnline, updated: Date.now()}},
+                      {},
+                      function(err, done) {
+                        console.log(err, done);
+                      }
+                  );
                 }
-                console.log(chalk.blue('Disconnected'), s);
               }
           );
         }
@@ -359,11 +361,11 @@ death(function(signal, err) {
       if (io) {
         io.close();
       }
-      console.log(signal);
+      console.log('Got signal', signal);
       if (err) {
-        console.log(err);
+        console.log('Error', err);
       }
-      console.log('');
+      console.log('Shutting down...');
       process.exit();
       return 0;
     }

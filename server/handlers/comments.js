@@ -43,24 +43,6 @@ function addAttachments(comment, callback) {
     };
   });
   if (urls.length > 0) {
-
-    /*
-    var engine = new Metaphor.Engine();
-    let url = urls[0];
-
-    engine.describe(url, function(oinfo) {
-      console.log('Metaphor', oinfo);
-      //retrievalDone(null, oinfo);
-
-    });
- let url = urls[0];
-      oembed.fetch(url, { maxwidth: 1920 },
-          function(err, info) {
-            let o = {};
-            o[url] = info;
-            callback(null, o);
-          }
-      ); */
     async.parallel(retrievals, callback);
   } else {
     callback(null, {});
