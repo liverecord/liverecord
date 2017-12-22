@@ -34,7 +34,7 @@ app.controller('MainController',
           }
         };
 
-        $rootScope.appConfig = window.liveRecordConfig;
+        $rootScope.appConfig = liveRecordConfig;
 
         $localStorage.$default({
               rememberMe: true,
