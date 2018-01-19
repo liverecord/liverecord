@@ -680,7 +680,7 @@ function expressRouter(req, res, next) {
 
                           topicData = tagReplace(topicData,
                               'ng-bind="::topic.created | date:\'short\'">',
-                              populatedTopic.title
+                              populatedTopic.created.toDateString()
                           );
 
                           //
@@ -694,8 +694,8 @@ function expressRouter(req, res, next) {
                               'ng-bind-html="topic.body">' + populatedTopic.body
                           );
                           inputHtml = inputHtml.replace(
-                              'ng-view="">',
-                              'ng-view="">' + topicData
+                              'ng-view>',
+                              'ng-view>' + topicData
                           );
                           return inputHtml;
                         };
