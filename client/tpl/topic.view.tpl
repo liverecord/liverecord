@@ -33,7 +33,7 @@
         <div class="col" style="flex-grow: 1">
 
         </div>
-        <div class="col private" ng-show="topic.private">
+        <div class="col private" ng-cloak="" ng-show="topic.private">
           <div class="padlock"><i class="fa fa-fw fa-lock" title="{{'Access limited to'|translate}}"></i></div>
           <a ng-href="/users/{{::aclu.slug}}" ng-repeat="aclu in topic.acl track by aclu._id"  title="{{::aclu.name}}">
             <img ng-src="{{::aclu.picture}}" class="img-responsive" alt="{{::aclu.name}}">
@@ -61,7 +61,7 @@
     <div class="comments">
 
       <div class="pagination">
-        <a class="show-old-comments" ng-click="loadOlderComments()" ng-show="pagination.page < pagination.pages">
+        <a class="show-old-comments" ng-click="loadOlderComments()" ng-cloak="" ng-show="pagination.page < pagination.pages">
           {{'Show earlier comments'|translate}} ({{pagination.total - pagination.page * pagination.limit}})
         </a>
       </div>
@@ -121,7 +121,7 @@
         <div class="typists">
           <div class="list" ng-show="typists.numberOfKeys()">
             <div class="starter"><i class="fa fa-pencil"></i></div>
-            <div class="typist" ng-repeat="typist in typists track by typist._id"><img ng-src="{{::typist.picture}}"
+            <div class="typist" ng-cloak="" ng-repeat="typist in typists track by typist._id"><img ng-src="{{::typist.picture}}"
                                                                                        alt="{{::typist.name}}"
                                                                    title="{{::typist.name}}" class="img-responsive"></div>
           </div>
@@ -137,7 +137,7 @@
     </div>
   </div>
 
-  <div class="compose flex-row" ng-class="{sending: sending, open: advancedCompose}" ng-show="user">
+  <div class="compose flex-row" ng-cloak="" ng-class="{sending: sending, open: advancedCompose}" ng-show="user">
     <div class="controls">
       <button ng-click="switchAdvancedCompose()" ng-disabled="sending">
         <i class="fa " ng-class="advancedCompose ? 'fa-minus' : 'fa-plus'"></i>

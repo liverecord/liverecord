@@ -21,9 +21,9 @@
         ng\:form {display: block;}
         .ng-animate-shim {visibility:hidden;}
         .ng-anchor {position:absolute;}
-        body{background-color:#f7fafc;color:#303e4d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";margin:0;-webkit-box-sizing:border-box;box-sizing:border-box}
+        body{background-color:#f7fafc;overflow: hidden;color:#303e4d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";margin:0;-webkit-box-sizing:border-box;box-sizing:border-box}
         body>.connecting{position:fixed;left:0;top:0;width:100vw;height:100vh;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-content:center;-ms-flex-line-pack:center;
-            align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgba(48,62,77,0.9);}
+            align-content:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;z-index:5;background-color:rgba(48,62,77,0.25);}
         body>.connecting div.center{-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;color:#8e949f;font-size:2vh}
         body>.connecting div.center small{color:#808942}
         @media (max-width:767px) {body>.connecting div.center h1{color:#eba36f;font-size:3vh;margin:1vh 0}}
@@ -67,7 +67,7 @@
             <div ng-cloak="" ng-bind="'Drop file here'|translate"></div>
         </div>
     </div>
-    <div class="container flex-column" ng-cloak="" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
+    <div class="container flex-column" ng-class="{websocketAlive: websocketAlive, loggedIn: user}">
         <div class="header flex-row">
             <div class="logo"><a href="/"><span class="hidden-xs" ng-bind="appConfig.siteName"></span><span class="visible-xs"><i class="fa fa-fw fa-bars"></i></span></a></div>
             <div class="top-bar flex-row">
@@ -79,7 +79,7 @@
                             <div class="manage"><small><a ng-href="/users/{{user.slug}}" ng-bind="'Profile'|translate"></a> </small></div>
                         </div>
                         <div class="logout">
-                            <div class="manage"> <a href="/" title="{{'Logout'|translate}}" ng-click="logout()"><i class="fa fa-sign-out"></i></a></div>
+                            <div class="manage"> <a href="/" title="{{'Logout'|translate}}" ng-cloak="" ng-click="logout()"><i class="fa fa-sign-out"></i></a></div>
                         </div>
                     </div>
                     <div ng-hide="user" class="user flex-row">
@@ -92,28 +92,29 @@
         <div class="body flex-row">
             <div class="categories" data-ng-controller="CategoriesController">
                 <div class="menu">
-                    <div><a ng-href="/ask?category={{category}}" class="button" ng-show="user"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span class="hidden-xs">{{'New topic'|translate}}</span></a></div>
+                    <div><a ng-href="/ask?category={{category}}" ng-cloak="" class="button" ng-show="user"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        <span class="hidden-xs" ng-bind="'New topic'|translate"></span></a></div>
                     <ul class="menu">
-                        <li ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}" ng-bind="::item.name"></a></li>
-                        <li ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
+                        <li ng-cloak="" ng-repeat="item in categories track by item._id" ng-class="{active: item.active}"><a ng-href="/{{::item.slug}}" ng-bind="::item.name"></a></li>
+                        <li ng-cloak="" ng-hide="categories" class="text-center"><i class="fa fa-pulse fa-spinner" aria-hidden="true"></i></li>
                     </ul>
 
                     <div ng-show="pushNotificationDenied" class="text-center"><a href="/help/enable-notification" ng-bind="'notifications were denied'|translate"></a></div>
                     <div class="text-center total-online">
                         <a href="/users" ng-bind="'online'| translate : {x : totalConnections }"></a>
                         <br>
-                        <a href="/admin/" ng-show="user.roles.indexOf('admin') > -1">{{'Administration' | translate}}</a>
+                        <a href="/admin/" ng-show="user.roles.indexOf('admin') > -1" ng-bind="'Administration' | translate"></a>
                         <br>
                         <a class="github-button" href="https://github.com/liverecord/liverecord" data-show-count="true" aria-label="Star liverecord/liverecord on GitHub">
                             <img src="https://img.shields.io/github/stars/liverecord/liverecord.svg?style=flat&label=Git%20Stars" alt="Stars">
                         </a>                    </div>
                 </div>
-                <div class="settings" ng-show="user">
+                <div class="settings" ng-show="user" ng-cloak="">
                     <a ng-href="/settings" ><i class="fa fa-cog" aria-hidden="true"></i> <span class="hidden-xs" ng-bind="'Settings'|translate"></span></a>
                 </div>
             </div>
             <div class="topics-panel" data-ng-controller="TopicListController">
-                <div class="search-box">
+                <div class="search-box" ng-cloak="">
                     <a ng-click="search()"><i class="fa fa-search"></i></a>
                     <input type="search" name="q" class="search" placeholder="{{'Search'|translate}}" ng-model="searchTerm">
                 </div>
@@ -127,7 +128,7 @@
                             <span ng-bind="::message.title | limitTo:100"></span><span ng-show="::message.title.length > 100">&hellip;</span>
                         </a>
                     </div>
-                    <div class="pick-category" ng-hide="messages.length">
+                    <div class="pick-category" ng-cloak="" ng-hide="messages.length">
                         <p class="text-center"><i class="fa fa-3x fa-hand-o-left" aria-hidden="true"></i></p>
                         <p class="text-center" ng-bind="'Pick category'|translate"></p>
                     </div>
