@@ -108,6 +108,7 @@ module.exports = function(str, strict, wysiwyg) {
       ALLOWED_TAGS: [
         'a', 'b', 'strong', 'i', 'em', 'q', 'kbd', 'span', 'sub', 'sup', 's',
         'img', 'video',
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th',
         'ol', 'ul', 'li',
         'p', 'br', 'blockquote', 'code', 'pre'
       ],
@@ -120,6 +121,9 @@ module.exports = function(str, strict, wysiwyg) {
         'controls',
         'class',
         'alt',
+        'title',
+        'colspan',
+        'rowspan',
         'src'
       ]
     }

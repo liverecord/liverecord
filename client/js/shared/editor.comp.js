@@ -352,6 +352,7 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize, $filt
               ALLOWED_TAGS: [
                 'a', 'b', 'strong', 'i', 'em', 'q', 'kbd', 'span', 'sub', 'sup', 's',
                 'img', 'video',
+                'table', 'thead', 'tbody','tfoot', 'tr', 'td', 'th',
                 'ol', 'ul', 'li',
                 'p', 'br', 'blockquote', 'code', 'pre'
               ],
@@ -363,6 +364,10 @@ function editorController($rootScope, $scope, socket, $timeout, $sanitize, $filt
                 'href',
                 'controls',
                 'alt',
+                'height',
+                'width',
+                'colspan',
+                'rowspan',
                 'src'
               ]
             }
