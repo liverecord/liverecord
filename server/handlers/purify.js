@@ -122,6 +122,8 @@ module.exports = function(str, strict, wysiwyg) {
         'class',
         'alt',
         'title',
+        'width',
+        'height',
         'colspan',
         'rowspan',
         'src'
