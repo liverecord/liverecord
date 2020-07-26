@@ -1,9 +1,9 @@
 const ltrim = require('ltrim');
 
 function serverName() {
-  return process.env.npm_package_config_server_protocol +
+  return process.env.SERVER_PROTOCOL +
       '://' +
-      process.env.npm_package_config_server_name;
+      process.env.SERVER_NAME;
 }
 
 function url(pathFromRoot) {

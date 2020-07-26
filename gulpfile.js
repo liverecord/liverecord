@@ -6,9 +6,9 @@ const gulp = require('gulp');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 
-var uglifyes = require('uglify-es');
-var composer = require('gulp-uglify/composer');
-var minify = composer(uglifyes, console);
+const uglifyes = require('uglify-es');
+const composer = require('gulp-uglify/composer');
+const minify = composer(uglifyes, console);
 
 const imagemin = require('gulp-imagemin');
 const sourcemaps = require('gulp-sourcemaps');
@@ -24,7 +24,6 @@ const pump = require('pump');
 
 const fs = require('fs');
 
-const runSequence = require('run-sequence');
 const replace = require('gulp-replace-task');
 const plumber = require('gulp-plumber');
 
@@ -53,7 +52,8 @@ let paths = {
     'node_modules/angular-translate/dist/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
     'node_modules/angular-translate/dist/angular-translate-loader-url/angular-translate-loader-url.js',
     'node_modules/angular-dynamic-locale/dist/tmhDynamicLocale.js',
-    'node_modules/dompurify/src/purify.js',
+    // 'node_modules/dompurify/src/purify.js',
+    'node_modules/dompurify/dist/purify.js',
     'client/js/app.js',
     'client/js/shared/**/*.js',
     'client/js/components/**/*.js',
@@ -65,22 +65,22 @@ let paths = {
     './node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css',
     './node_modules/font-awesome/css/font-awesome.css',
     './node_modules/angular-tooltips/dist/angular-tooltips.css',
-    './client/styles/**.css'
+    './client/styles/**.css',
   ],
   tpl: [
-    'client/tpl/**/*'
+    'client/tpl/**/*',
   ],
   fonts: [
     'client/fonts/**/*',
-    'node_modules/font-awesome/fonts/**/*'
+    'node_modules/font-awesome/fonts/**/*',
   ],
   sounds: [
-    'client/sounds/**/*'
+    'client/sounds/**/*',
   ],
   locales: [
     'node_modules/angular-i18n/**/*',
-    'client/locales/**/*'
-  ]
+    'client/locales/**/*',
+  ],
 };
 
 // Not all tasks need to use streams
@@ -89,51 +89,51 @@ let paths = {
 gulp.task('clean-js', function(cb) {
       // You can use multiple globbing patterns as you would with `gulp.src`
       return del(['server/public/dist/j/*.js'], cb);
-    }
+    },
 );
 
 gulp.task('clean-mycss', function(cb) {
-  return del(['server/public/dist/c/*.css'], cb);
-}
+      return del(['server/public/dist/c/*.css'], cb);
+    },
 );
 
 gulp.task('clean-img', function(cb) {
       del(['server/public/dist/i/*.*'], cb);
-    }
+    },
 );
 
 gulp.task('clean-fonts', function(cb) {
       del(['server/public/dist/fonts/*.*'], cb);
-    }
+    },
 );
 
 gulp.task('clean-tpl', function(cb) {
       del(['server/public/dist/t/*.*'], cb);
-    }
+    },
 );
 
 gulp.task('clean-sounds', function(cb) {
       del(['server/public/dist/s/*.*'], cb);
-    }
+    },
 );
 
 gulp.task('clean-locales', function(cb) {
       del(['server/public/dist/l/*.*'], cb);
-    }
+    },
 );
 
 gulp.task('scripts-dev', function() {
       // Minify and copy all JavaScript (except vendor scripts)
       let filter = Filter('**/*.coffee');
       // with sourcemaps all the way down
-      return gulp.src(paths.scripts)
-          .pipe(sourcemaps.init())
-          .pipe(embedTemplates({skipTemplates: /\.html/ }))
-          .pipe(ngAnnotate())
-          .pipe(concat('main.' + currentDeployId + '.js'))
-          .pipe(sourcemaps.write('./'))
-          .pipe(gulp.dest('server/public/dist/j'));
-    }
+      return gulp.src(paths.scripts).
+          pipe(sourcemaps.init()).
+          pipe(embedTemplates({skipTemplates: /\.html/})).
+          pipe(ngAnnotate()).
+          pipe(concat('main.' + currentDeployId + '.js')).
+          pipe(sourcemaps.write('./')).
+          pipe(gulp.dest('server/public/dist/j'));
+    },
 );
 
 gulp.task('scripts', function(cb) {
@@ -150,146 +150,133 @@ gulp.task('scripts', function(cb) {
         minify({mangle: false, ie8: false}),
         concat('main.' + currentDeployId + '.js'),
         sourcemaps.write('./'),
-        gulp.dest('server/public/dist/j')
+        gulp.dest('server/public/dist/j'),
       ], cb);
-    }
+    },
 );
 
 // Copy all static images
 gulp.task('images', function() {
       return gulp.src(paths.images)
           // Pass in options to the task
-          .pipe(imagemin({optimizationLevel: 7, progressive: true}))
-          .pipe(gulp.dest('server/public/dist/i'));
-    }
+          .pipe(imagemin({optimizationLevel: 7, progressive: true})).
+          pipe(gulp.dest('server/public/dist/i'));
+    },
 );
 
-gulp.task('currentDeployInit', function() {
+gulp.task('currentDeployInit', function(cb) {
       currentDeployId = +new Date();
       //currentDeployId = 1;
-    }
+      cb();
+    },
 );
-gulp.task('currentDeployWrite', function() {
-      fs.writeFileSync('server/public/version.txt', currentDeployId);
-    }
+gulp.task('currentDeployWrite', (cb) => {
+      fs.writeFile('server/public/version.txt', currentDeployId, null, cb);
+    },
 );
 
 gulp.task('css', function() {
 
       let filter = Filter('**/*.styl', {restore: true});
-      return gulp.src(paths.css)
-          .pipe(filter)
-          .pipe(plumber())
-          .pipe(sourcemaps.init())
-          .pipe(stylus())
-          .pipe(filter.restore)
-          .pipe(replace({
+      return gulp.src(paths.css).
+          pipe(filter).
+          pipe(plumber()).
+          pipe(sourcemaps.init()).
+          pipe(stylus()).
+          pipe(filter.restore).
+          pipe(replace({
                 patterns: [
                   {
                     match: '?v=4.7.0',
-                    replacement: 'a'
-                  }
-                ]
-              }
-              )
-          )
-          .pipe(postcss([autoprefixer({browsers: ['last 10 versions']})]))
+                    replacement: 'a',
+                  },
+                ],
+              },
+              ),
+          ).
+          pipe(postcss([autoprefixer({browsers: ['last 10 versions']})]))
           //.pipe(cleanCSS({compatibility: 'ie7', keepBreaks: true}))
-          .pipe(concat('main.' + currentDeployId + '.css'))
-          .pipe(sourcemaps.write('.'))
-          .pipe(gulp.dest('./server/public/dist/c'));
-    }
+          .pipe(concat('main.' + currentDeployId + '.css')).
+          pipe(sourcemaps.write('.')).
+          pipe(gulp.dest('./server/public/dist/c'));
+    },
 );
 
 gulp.task('fonts', function() {
-      return gulp.src(paths.fonts)
-          .pipe(gulp.dest('server/public/dist/fonts'));
-    }
+      return gulp.src(paths.fonts).pipe(gulp.dest('server/public/dist/fonts'));
+    },
 );
 
 gulp.task('tpl', function() {
-      return gulp.src(paths.tpl)
-          .pipe(gulp.dest('server/public/dist/t'));
-    }
+      return gulp.src(paths.tpl).pipe(gulp.dest('server/public/dist/t'));
+    },
 );
 
 gulp.task('sounds', function() {
-      return gulp.src(paths.sounds)
-          .pipe(gulp.dest('server/public/dist/s'));
-    }
+      return gulp.src(paths.sounds).pipe(gulp.dest('server/public/dist/s'));
+    },
 );
 gulp.task('locales', function() {
-      return gulp.src(paths.locales)
-          .pipe(gulp.dest('server/public/dist/l'));
-    }
+      return gulp.src(paths.locales).pipe(gulp.dest('server/public/dist/l'));
+    },
 );
 
-gulp.task('rebuild-css', function(callback) {
-      runSequence(
-          'css',
-          'currentDeployWrite',
-          callback
-      );
-    }
+gulp.task('rebuild-css',
+    gulp.series(
+        'css',
+        'currentDeployWrite',
+    ),
 );
-gulp.task('rebuild-js', function(callback) {
-      runSequence('clean-js',
-          'scripts-dev',
-          'currentDeployWrite',
-          callback
-      );
-    }
+
+gulp.task(
+    'rebuild-js',
+    gulp.series('clean-js',
+        'scripts-dev',
+        'currentDeployWrite',
+    ),
 );
 
 // Rerun the task when a file changes
-gulp.task('watch', function() {
-      gulp.run('build');
-      gulp.watch(paths.scripts, {interval: 1000}, ['rebuild-js']);
-      gulp.watch(paths.images, {interval: 5000}, ['clean-img', 'images']);
-      gulp.watch(
-          [
-            './client/styles/*/**.*',
-            './client/styles/themes/*.*'
-          ].concat(paths.css),
-          {interval: 1000},
-          ['rebuild-css']
-      );
-      gulp.watch(paths.tpl, {interval: 1000}, ['clean-tpl', 'tpl', 'scripts-dev']);
-      gulp.watch(paths.fonts, {interval: 5000}, ['clean-fonts', 'fonts']);
-      gulp.watch(paths.sounds, {interval: 5000}, ['clean-sounds', 'sounds']);
-      gulp.watch(paths.locales, {interval: 1000}, ['clean-locales', 'locales']);
-    }
-);
+// gulp.task('watch', function() {
+//       gulp.run('build');
+//       gulp.watch(paths.scripts, {interval: 1000}, 'rebuild-js');
+//       gulp.watch(paths.images, {interval: 5000}, gulp.parallel('clean-img', 'images'));
+//       gulp.watch(
+//           [
+//             './client/styles/*/**.*',
+//             './client/styles/themes/*.*'
+//           ].concat(paths.css),
+//           {interval: 1000},
+//           ['rebuild-css']
+//       );
+//       gulp.watch(paths.tpl, {interval: 1000}, ['clean-tpl', 'tpl', 'scripts-dev']);
+//       gulp.watch(paths.fonts, {interval: 5000}, ['clean-fonts', 'fonts']);
+//       gulp.watch(paths.sounds, {interval: 5000}, ['clean-sounds', 'sounds']);
+//       gulp.watch(paths.locales, {interval: 1000}, ['clean-locales', 'locales']);
+//     }
+// );
 
 gulp.task('buildInformer', function(callback) {
   'use strict';
   console.log(
       'Use ' + chalk.green.bold('gulp watch') +
-      ' to watch & compile your files on the fly'
+      ' to watch & compile your files on the fly',
   );
   callback();
 });
 
 // The default task (called when you run `gulp` from cli)
 
+gulp.task('build',
+    gulp.series(
+        'currentDeployInit',
+        gulp.parallel('scripts', 'locales', 'tpl', 'css', 'images', 'fonts',
+            'sounds'),
+        'currentDeployWrite',
+    ),
+);
+
 gulp.task(
     'default',
-    function(callback) {
-      runSequence(
-          'build',
-          'buildInformer',
-          callback
-      );
-    }
+    gulp.series('build', 'buildInformer'),
 );
-
-gulp.task('build', function(callback) {
-      runSequence('currentDeployInit',
-          ['scripts', 'locales', 'tpl', 'css', 'images', 'fonts', 'sounds'],
-          'currentDeployWrite',
-          callback
-      );
-    }
-);
-
-

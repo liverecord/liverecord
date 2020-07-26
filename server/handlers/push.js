@@ -98,7 +98,7 @@ function configure(webPush, frontConfig) {
         if (vapidKeyDoc) {
           vapidKeys = vapidKeyDoc.value;
           webPush.setVapidDetails(
-              'https://' + process.env.npm_package_config_server_name,
+              'https://' + process.env.SERVER_NAME,
               vapidKeys.publicKey,
               vapidKeys.privateKey
           );
@@ -112,8 +112,8 @@ function configure(webPush, frontConfig) {
         generateAndSaveVapidKeys();
       });
 
-  if (process.env.npm_package_config_webpush_gcm_api_key) {
-    webPush.setGCMAPIKey(process.env.npm_package_config_webpush_gcm_api_key);
+  if (process.env.WEBPUSH_GCM_API_KEY) {
+    webPush.setGCMAPIKey(process.env.WEBPUSH_GCM_API_KEY);
   }
 }
 const pushFailureCodes = [401, 410];

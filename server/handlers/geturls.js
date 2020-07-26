@@ -4,13 +4,13 @@
 
 const createDOMPurify = require('dompurify');
 const jsdom = require('jsdom');
-const window = jsdom.jsdom('', {
+const window = new jsdom.JSDOM('', {
   features: {
     FetchExternalResources: false,
     ProcessExternalResources: false
   }
 }
-).defaultView;
+).window;
 
 /**
  * Get links

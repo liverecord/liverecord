@@ -10,9 +10,25 @@ const models = require('../schema');
 const users = require('./users');
 const statics = require('./static');
 const lrLogin = require('./login');
-const pick = require('object.pick');
+const { coalesce } = require('object-path');
 const errorHandler = require('./errors');
 
+
+
+const {
+  OAUTH_FACEBOOK_CLIENT_ID,
+  OAUTH_FACEBOOK_CLIENT_SECRET,
+  OAUTH_TWITTER_CLIENT_ID,
+  OAUTH_TWITTER_CLIENT_SECRET,
+  OAUTH_WINDOWSLIVE_CLIENT_ID,
+  OAUTH_WINDOWSLIVE_CLIENT_SECRET,
+  OAUTH_VKONTAKTE_CLIENT_ID,
+  OAUTH_VKONTAKTE_CLIENT_SECRET,
+  OAUTH_GITHUB_CLIENT_ID,
+  OAUTH_GITHUB_CLIENT_SECRET,
+  OAUTH_GOOGLE_CLIENT_ID,
+  OAUTH_GOOGLE_CLIENT_SECRET,
+} = process.env;
 
 function initUser(accessToken, refreshToken, profile, cb) {
   'use strict';
@@ -24,61 +40,55 @@ function initUser(accessToken, refreshToken, profile, cb) {
     {
       'socialNetworks.network': profile.provider,
       'socialNetworks._id': profile.id,
-    }
+    },
   ];
   if (profile.emails.length > 0) {
     for (let k of profile.emails) {
       cond.push({email: k.value});
     }
   }
-  let picture = '';
-  if (profile.photos && profile.photos[0] && profile.photos[0].value) {
-    picture = profile.photos[0].value;
-  }
-  models
-      .User
-      .findOne({$or: cond}, {_id: 1, email: 1, slug: 1, pw: 1})
-      .then((user) => {
+
+
+  let picture = coalesce('profile', 'photos.0.value', '');
+
+  models.User.findOne({$or: cond}, {_id: 1, email: 1, slug: 1, pw: 1}).
+      then((user) => {
         if (user) {
           cb(null, user);
         } else {
           lrLogin.signUp({
-            email: profile.emails[0].value || '',
-            password: 'p' + Math.random() + accessToken,
-            name: profile.displayName || '',
-            link: profile.profileUrl || '',
-            network: profile.provider || '',
-            socialNetwork: {
-              _id: profile.id || '',
-              network: profile.provider || '',
-              link: profile.profileUrl || '',
-            },
-            picture: picture,
-            about: profile.about || ''
-          },
-          (signUpResult) => {
-            if (signUpResult.success) {
-              models
-                  .User
-                  .findOne(
+                email: profile.emails[0].value || '',
+                password: 'p' + Math.random() + accessToken,
+                name: profile.displayName || '',
+                link: profile.profileUrl || '',
+                network: profile.provider || '',
+                socialNetwork: {
+                  _id: profile.id || '',
+                  network: profile.provider || '',
+                  link: profile.profileUrl || '',
+                },
+                picture: picture,
+                about: profile.about || '',
+              },
+              (signUpResult) => {
+                if (signUpResult.success) {
+                  models.User.findOne(
                       {_id: signUpResult.user._id},
-                      {_id: 1, email: 1, slug: 1, pw: 1}
-                  )
-                  .then((user) => {
+                      {_id: 1, email: 1, slug: 1, pw: 1},
+                  ).then((user) => {
                     if (user) {
                       cb(null, user);
                     } else {
                       cb(null, signUpResult.user);
                     }
-                  })
-                  .catch(errorHandler);
-            } else {
-              cb(signUpResult, null);
-            }
-          });
+                  }).catch(errorHandler);
+                } else {
+                  cb(signUpResult, null);
+                }
+              });
         }
-      })
-      .catch((reason) => {
+      }).
+      catch((reason) => {
         cb(reason, null);
       });
 }
@@ -89,12 +99,12 @@ function initUser(accessToken, refreshToken, profile, cb) {
  * @param {object} app Express app
  */
 function setup(passport, app) {
-  if (process.env.npm_package_config_oauth_facebook_client_id) {
+  if (OAUTH_FACEBOOK_CLIENT_ID) {
     passport.use(new FacebookStrategy({
           clientID:
-              process.env.npm_package_config_oauth_facebook_client_id,
+          OAUTH_FACEBOOK_CLIENT_ID,
           clientSecret:
-              process.env.npm_package_config_oauth_facebook_client_secret,
+          OAUTH_FACEBOOK_CLIENT_SECRET,
           callbackURL:
               httpUtil.url('/api/oauth/facebook/callback'),
           profileFields: [
@@ -103,30 +113,31 @@ function setup(passport, app) {
             'displayName',
             'gender',
             'photos',
-            'profileUrl'
-          ]
+            'profileUrl',
+          ],
         },
         function(accessToken, refreshToken, profile, cb) {
           initUser(accessToken, refreshToken, profile, cb);
-        }
+        },
     ));
     //
     app.use('/api/oauth/facebook',
         passport.authenticate(
             'facebook',
-            { scope: ['email', 'public_profile'],
-              successRedirect: '/'
-            }
-        )
+            {
+              scope: ['email', 'public_profile'],
+              successRedirect: '/',
+            },
+        ),
     );
   }
 
-  if (process.env.npm_package_config_oauth_twitter_client_id) {
+  if (OAUTH_TWITTER_CLIENT_ID) {
     passport.use(new TwitterStrategy({
           consumerKey:
-              process.env.npm_package_config_oauth_twitter_client_id,
+          OAUTH_TWITTER_CLIENT_ID,
           consumerSecret:
-              process.env.npm_package_config_oauth_twitter_client_secret,
+          OAUTH_TWITTER_CLIENT_SECRET,
           callbackURL:
               httpUtil.url('/api/oauth/twitter/callback'),
           profileFields: [
@@ -135,31 +146,31 @@ function setup(passport, app) {
             'displayName',
             'gender',
             'photos',
-            'profileUrl'
+            'profileUrl',
           ],
           userProfileURL:
-              'https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true'
+              'https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true',
         },
         function(accessToken, refreshToken, profile, cb) {
           profile.about = profile._json.description;
           initUser(accessToken, refreshToken, profile, cb);
-        }
+        },
     ));
     //
     app.use('/api/oauth/twitter',
         passport.authenticate(
             'twitter',
-            {failureRedirect: '/'}
-        )
+            {failureRedirect: '/'},
+        ),
     );
   }
 
-  if (process.env.npm_package_config_oauth_windowslive_client_id) {
+  if (OAUTH_WINDOWSLIVE_CLIENT_ID) {
     passport.use(new WindowsLiveStrategy({
           clientID:
-          process.env.npm_package_config_oauth_windowslive_client_id,
+          OAUTH_WINDOWSLIVE_CLIENT_ID,
           clientSecret:
-          process.env.npm_package_config_oauth_windowslive_client_secret,
+          OAUTH_WINDOWSLIVE_CLIENT_SECRET,
           callbackURL:
               httpUtil.url('/api/oauth/windowslive/callback'),
           profileFields: [
@@ -167,12 +178,12 @@ function setup(passport, app) {
             'emails',
             'displayName',
             'photos',
-            'profileUrl'
+            'profileUrl',
           ],
         },
         function(accessToken, refreshToken, profile, cb) {
           initUser(accessToken, refreshToken, profile, cb);
-        }
+        },
     ));
     //
     app.use('/api/oauth/windowslive',
@@ -180,18 +191,18 @@ function setup(passport, app) {
             'windowslive',
             {
               scope: ['wl.emails', 'wl.signin', 'wl.basic'],
-              failureRedirect: '/'
-            }
-        )
+              failureRedirect: '/',
+            },
+        ),
     );
   }
 
-  if (process.env.npm_package_config_oauth_vkontakte_client_id) {
+  if (OAUTH_VKONTAKTE_CLIENT_ID) {
     passport.use(new VKontakteStrategy({
           clientID:
-          process.env.npm_package_config_oauth_vkontakte_client_id,
+          OAUTH_VKONTAKTE_CLIENT_ID,
           clientSecret:
-          process.env.npm_package_config_oauth_vkontakte_client_secret,
+          OAUTH_VKONTAKTE_CLIENT_SECRET,
           callbackURL:
               httpUtil.url('/api/oauth/vkontakte/callback'),
           profileFields: [
@@ -201,18 +212,18 @@ function setup(passport, app) {
             'displayName',
             'gender',
             'photos',
-            'profileUrl'
+            'profileUrl',
           ],
-          scope: ['email']
+          scope: ['email'],
         },
         function(accessToken, refreshToken, params, profile, cb) {
           if (!profile.emails && params.email) {
             profile.emails = [
-              {value: params.email}
+              {value: params.email},
             ];
           }
           initUser(accessToken, refreshToken, profile, cb);
-        }
+        },
     ));
     //
     app.use('/api/oauth/vkontakte',
@@ -220,23 +231,24 @@ function setup(passport, app) {
             'vkontakte',
             {
               scope: ['email'],
-              failureRedirect: '/'}
-        )
+              failureRedirect: '/',
+            },
+        ),
     );
   }
 
-  if (process.env.npm_package_config_oauth_google_client_id) {
+  if (OAUTH_GOOGLE_CLIENT_ID) {
     passport.use(new GoogleStrategy({
           clientID:
-          process.env.npm_package_config_oauth_google_client_id,
+          OAUTH_GOOGLE_CLIENT_ID,
           clientSecret:
-          process.env.npm_package_config_oauth_google_client_secret,
+          OAUTH_GOOGLE_CLIENT_SECRET,
           callbackURL:
-              httpUtil.url('/api/oauth/google/callback')
+              httpUtil.url('/api/oauth/google/callback'),
         },
         function(accessToken, refreshToken, profile, cb) {
           initUser(accessToken, refreshToken, profile, cb);
-        }
+        },
     ));
     //
     app.use('/api/oauth/google',
@@ -244,20 +256,20 @@ function setup(passport, app) {
             'google',
             {
               scope: [
-                  'profile email https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
+                'profile email https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
               ],
-              failureRedirect: '/'
-            }
-        )
+              failureRedirect: '/',
+            },
+        ),
     );
   }
 
-  if (process.env.npm_package_config_oauth_github_client_id) {
+  if (OAUTH_GITHUB_CLIENT_ID) {
     passport.use(new GitHubStrategy({
           clientID:
-          process.env.npm_package_config_oauth_github_client_id,
+          OAUTH_GITHUB_CLIENT_ID,
           clientSecret:
-          process.env.npm_package_config_oauth_github_client_secret,
+          OAUTH_GITHUB_CLIENT_SECRET,
           callbackURL:
               httpUtil.url('/api/oauth/github/callback'),
           profileFields: [
@@ -265,12 +277,12 @@ function setup(passport, app) {
             'emails',
             'displayName',
             'photos',
-            'profileUrl'
+            'profileUrl',
           ],
         },
         function(accessToken, refreshToken, profile, cb) {
           initUser(accessToken, refreshToken, profile, cb);
-        }
+        },
     ));
     //
     app.use('/api/oauth/github',
@@ -278,9 +290,9 @@ function setup(passport, app) {
             'github',
             {
               scope: ['user:email'],
-              failureRedirect: '/'
-            }
-        )
+              failureRedirect: '/',
+            },
+        ),
     );
   }
 
@@ -312,7 +324,7 @@ function setup(passport, app) {
             statics.sendJsonResponse(res, {error: 'method_not_allowed'}, 405);
 
         }
-      }
+      },
   );
 }
 

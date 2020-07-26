@@ -166,11 +166,17 @@ function userHandler(socket, io, errorHandler) {
     );
     userRequest.slug = purify(userRequest.slug, true);
     userRequest.email = purify(userRequest.email, true);
+    var user_id = null;
+    if (socket.webUser && socket.webUser._id) {
+      user_id = socket.webUser._id;
+    } else {
+      return;
+    }
 
     async.parallel({
       email: function(callback) {
         User.count(
-            {_id: {$ne: socket.webUser._id}, email: userRequest.email},
+            {_id: {$ne: user_id}, email: userRequest.email},
             function(err, count) {
               if (err) {
                 errorHandler(err);
@@ -181,7 +187,7 @@ function userHandler(socket, io, errorHandler) {
       },
       slug: function(callback) {
         User.count(
-            {_id: {$ne: socket.webUser._id}, slug: userRequest.slug},
+            {_id: {$ne: user_id}, slug: userRequest.slug},
             function(err, count) {
               if (err) {
                 errorHandler(err);
@@ -191,7 +197,6 @@ function userHandler(socket, io, errorHandler) {
         );
       }
     }, function(err, info) {
-      console.log(info);
       socketCallback(info);
     });
 
@@ -330,7 +335,7 @@ function userHandler(socket, io, errorHandler) {
               let newPassword = '';
               for (
                   let i = 0;
-                  i < process.env.npm_package_config_security_restored_password_length;
+                  i < process.env.SECURITY_RESTORED_PASSWORD_LENGTH;
                   i++) {
                 let range = getRandomIntInclusive(0, ranges.length - 1);
                 newPassword = newPassword +
@@ -361,7 +366,7 @@ function userHandler(socket, io, errorHandler) {
                               // create reusable transporter object using the
                               // setup e-mail data with unicode symbols
                               let mailOptions = {
-                                from: process.env.npm_package_config_email_sender, // sender address
+                                from: process.env.EMAIL_SENDER, // sender address
                                 to: foundUser.name + ' <' + foundUser.email + '>', // list of receivers
                                 subject: 'Восстановление пароля', // Subject
                                                                   // line
@@ -426,7 +431,7 @@ function getJwtToken(user, callback) {
       user.pw.hash.substr(17, 2).toLowerCase() +
       user.pw.salt.substr(7, 2).toUpperCase());
   jwt.sign(jwtUser,
-      process.env.npm_package_config_jwt_secret,
+      process.env.JWT_SECRET,
       {},
       callback
   );

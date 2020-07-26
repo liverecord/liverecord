@@ -4,7 +4,7 @@
 
 const createDOMPurify = require('dompurify');
 const jsdom = require('jsdom');
-const window = jsdom.jsdom('', {
+const window = new jsdom.JSDOM('', {
   features: {
     FetchExternalResources: false, // disables resource loading over HTTP /
                                    // filesystem
@@ -12,7 +12,7 @@ const window = jsdom.jsdom('', {
                                     // blocks
   }
 }
-).defaultView;
+).window;
 const DOMPurify = createDOMPurify(window);
 const hljs = require('highlight.js');
 

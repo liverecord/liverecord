@@ -43,6 +43,7 @@ There is 2 options of setup:
  - [customized configuration](docs/configuration.md)
 
 
+
 #### Getting started using Docker Compose
 
 1. Install [Docker](https://docs.docker.com/engine/installation/)
@@ -50,3 +51,9 @@ There is 2 options of setup:
 3. Clone project and run in project root directory and run `docker-compose up`. Now you can get some coffee. Open [localhost:8914](http://localhost:8914/).
 
 All set.
+
+
+```shell script
+
+docker run -p 27017:27017 -d mongo:latest 
+```

@@ -1,5 +1,11 @@
-const mongoose = require('mongoose');
+const errorHandler = require('./handlers/errors');
+
+process.on('uncaughtException', errorHandler);
+process.on('UnhandledPromiseRejectionWarning', errorHandler);
+process.on('DeprecationWarning', errorHandler);
+
 const death = require('death');
+const mongoose = require('mongoose');
 const express = require('express');
 const session = require('express-session');
 const socketioJwt = require('socketio-jwt');
@@ -15,7 +21,6 @@ const bookmarks = require('./handlers/bookmarks');
 const topics = require('./handlers/topics');
 const userHandlers = require('./handlers/users');
 const uploadHandler = require('./handlers/upload');
-const errorHandler = require('./handlers/errors');
 const pushHandler = require('./handlers/push');
 const staticHandlers = require('./handlers/static');
 const fs = require('fs');
@@ -26,13 +31,13 @@ const passportHandler = require('./handlers/passport');
 //
 // Initialize app config
 let frontLiveRecordConfig = {
-  gaId: process.env.npm_package_config_analytics_ga_id,
-  facebookClientId: process.env.npm_package_config_facebook_client_id,
-  twitterClientId: process.env.npm_package_config_twitter_client_id,
-  windowsLiveClientId: process.env.npm_package_config_windowslive_client_id,
-  vkontakteClientId: process.env.npm_package_config_vkontakte_client_id,
-  githubClientId: process.env.npm_package_config_github_client_id,
-  googleClientId: process.env.npm_package_config_google_client_id,
+  gaId: process.env.ANALYTICS_GA_ID,
+  facebookClientId: process.env.FACEBOOK_CLIENT_ID,
+  twitterClientId: process.env.TWITTER_CLIENT_ID,
+  windowsLiveClientId: process.env.WINDOWSLIVE_CLIENT_ID,
+  vkontakteClientId: process.env.VKONTAKTE_CLIENT_ID,
+  githubClientId: process.env.GITHUB_CLIENT_ID,
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
   version: '1'
 };
 
@@ -40,8 +45,6 @@ let frontLiveRecordConfig = {
 const app = express();
 const SocketIOFileUploadSrv = require('socketio-file-upload');
 
-process.on('uncaughtException', errorHandler);
-process.on('UnhandledPromiseRejectionWarning', errorHandler);
 //
 const Raven = require('raven');
 
@@ -71,8 +74,8 @@ if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
   );
 } else {
   // use Raven to capture errors on production
-  if (process.env.npm_package_config_sentry_dsn) {
-    Raven.config(process.env.npm_package_config_sentry_dsn).install();
+  if (process.env.SENTRY_DSN) {
+    Raven.config(process.env.SENTRY_DSN).install();
     app.use(Raven.requestHandler());
   }
 }
@@ -82,19 +85,19 @@ reloadConfiguration();
 
 //
 server.listen(
-    process.env.npm_package_config_server_port,
-    process.env.npm_package_config_server_host
+    process.env.SERVER_PORT,
+    process.env.SERVER_HOST
 );
 //
 console.log(
     chalk.green('Listening on ') +
     chalk.green.underline(
-        'http://' + process.env.npm_package_config_server_host + ':' +
-        process.env.npm_package_config_server_port
+        'http://' + process.env.SERVER_HOST + ':' +
+        process.env.SERVER_PORT
     )
 );
 
-const filesPublicDirectory = process.env.npm_package_config_files_dir + '/';
+const filesPublicDirectory = process.env.FILES_DIR + '/';
 const filesUploadDirectory = __dirname + '/public/' + filesPublicDirectory;
 // configure serializers
 passport.serializeUser(function(user, done) {
@@ -107,7 +110,7 @@ passport.deserializeUser(function(obj, done) {
 });
 // setup express session
 app.use(session({
-  secret: process.env.npm_package_config_security_session_secret,
+  secret: process.env.SECURITY_SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -123,8 +126,8 @@ app.use(SocketIOFileUploadSrv.router);
 mongoose.Promise = global.Promise;
 
 mongoose.connect(
-    process.env.npm_package_config_mongodb_uri,
-    {useMongoClient: true}
+    process.env.MONGODB_URI,
+    { useNewUrlParser: true, useUnifiedTopology: true }
     );
 
 let mongooseConnection = mongoose.connection;
@@ -206,7 +209,7 @@ mongooseConnection.once('open', function() {
         );
 
         return socketioJwt.authorize({
-          secret: process.env.npm_package_config_jwt_secret,
+          secret: process.env.JWT_SECRET,
           required: false, // authorization is always not required
           timeout: 5000    // 5 seconds to send the authentication message
         })(socket);
@@ -246,7 +249,7 @@ mongooseConnection.once('open', function() {
                       socket.join('user:' + webUser._id);
                       socket.webUser = webUser;
                       // now have a user context and can work
-                      if (process.env.npm_package_config_sentry_dsn) {
+                      if (process.env.SENTRY_DSN) {
                         Raven.setContext({user: webUser});
                       }
                       // handlers
@@ -338,7 +341,7 @@ mongooseConnection.once('open', function() {
           );
         }
         catch (e) {
-          if (process.env.npm_package_config_sentry_dsn) {
+          if (process.env.SENTRY_DSN) {
             Raven.captureException(e);
           } else {
             console.log(chalk.red('Error'), e);

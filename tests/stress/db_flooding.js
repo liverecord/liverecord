@@ -13,7 +13,7 @@ const maxComments = 1500;
 
 // fixes bugs with promises in mongoose
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.npm_package_config_mongodb_uri);
+mongoose.connect(PROCESS.ENV.MONGODB_URI);
 
 var mongooseConnection = mongoose.connection;
 mongooseConnection.on('error', console.error.bind(console, 'connection error:'));

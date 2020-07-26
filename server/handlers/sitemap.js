@@ -2,7 +2,6 @@
  * Created by zoonman on 12/26/16.
  */
 
-const natural = require('natural');
 const httpUtils = require('../common/http');
 const TopicSchema = require('../schema').Topic;
 const TOPICS_PER_PAGE = 1000;

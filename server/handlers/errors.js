@@ -5,6 +5,7 @@ const chalk = require('chalk');
 
 module.exports = () => {
   console.log('Error!!!', arguments);
+  process.exit(1);
   /*console.trace(
       chalk.red.bold('Stack trace:'),
       arguments[0]);

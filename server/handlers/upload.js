@@ -14,26 +14,30 @@ function uploadHandler(socket,
     filesUploadDirectory,
     filesPublicDirectory,
     errorHandler) {
+
   uploader.listen(socket);
-  uploader.on('start', function(event) {
-        var extension = path.extname(event.file.name)
+  uploader.on('start', (event) => {
+      const extension = path.extname(event.file.name)
             .toLowerCase()
             .replace('.', '');
 
-        if (process.env.npm_package_config_files_extensions_blacklist
-            && process.env.npm_package_config_files_extensions_blacklist.indexOf(
+      const {FILES_EXTENSIONS_BLACKLIST, FILES_EXTENSIONS_WHITELIST} = process.env;
+
+        if (FILES_EXTENSIONS_BLACKLIST
+            && FILES_EXTENSIONS_BLACKLIST.indexOf(
                 extension
             ) > -1) {
           uploader.abort(event.file.id, socket);
         }
-        if (process.env.npm_package_config_files_extensions_whitelist
-            && process.env.npm_package_config_files_extensions_whitelist.indexOf(
+        if (FILES_EXTENSIONS_WHITELIST
+            && FILES_EXTENSIONS_WHITELIST.indexOf(
                 extension
             ) === -1) {
           uploader.abort(event.file.id, socket);
         }
       }
   );
+
   uploader.on('saved', function(event) {
         console.log('saved', event.file.meta);
         if (event.file.success) {
@@ -42,7 +46,7 @@ function uploadHandler(socket,
                 if (err) {
                   errorHandler(err);
                 } else {
-                  var extension = path.extname(event.file.name)
+                  const extension = path.extname(event.file.name)
                       .replace('.', '')
                       .toLowerCase();
                   if (extension) {
@@ -65,8 +69,8 @@ function uploadHandler(socket,
                       fs.mkdirSync(targetDirectory);
                     }
 
-                    var filePath = targetDirectory + '/' + event.file.base + '.' + extension;
-                    var fileWebPath = '/' + filesPublicDirectory + (event.file.meta.avatar ? 'a/' : 'f/') + buildPath(
+                    const filePath = path.join(targetDirectory , event.file.base) + '.' + extension;
+                    const fileWebPath = '/' + filesPublicDirectory + (event.file.meta.avatar ? 'a/' : 'f/') + buildPath(
                             hash
                         ) + '/' + event.file.base + '.' + extension;
                     if (event.file.meta.avatar) {
@@ -81,15 +85,16 @@ function uploadHandler(socket,
                                 if (err) {
                                   fs.unlink(event.file.pathName);
                                   return errorHandler(err)
-                                } else {
-                                  socket.emit(
-                                      'user.avatar',
-                                      {absolutePath: fileWebPath}
-                                  );
-                                  fs.unlink(event.file.pathName);// don't care
-                                                                 // when it is
-                                                                 // done
                                 }
+
+                                socket.emit(
+                                    'user.avatar',
+                                    {absolutePath: fileWebPath}
+                                );
+                                fs.unlink(event.file.pathName);// don't care
+                                                               // when it is
+                                                               // done
+
                               }
                           );
                     } else {
@@ -135,9 +140,8 @@ function uploadHandler(socket,
                                               )
                                           )
                                       );
-                                    }, function(reason) {
-                                      errorHandler(reason);
-                                    }
+                                    },
+                                    errorHandler
                                 );
                               }
                               catch (e) {
@@ -150,10 +154,10 @@ function uploadHandler(socket,
                               socket.emit(
                                   'file.uploaded',
                                   {
-                                    extension: extension,
+                                    extension,
                                     hasAlpha: false,
                                     name: event.file.name,
-                                    friendlyName: friendlyName,
+                                    friendlyName,
                                     size: event.file.size,
                                     absolutePath: fileWebPath
                                   }

@@ -46,7 +46,7 @@ function notifyAdmins() {
    html: '<div style="white-space: pre-line;">' + topic.body + '</div>' +
    '<hr>' +
    '<a href="' +
-   'http://' + process.env.npm_package_config_server_name +
+   'http://' + process.env.SERVER_NAME +
    '/' + detailedTopic.category.slug +
    '/' +
    '' + detailedTopic.slug +

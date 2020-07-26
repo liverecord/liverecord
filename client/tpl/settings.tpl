@@ -94,7 +94,6 @@
 
     </div>
 
-
     <div>
       <h2>{{'Device specific settings'|translate}}</h2>
       <p><small>{{'Erased after exit'|translate}}</small></p>

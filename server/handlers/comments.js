@@ -2,9 +2,6 @@
  * Created by zoonman on 12/10/16.
  */
 const xtend = require('xtend');
-const chalk = require('chalk');
-const oembed = require('oembed');
-const UrlClass = require('url');
 
 const async = require('async');
 const models = require('../schema');
@@ -27,13 +24,7 @@ function addAttachments(comment, callback) {
   var retrievals = {};
   urls.forEach(function(url) {
     retrievals[url] = function(retrievalDone) {
-      /*oembed.fetch(url, {maxwidth: 1920}, function(err, oinfo) {
-        if (err) {
-          retrievalDone(null, null);
-        } else {
-          retrievalDone(null, oinfo);
-        }
-      });*/
+
 
       engine.describe(url, function(oinfo) {
         console.log('Metaphor', oinfo);
@@ -87,7 +78,7 @@ function updateTopicAndFanOut(socket, foundTopic, savedComment) {
 
   models.Topic.update(
       {
-        topic: foundTopic._id
+        _id: foundTopic._id
       },
       {
         $set: {
@@ -331,9 +322,9 @@ function comments(socket, io, antiSpam, webpush) {
                                 detailedComment
                             );
                             var commentUrl =
-                                process.env.npm_package_config_server_protocol +
+                                process.env.SERVER_PROTOCOL +
                                 '://' +
-                                process.env.npm_package_config_server_name +
+                                process.env.SERVER_NAME +
                                 '/' + foundTopic.category.slug +
                                 '/' +
                                 foundTopic.slug +

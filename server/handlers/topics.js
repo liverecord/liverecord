@@ -65,36 +65,36 @@ function topics(socket, handleError) {
           .exec(function(err, topics) {
                 if (err) {
                   handleError(err);
-                } else {
-                  if (topics) {
-                    //console.log('patches:', patches)
-                    if (patches) {
-                      for (var i = 0, l = topics.length; i < l; i++) {
-                        patches.forEach(function(patch) {
-                          //console.log('topics[i]._id',
-                          // topics[i]._id, patch._id);
-                          if (topics[i]._id.toString() ===
-                              patch._id.toString()) {
-
-                            //console.log('match');
-                            topics[i]['updates'] = patch.updates;
-
-                          }
-                        });
-                      }
-                      //console.log(topics)
-                    }
-                    socket.emit(
-                        'topics',
-                        TopicListStruct(topics)
-                    );
-                  }
+                  return;
                 }
+
+                if (!topics) {
+                  return;
+                }
+
+                if (!patches) {
+                  socket.emit(
+                      'topics',
+                      TopicListStruct(topics)
+                  );
+                }
+                const patchedTopics = topics.map((topic, tid) => {
+                  patches.map((patch) => {
+                    if (topic._id.toString() === patch._id.toString()) {
+                      topic['updates'] = patch.updates;
+                    }
+                  })
+                  return topic;
+                });
+                socket.emit(
+                    'topics',
+                    TopicListStruct(patchedTopics)
+                );
               }
           );
     };
 
-    var resolveCategory = function(callback) {
+    const resolveCategory = (callback) => {
       models
           .Category
           .findOne({slug: requestData.category})
@@ -211,8 +211,8 @@ function topics(socket, handleError) {
 
         if (subscription.type) {
 
-          var getTopics = function(conditions, slug, patches) {
-            var options = {}, sortOptions = {};
+          const getTopics = (conditions, slug, patches) => {
+            let options = {}, sortOptions = {};
             if (subscription.term) {
               conditions['$text'] = { $search: subscription.term };
               options = { score: { $meta: 'textScore' } };
