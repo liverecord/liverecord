@@ -1,8 +1,8 @@
 const errorHandler = require('./handlers/errors');
 
-process.on('uncaughtException', errorHandler);
-process.on('UnhandledPromiseRejectionWarning', errorHandler);
-process.on('DeprecationWarning', errorHandler);
+//process.on('uncaughtException', errorHandler);
+//process.on('UnhandledPromiseRejectionWarning', errorHandler);
+//process.on('DeprecationWarning', errorHandler);
 
 const death = require('death');
 const mongoose = require('mongoose');
@@ -54,7 +54,7 @@ app.set('frontLiveRecordConfig', frontLiveRecordConfig);
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-var reloadConfiguration = () => {
+const reloadConfiguration = () => {
   frontLiveRecordConfig.version = fs
       .readFileSync(
           __dirname + '/public/version.txt', 'utf8'
@@ -66,12 +66,6 @@ var reloadConfiguration = () => {
 //
 if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
   mongoose.set('debug', true);
-  const vfs = require('vinyl-fs');
-  vfs.watch(
-      __dirname + '/public/version.txt',
-      {interval: 1000},
-      reloadConfiguration
-  );
 } else {
   // use Raven to capture errors on production
   if (process.env.SENTRY_DSN) {
@@ -299,7 +293,7 @@ mongooseConnection.once('open', function() {
                   io.of('/').in(roomName).clients(function(error, clients) {
                     if (error) throw error;
                     console.log('video-init-pc', clients);
-                    var sp = clients.indexOf(socket.id);
+                    const sp = clients.indexOf(socket.id);
                     clients.splice(sp, 1);
                     clients.unshift(socket.id); // call initiator always will be first
                     console.log('video-init-pc-after-unshift', clients);

@@ -34,7 +34,7 @@
     "url": "https://github.com/liverecord/liverecord/issues"
   },
   "scripts": {
-    "start-dev": "dotenv-load node server/server.js",
+    "start-dev": "NODE_ENV=development dotenv-load node server/server.js",
     "start": "dotenv-load pm2 start server/server.js",
     "stop": "dotenv-load  pm2 stop server/server.js",
     "debug": "NODE_ENV=development dotenv-load node -v server/server.js",
