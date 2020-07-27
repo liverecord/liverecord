@@ -3,9 +3,13 @@
  */
 const xtend = require('xtend');
 
-const async = require('async');
-const models = require('../schema');
-const Topic = models.Topic;
+const { get: opGet } = require('object-path');
+const {
+  Comment,
+  User,
+  Topic,
+  TopicFanOut
+} = require('../schema');
 const CommentStruct = require('./envelope').comment;
 const TypingStruct = require('./envelope').typing;
 const TopicListStruct = require('./envelope').topicList;
@@ -16,28 +20,34 @@ const push = require('./push');
 const getUrls = require('./geturls');
 const Metaphor = require('metaphor');
 
-function addAttachments(comment, callback) {
-  let urls = getUrls(comment.body);
+async function addAttachments(nc) {
+  let urls = getUrls(nc.body);
   console.log('urls', urls);
   const engine = new Metaphor.Engine();
-
-  var retrievals = {};
-  urls.forEach(function(url) {
-    retrievals[url] = function(retrievalDone) {
-
-
-      engine.describe(url, function(oinfo) {
-        console.log('Metaphor', oinfo);
-        retrievalDone(null, oinfo);
-
-      });
-    };
+  const embeddingResults = await Promise.all(urls.map(async (url) => {
+    return new Promise((res, rej) => {
+      engine.describe(url, res);
+    });
+  }));
+  console.log('embeddingResults', embeddingResults);
+  nc.attachments = embeddingResults.map((info) => {
+    let thumbnailUrl = opGet(info, 'image.url');
+    if (!thumbnailUrl && opGet(info, 'embed.type', '') === 'photo') {
+      thumbnailUrl = opGet(info, 'embed.url')
+    }
+    if (!thumbnailUrl) {
+      thumbnailUrl = opGet(info, 'icon.any');
+    }
+    return {
+      type: info.type,
+      title: info.title || info.site_name || '-',
+      link: info.url,
+      description: opGet(info, 'description'),
+      thumbnailUrl,
+      html: opGet(info, 'embed.html', '')
+    }
   });
-  if (urls.length > 0) {
-    async.parallel(retrievals, callback);
-  } else {
-    callback(null, {});
-  }
+  return nc;
 }
 
 function updateHandler(err, data) {
@@ -47,7 +57,7 @@ function updateHandler(err, data) {
 }
 
 function updateTopicAndFanOut(socket, foundTopic, savedComment) {
-  models.TopicFanOut.update(
+  TopicFanOut.update(
       {
         topic: foundTopic._id,
         user: socket.webUser._id
@@ -61,7 +71,7 @@ function updateTopicAndFanOut(socket, foundTopic, savedComment) {
       },
       {upsert: true}
   ).exec(updateHandler);
-  models.TopicFanOut.update(
+  TopicFanOut.update(
       {
         topic: foundTopic._id,
         user: {$ne: socket.webUser._id}
@@ -76,7 +86,7 @@ function updateTopicAndFanOut(socket, foundTopic, savedComment) {
       }
   ).exec(updateHandler);
 
-  models.Topic.update(
+  Topic.update(
       {
         _id: foundTopic._id
       },
@@ -90,9 +100,7 @@ function updateTopicAndFanOut(socket, foundTopic, savedComment) {
 }
 
 function broadcastToDiscussionParticipants(io, socket, foundTopic, webTopic) {
-  //
-  models
-      .TopicFanOut
+      TopicFanOut
       .find({
         topic: foundTopic._id,
         user: {$ne: socket.webUser._id}
@@ -127,8 +135,7 @@ function broadcastToDiscussionParticipants(io, socket, foundTopic, webTopic) {
 }
 
 function sendEmailNotifications(socket, savedComment, foundTopic, commentUrl) {
-  models
-      .Comment
+      Comment
       .distinct('user',
           {topic: savedComment.topic},
           function(err, userList) {
@@ -158,8 +165,8 @@ function sendEmailNotifications(socket, savedComment, foundTopic, commentUrl) {
                   commentUrl +
                   '">Открыть тему</a>';
 
-              models
-                  .User
+
+                  User
                   .find({
                         _id: {$in: userList},
                         online: false,
@@ -191,184 +198,118 @@ function sendEmailNotifications(socket, savedComment, foundTopic, commentUrl) {
 
 function comments(socket, io, antiSpam, webpush) {
 
-  socket.on('comment', function(comment, fn) {
+  socket.on('comment', async (comment, fn) => {
 
-        comment = xtend(
-            {
-              'body': '',
-              'topic': {_id: ''}
-            },
-            comment
+        const { body } = comment;
+        const { topic } = comment;
+
+        if (!body) {
+          return;
+        }
+        if (!topic) {
+          return;
+        }
+
+        const foundTopic = await Topic.findOne({_id: comment.topic._id}).populate([
+              {path: 'category', options: {lean: true}}
+            ]
         );
 
+        if (!foundTopic) {
+          return;
+        }
+
+
+        const nc = new Comment();
+        nc.topic = foundTopic;
+
         try {
-          comment.body = purify(comment.body, false, true);
+          nc.body = purify(body, false, true);
         }
         catch (e) {
-          comment.body = purify(comment.body, true);
+          nc.body = purify(body, true);
         }
 
-        if (comment.body.length > 0) {
+        if (nc.body) {
+          nc.classification = antiSpam.getClassifications(
+              comment.body
+          );
 
-          addAttachments(comment, function(err, embeddingResults) {
+          nc.spam = false;
+          nc.user = socket.webUser;
 
-            console.log('err embeddingResults', err);
-            console.log('embeddingResults', embeddingResults);
+          await addAttachments(nc);
 
-            comment.attachments = [];
-            /*
-  */
-            if (embeddingResults) {
+          const savedComment = await nc.save();
+          fn(CommentStruct(savedComment));
 
-              for (let link in embeddingResults) {
-                if (embeddingResults.hasOwnProperty(link) &&
-                    embeddingResults[link]) {
-                  //
-                  let info = embeddingResults[link];
-                  let thumbnailUrl = '';
-                  let html = '';
-                  let description = '';
-                  let title = 'View';
-                  if (info.image && info.image.url) {
-                    thumbnailUrl = info.image.url;
-                  }
-                  if (info.embed && info.embed.html) {
-                    html = info.embed.html;
-                  }
-                  if (!thumbnailUrl && info.embed && info.embed.type &&  info.embed.type === 'photo') {
-                    thumbnailUrl = info.embed.url;
-                  }
-                  if (!thumbnailUrl && info.icon && info.icon.any) {
-                    thumbnailUrl = info.icon.any;
-                  }
-                  if (info.site_name) {
-                    title = info.site_name;
-                  }
-                  if (info.title) {
-                    title = info.title;
-                  }
-                  if (info.description) {
-                    description = info.description;
-                  }
-                  var attachment = {
-                    type: info.type + '',
-                    title: title,
-                    link: link,
-                    description: description,
-                    thumbnailUrl: thumbnailUrl,
-                    html: html
-                  };
-                  comment.attachments.push(attachment);
-                }
+          const channel = 'topics:' + foundTopic.category.slug;
+
+          const pComment = savedComment.toObject();
+          pComment['user'] = socket.webUser;
+
+          console.log('socket.webUser', socket.webUser);
+          console.log('pComment', savedComment.toObject());
+
+          const detailedComment = CommentStruct(pComment);
+          io.emit(channel, detailedComment);
+
+          const simpleTopic = foundTopic.toObject();
+          simpleTopic.updated = savedComment.created;
+          simpleTopic.updates = +(simpleTopic.user._id != savedComment.user._id);
+          io.emit(
+              channel,
+              TopicListStruct([simpleTopic])
+          );
+
+          io.emit(
+              'topic:' + foundTopic.slug,
+              detailedComment
+          );
+          const commentUrl =
+              process.env.SERVER_PROTOCOL +
+              '://' +
+              process.env.SERVER_NAME +
+              '/' + foundTopic.category.slug +
+              '/' +
+              foundTopic.slug +
+              '#comment_' + savedComment._id;
+
+          sendEmailNotifications(
+              socket,
+              savedComment,
+              foundTopic,
+              commentUrl
+          );
+
+          updateTopicAndFanOut(
+              socket,
+              foundTopic,
+              savedComment
+          );
+
+          broadcastToDiscussionParticipants(
+              io,
+              socket,
+              foundTopic,
+              simpleTopic
+          );
+
+          const pushPayload = JSON.stringify({
+                action: 'subscribe',
+                title: socket.webUser.name +
+                    ' комментирует ' + foundTopic.title,
+                id: savedComment._id,
+                link: commentUrl,
+                image: socket.webUser.picture,
+                body: purify(comment.body, true)
               }
-            }
+          );
+          push.notifyUsers(
+              webpush, foundTopic, socket, pushPayload
+          );
+          antiSpam.processComment(savedComment);
 
-
-            console.log('comment', comment);
-
-
-            Topic
-                .findOne({_id: comment.topic._id})
-                .populate([
-                      {path: 'category', options: {lean: true}}
-                    ]
-                )
-                .then(function(foundTopic) {
-
-                      console.log('foundTopic::', foundTopic)
-
-                      comment.classification = antiSpam.getClassifications(
-                          comment.body
-                      );
-
-                      comment.spam = false;
-                      comment.user = socket.webUser;
-
-                  console.log('ready comment', comment);
-
-
-                  var newComment = new models.Comment(comment);
-                  console.log('ready newComment', newComment);
-                      //newComment.user = socket.webUser._id;
-
-                      newComment
-                          .save()
-                          .then(function(savedComment) {
-
-                            fn(CommentStruct(savedComment));
-
-                            var channel = 'topics:' +
-                                foundTopic.category.slug;
-
-                            var pComment = savedComment.toObject();
-                            pComment['user'] = socket.webUser;
-
-                            console.log(' socket.webUser', socket.webUser);
-                            console.log('pComment', savedComment.toObject());
-
-                            const detailedComment = CommentStruct(pComment);
-                            io.emit(channel, detailedComment);
-
-                            var simpleTopic = foundTopic.toObject();
-                            simpleTopic.updated = savedComment.created;
-                            simpleTopic.updates = +(simpleTopic.user._id != savedComment.user._id);
-                            io.emit(
-                                channel,
-                                TopicListStruct([simpleTopic])
-                            );
-
-                            io.emit(
-                                'topic:' + foundTopic.slug,
-                                detailedComment
-                            );
-                            var commentUrl =
-                                process.env.SERVER_PROTOCOL +
-                                '://' +
-                                process.env.SERVER_NAME +
-                                '/' + foundTopic.category.slug +
-                                '/' +
-                                foundTopic.slug +
-                                '#comment_' + savedComment._id;
-
-
-                            sendEmailNotifications(
-                                socket,
-                                savedComment,
-                                foundTopic,
-                                commentUrl
-                            );
-                            updateTopicAndFanOut(
-                                socket,
-                                foundTopic,
-                                savedComment
-                            );
-                            broadcastToDiscussionParticipants(
-                                io,
-                                socket,
-                                foundTopic,
-                                simpleTopic
-                            );
-
-                            const pushPayload = JSON.stringify({
-                                  action: 'subscribe',
-                                  title: socket.webUser.name +
-                                  ' комментирует ' + foundTopic.title,
-                                  id: savedComment._id,
-                                  link: commentUrl,
-                                  image: socket.webUser.picture,
-                                  body: purify(comment.body, true)
-                                }
-                            );
-                            push.notifyUsers(
-                                webpush, foundTopic, socket, pushPayload
-                            );
-                            antiSpam.processComment(savedComment);
-
-                          })
-                          .catch(errorHandler);
-                })
-                .catch(errorHandler);
-          });
         } else {
           fn({error: 'too_short'});
         }
@@ -387,8 +328,7 @@ function comments(socket, io, antiSpam, webpush) {
   );
 
   socket.on('vote', function(voteData) {
-    // {path: 'user', select: 'name picture slug rank'}
-        models.Comment
+        Comment
             .findOne({_id: voteData.comment._id})
            // .select('topic rating solution')
             .populate({
@@ -421,8 +361,7 @@ function comments(socket, io, antiSpam, webpush) {
                       }
                       return;
                   }
-                  models
-                      .CommentVote
+                                        CommentVote
                       .update({
                             comment: foundComment._id,
                             user: socket.webUser._id
@@ -435,8 +374,8 @@ function comments(socket, io, antiSpam, webpush) {
                           {upsert: true}
                       )
                       .then(function(updateResult) {
-                            return models
-                                .CommentVote
+                            return
+                                CommentVote
                                 .aggregate([
                                       {$match: {comment: foundComment._id}},
                                       {
@@ -464,7 +403,7 @@ function comments(socket, io, antiSpam, webpush) {
   );
 
   socket.on('report', function(voteData) {
-        models.Comment
+        Comment
             .findOne({_id: voteData.comment._id})
             .then(function(foundComment) {
                   'use strict';
@@ -481,7 +420,7 @@ function comments(socket, io, antiSpam, webpush) {
   );
 
   var markCommentAs = function(comment, label) {
-    models.Comment.findOne({_id: comment}).then(function(comment) {
+    Comment.findOne({_id: comment}).then(function(comment) {
       if (comment) {
         var commentText = purify(comment.body, true);
         antiSpam.classifier.addDocument(commentText, label);

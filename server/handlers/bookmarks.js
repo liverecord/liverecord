@@ -1,56 +1,49 @@
-/**
- * Created by zoonman on 11/19/16.
- */
-const Bookmark = require('../schema').Bookmark;
-const xtend = require('xtend');
+const {Bookmark} = require('../schema');
 
 module.exports = function(socket, handleError) {
-  socket.on('bookmark', function(sreq, socketCallback) {
+  socket.on('bookmark', async (sreq, socketCallback) => {
 
-        sreq = xtend({
-          'topic': ''
-        }, sreq
-        );
+        const { topic } = sreq;
 
-        Bookmark
-            .findOne({topic: sreq.topic, user: socket.webUser})
-            .then(function(bookmark) {
-                  if (bookmark) {
-                    bookmark
-                        .remove()
-                        .then(function() {
-                              socketCallback({bookmarked: false});
-                            }
-                        ).catch(function(reason) {
-                          socketCallback({bookmarked: false});
-                          handleError(reason);
-                        }
-                    );
-                  } else {
-                    let newBookmark = new Bookmark({
-                      topic: sreq.topic,
-                      user: socket.webUser
-                    }
-                    );
-                    newBookmark
-                        .save()
-                        .then((savedBookmark) => {
-                              socketCallback({bookmarked: true});
-                            }
-                        )
-                        .catch((reason) => {
-                              socketCallback({bookmarked: false});
-                              handleError(reason);
-                            }
-                        );
-                  }
-                }
-            )
-            .catch((reason) => {
-                  socketCallback({bookmarked: false});
-                  handleError(reason);
+        if (!topic) {
+          return ;
+        }
+
+        const { webUser } = socket;
+        if (!webUser) {
+          return;
+        }
+
+        const { _id: user} = webUser;
+
+        if (!user) {
+          return;
+        }
+
+        const bookmark = await Bookmark
+            .findOne({topic, user});
+
+        if (!bookmark) {
+          try {
+            const newBookmark = new Bookmark({
+                  topic,
+                  user
                 }
             );
+            const savedBookmark = await newBookmark.save();
+            return socketCallback({bookmarked: true});
+          } catch (e) {
+            socketCallback({bookmarked: false});
+            return handleError(e);
+          }
+        }
+
+        try {
+          await bookmark.remove();
+        } catch (e) {
+          socketCallback({bookmarked: true});
+          return handleError(e);
+        }
       }
   );
 };
