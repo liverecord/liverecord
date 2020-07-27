@@ -36,7 +36,7 @@ let paths = {
     'node_modules/angular-animate/angular-animate.js',
     //'node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js',
     'node_modules/socket.io-client/dist/socket.io.js',
-    'node_modules/perfect-scrollbar/dist/js/perfect-scrollbar.js',
+    'node_modules/perfect-scrollbar/dist/perfect-scrollbar.js',
     'node_modules/angular-sanitize/angular-sanitize.js',
     'node_modules/ngstorage/ngStorage.js',
     'node_modules/fastclick/lib/fastclick.js',
@@ -62,7 +62,7 @@ let paths = {
   images: 'client/images/**/*',
   css: [
     './client/styles/index.styl',
-    './node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css',
+    './node_modules/perfect-scrollbar/css/perfect-scrollbar.css',
     './node_modules/font-awesome/css/font-awesome.css',
     './node_modules/angular-tooltips/dist/angular-tooltips.css',
     './client/styles/**.css',
