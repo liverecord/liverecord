@@ -22,6 +22,7 @@ const uploadHandler = require('./handlers/upload');
 const pushHandler = require('./handlers/push');
 const staticHandlers = require('./handlers/static');
 const fs = require('fs');
+const path = require('path');
 const webpush = require('web-push');
 const chalk = require('chalk');
 const passport = require('passport');
@@ -52,15 +53,21 @@ app.set('frontLiveRecordConfig', frontLiveRecordConfig);
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
+const versionFilePath = path.join(__dirname, 'public', 'version.txt');
+
 const reloadConfiguration = () => {
-  frontLiveRecordConfig.version = fs
-      .readFileSync(
-          __dirname + '/public/version.txt', 'utf8'
-      )
-      .trim();
-  console.log(chalk.grey('Configuration reloaded'));
-  io.emit('command', 'window.location.reload(true);');
+
+  if (fs.existsSync(versionFilePath)) {
+    frontLiveRecordConfig.version = fs
+    .readFileSync(versionFilePath
+        , 'utf8'
+    )
+    .trim();
+    console.log(chalk.grey('Configuration reloaded'));
+    io.emit('command', 'window.location.reload(true);');
+  }
 };
+
 //
 if (process.env.NODE_ENV && 'development' === process.env.NODE_ENV) {
   mongoose.set('debug', true);
